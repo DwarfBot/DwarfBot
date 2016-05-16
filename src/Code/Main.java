@@ -54,7 +54,7 @@ public class Main {
 	}
 	
 	@SuppressWarnings("unused")
-	private static void getTileset(int ID) {
+	private static void printTileset(int ID) {
 		TilesetManager bot = new TilesetManager();
 		ArrayList<Tileset> tilesets = bot.getTilesets();
 		
@@ -78,7 +78,7 @@ public class Main {
 		}
 	}
 	
-	private static void convertImage(int tilesetConvertTo) {
+	private static void convertImage(int tilesetIDConvertTo) {
 		int numTilesetsToCheck = 7;//How many tilesets are we checking against?
 		
 		//Load in tilesets
@@ -95,14 +95,16 @@ public class Main {
 		//Neccessary data management
 		Random rng = new Random();
 		
-		//Sample a few spots to see if they all return the same result.
-
-			
-		//Test each tileset for a match.
 		int offsetx = 0;
 		int offsety = 0;
 		int tilesetID;
 
+		//The way I detect tilesets:
+		//I check each tileset one by one.
+		//I make multiple attempts to match a tileset, in case of error.
+		//I do not expect the tile grid to line up with the edges of the image, so I vary the tile starting position, using offsetx and offsety.
+		//I check every tile in the tileset to see if it matches.
+		//If the tile from the tileset is the same color, I abandon the attempt. It leads to false positives in black areas.
 		for (tilesetID = 0; tilesetID < numTilesetsToCheck; tilesetID++) {
 			System.out.println(tilesetID);
 			tilesetMatchCount.add(0);//0 matches so far. Will update later if any matches found.
@@ -259,7 +261,8 @@ public class Main {
 		DecodedImage decoded = readTiles(toConvert, tilesets, basexList.get(bestTilesetMatch), baseyList.get(bestTilesetMatch), bestTilesetMatch);
 
 		//Re-render the image with the new tileset
-		exportRenderedImage(decoded, tilesets, tilesetConvertTo, "Resources/Art.png");
+		exportRenderedImage(decoded, tilesets, bestTilesetMatch, "Resources" + "/Decoded.png");
+		exportRenderedImage(decoded, tilesets, tilesetIDConvertTo, "Resources" + IMAGE_EXPORT_PATH);
 		//exportRenderedImage(tiles, tilesets, tilesetConvertTo, convertTileWidth, convertTileHeight,  "Resources" + IMAGE_EXPORT_PATH);
 	}
 	
