@@ -19,6 +19,9 @@ import javax.imageio.ImageIO;
  * 
  * It can also be used to take an image and render some DF pop art. This
  * mode, toggled by setting artistic to true in init(), can take awhile.
+ * 
+ * Some example images to convert are at Resources/ImageXXX.png
+ * 
  */
 
 public class Main {
@@ -31,17 +34,17 @@ public class Main {
 	
 	public static void init() {
 		//IMAGE_IMPORT_PATH = "/Image_Vidumec15x15.png";
-		IMAGE_IMPORT_PATH = "/b.png";
+		IMAGE_IMPORT_PATH = "/Image1.png";
 		IMAGE_EXPORT_PATH = "/Converted.png";
 		threshold = 40;
-		artistic = true;
+		artistic = false;
 	}
 	
 	public static void main(String [] args) {
 		init();
 		//findTileset("Vidum");
 		//refreshTilesets();
-		convertImage(1);
+		convertImage(57);
 		//14 anikki 8x8
 		//57 vidume 15x15 Uses alpha
 		//112 - Good for rendering too.
@@ -79,7 +82,7 @@ public class Main {
 	}
 	
 	private static void convertImage(int tilesetIDConvertTo) {
-		int numTilesetsToCheck = 7;//How many tilesets are we checking against?
+		int numTilesetsToCheck = 161;//How many tilesets are we checking against?
 		
 		//Load in tilesets
 		TilesetManager bot = new TilesetManager();
@@ -283,7 +286,9 @@ public class Main {
 		int convertTileHeight = (toConvert.getHeight()-basey)/tileHeight;//How many tiles tall the image to be converted is.
 		
 		for (int col = 0; col < convertTileWidth; col++) {
-			System.out.println(((double)col/convertTileWidth) + "%");
+			if (col%5 == 0) {
+				System.out.println(((double)col/convertTileWidth) + "%");
+			}
 			for (int row = 0; row < convertTileHeight; row++) {
 				BufferedImage sampleImg = toConvert.getSubimage(basex + col*tileWidth, basey + row*tileHeight, tileWidth, tileHeight);
 				if (artistic) {
@@ -322,12 +327,13 @@ public class Main {
 						} else if (tile == 255) {
 							if (!artistic) {
 								tiles.add(null);//On purpose
+								tileFound = true;
 								break TestTiles;
 							}
 						}
 					}
 					threshold += 10;
-				} while (!tileFound || !artistic);
+				} while (!tileFound);
 			}
 		}
 		
