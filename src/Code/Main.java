@@ -1,0 +1,548 @@
+package Code;
+
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Random;
+
+import javax.imageio.ImageIO;
+
+/**
+ * 
+ * @author ErnieParke
+ * 
+ * This code converts an DF image from one tileset to another tileset.
+ * 
+ * It can also be used to take an image and render some DF pop art. This
+ * mode, toggled by setting artistic to true in init(), can take awhile.
+ */
+
+public class Main {
+
+	private static String IMAGE_IMPORT_PATH;//The location of the image to be converted.
+	private static String IMAGE_EXPORT_PATH;//The location of the converted image to be converted.
+	
+	private static int threshold;
+	private static boolean artistic;//Changes parsing slightly for making artistic DF pieces
+	
+	public static void init() {
+		//IMAGE_IMPORT_PATH = "/Image_Vidumec15x15.png";
+		IMAGE_IMPORT_PATH = "/b.png";
+		IMAGE_EXPORT_PATH = "/Converted.png";
+		threshold = 40;
+		artistic = true;
+	}
+	
+	public static void main(String [] args) {
+		init();
+		//findTileset("Vidum");
+		//refreshTilesets();
+		convertImage(1);
+		//14 anikki 8x8
+		//57 vidume 15x15 Uses alpha
+		//112 - Good for rendering too.
+	}
+	
+	@SuppressWarnings("unused")
+	private static void refreshTilesets() {
+		TilesetManager bot = new TilesetManager();
+		bot.refreshTilesets();
+	}
+	
+	@SuppressWarnings("unused")
+	private static void getTileset(int ID) {
+		TilesetManager bot = new TilesetManager();
+		ArrayList<Tileset> tilesets = bot.getTilesets();
+		
+		for (int i = 0; i < tilesets.size(); i++) {
+			if (i == ID) {
+				System.out.println(tilesets.get(ID));
+			}
+		}
+	}
+	
+	@SuppressWarnings("unused")
+	private static void findTileset(String author) {
+		TilesetManager bot = new TilesetManager();
+		ArrayList<Tileset> tilesets = bot.getTilesets();
+		
+		for (int i = 0; i < tilesets.size(); i++) {
+			Tileset tileset = tilesets.get(i);
+			if (tileset.getAuthor().contains(author)) {
+				System.out.println(i);
+			}
+		}
+	}
+	
+	private static void convertImage(int tilesetConvertTo) {
+		int numTilesetsToCheck = 7;//How many tilesets are we checking against?
+		
+		//Load in tilesets
+		TilesetManager bot = new TilesetManager();
+		ArrayList<Tileset> tilesets = bot.getTilesets();
+		ArrayList<Integer> tilesetMatchCount = new ArrayList<Integer>();//How closely does a tileset match the image to convert?
+		int bestTilesetMatch = 0;
+		ArrayList<Integer> basexList = new ArrayList<Integer>();
+		ArrayList<Integer> baseyList = new ArrayList<Integer>();
+		
+		//Read in our image.
+		BufferedImage toConvert = loadImage(IMAGE_IMPORT_PATH);
+		
+		//Neccessary data management
+		Random rng = new Random();
+		
+		//Sample a few spots to see if they all return the same result.
+
+			
+		//Test each tileset for a match.
+		int offsetx = 0;
+		int offsety = 0;
+		int tilesetID;
+
+		for (tilesetID = 0; tilesetID < numTilesetsToCheck; tilesetID++) {
+			System.out.println(tilesetID);
+			tilesetMatchCount.add(0);//0 matches so far. Will update later if any matches found.
+			
+			//Load tileset.
+			Tileset tileset = tilesets.get(tilesetID);
+			System.out.println(tileset.getImagePath());
+			BufferedImage tilesetImg = loadImage("/Tilesets" + tileset.getImagePath());
+			
+			//Read in some vars.
+			int tileWidth = tileset.getTileWidth();
+			int tileHeight = tileset.getTileHeight();
+			
+			//Does the tileset use alpha or a pink background?
+			boolean tilesetUsesAlpha = false;
+			BufferedImage tileImg = tilesetImg.getSubimage(0, 2*tileHeight, tileWidth, tileHeight);
+
+			Color c = new Color(tileImg.getRGB(0, 0), true);
+			tilesetUsesAlpha = c.getAlpha() != 255;
+			
+			boolean tilesetMatches = false;
+			
+			int x = 0;
+			int y = 0;
+			
+		TestTileset:
+			for (double attempts = 0; attempts < 5 && !tilesetMatches; attempts++) {
+				if (toConvert.getWidth() - 2*tileWidth+1 < 0 || toConvert.getWidth() - 2*tileHeight+1 < 0) {
+					break TestTileset;//Tiles from this tileset cannot fit inside the image.
+				}
+				x = rng.nextInt(toConvert.getWidth() - 2*tileWidth+1);
+				y = rng.nextInt(toConvert.getHeight() - 2*tileHeight+1);
+				
+			TestAttempt:
+				for (offsetx = 0; offsetx < tileset.getTileWidth(); offsetx++) {
+					for (offsety = 0; offsety < tileset.getTileHeight(); offsety++) {
+						//Get a sample section of the screenshot.
+						
+					
+						//Check each tile in the tileset.
+						for (int tile = 0; tile < 256; tile++) {
+							int tileCol = tile%16;
+							int tileRow = (tile - tileCol)/16;
+							tileImg = tilesetImg.getSubimage(tileCol*tileWidth, tileRow*tileHeight, tileWidth, tileHeight);
+							
+							BufferedImage sampleImg = toConvert.getSubimage(x + offsetx, y + offsety, tileWidth, tileHeight);
+							
+							//Check if sampleImg is all black. If true, ignore with minor attempt penalty.
+							//The reason I do it here and not later is because the checkSimlarity method only returns a boolean
+							boolean sameColor = true;
+							Color baseColor = null;
+						checkTileSameColor:
+							for (int col = 0; col < tileWidth; col++) {
+								for (int row = 0; row < tileHeight; row++) {
+									Color sampleC = new Color(sampleImg.getRGB(col, row), true);
+									if (baseColor == null) {
+										baseColor = new Color(sampleC.getRed(), sampleC.getGreen(), sampleC.getBlue(), sampleC.getAlpha());
+									} else if (!baseColor.equals(sampleC)) {
+										sameColor = false;
+										break checkTileSameColor;
+									}
+								}
+							}
+							if (sameColor) {
+								attempts -= 0.6;//0.4 attempt penalty
+								//saveImage(sampleImg, "Resources/ImageAA" + Math.floor(attempts) + ".png");
+								break TestAttempt;
+							} else {
+								//saveImage(sampleImg, "Resources/ImageBB" + Math.floor(attempts) + ".png");
+							}
+							
+							//Does it match?
+							if (checkSimilarity(sampleImg, tileImg, tilesetUsesAlpha) != null) {
+								tilesetMatches = true;
+								
+								
+								break TestTileset;
+							}
+						}
+					}
+				}
+			}
+			
+			if (tilesetMatches) {
+				//See how closely the tileset matches the screenshot.
+				int numMatches = 0;
+				
+				int basex = (x + offsetx)%tileWidth;
+				int basey = (y + offsety)%tileHeight;
+				basexList.add(basex);
+				baseyList.add(basey);
+				
+				for (int col = 0; col < (toConvert.getWidth()-basex)/tileWidth; col++) {
+					for (int row = 0; row < (toConvert.getHeight()-basey)/tileHeight; row++) {
+						BufferedImage sampleImg = toConvert.getSubimage(basex + col*tileWidth, basey + row*tileHeight, tileWidth, tileHeight);
+						
+						//Check each tile in the tileset.
+					tileSearch:
+						for (int tile = 0; tile < 256; tile++) {
+							if (artistic) {
+								//These tiles mess with art rendering.
+								if (tile == 219 || tile == 0 || tile == 32 || tile == 158) {
+									tile++;
+								}
+								if (tile == 176) {
+									tile = 179;
+								}
+								if (tile == 255) {
+									continue;
+								}
+							}
+							int tileCol = tile%16;
+							int tileRow = (tile - tileCol)/16;
+							tileImg = tilesetImg.getSubimage(tileCol*tileWidth, tileRow*tileHeight, tileWidth, tileHeight);
+							
+							if (checkSimilarity(sampleImg, tileImg, tilesetUsesAlpha) != null) {
+								numMatches++;
+								break tileSearch;
+							}
+						}
+					}
+				}
+				
+				tilesetMatchCount.set(tilesetID, numMatches);
+				if (numMatches == 0) {
+					//Contradictory if no matches found when one match is confirmed. Faulty code above!!
+					throw new Error();
+				}
+
+			} else {
+				//Tileset does not match
+				basexList.add(0);
+				baseyList.add(0);
+			}
+		}
+		
+		//Find tileset with most matched area.
+		for (tilesetID = 0; tilesetID < numTilesetsToCheck; tilesetID++) {
+			Tileset tileset = tilesets.get(tilesetID);
+			Tileset best = tilesets.get(bestTilesetMatch);
+			double tileSize = tileset.getTileWidth()*tileset.getTileHeight();
+			double tileSize2 = best.getTileWidth()*best.getTileHeight();
+			if ( tilesetMatchCount.get(tilesetID)*tileSize > tilesetMatchCount.get(bestTilesetMatch)*tileSize2 ) {
+				bestTilesetMatch = tilesetID;
+			}
+		}
+		
+		if (tilesetMatchCount.get(bestTilesetMatch) == 0) {
+			System.out.println("No suitable match found.");
+			return;
+		}
+		
+		//Now that I know the tileset of the image, decode the image into its colors and tile id's
+		DecodedImage decoded = readTiles(toConvert, tilesets, basexList.get(bestTilesetMatch), baseyList.get(bestTilesetMatch), bestTilesetMatch);
+
+		//Re-render the image with the new tileset
+		exportRenderedImage(decoded, tilesets, tilesetConvertTo, "Resources/Art.png");
+		//exportRenderedImage(tiles, tilesets, tilesetConvertTo, convertTileWidth, convertTileHeight,  "Resources" + IMAGE_EXPORT_PATH);
+	}
+	
+	private static DecodedImage readTiles(BufferedImage toConvert, ArrayList<Tileset> tilesets, int basex, int basey, int tilesetID) {
+		Tileset tileset = tilesets.get(tilesetID);//The tileset you think this image is in.
+		BufferedImage tilesetImg = loadImage("/Tilesets" + tileset.getImagePath());//Get its image.
+		int tileWidth = tileset.getTileWidth();//How wide is a tile? Pixels.
+		int tileHeight = tileset.getTileHeight();//How tall is a tile?
+		System.out.println("Detected:" + tileset.getAuthor() + ":" + tileset.getImagePath());//It's kind of the program to think of us...
+		
+		boolean tilesetUsesAlpha = false;//Does the tileset use alpha? This affects how the tileset is rendered.
+		BufferedImage tileImg = tilesetImg.getSubimage(0, 2*tileHeight, tileWidth, tileHeight);
+		Color c = new Color(tileImg.getRGB(0, 0), true);
+		tilesetUsesAlpha = c.getAlpha() != 255;
+
+		ArrayList<Tile> tiles = new ArrayList<Tile>();//Set up some "storage" variables. This stores what tiles are found.
+		int convertTileWidth = (toConvert.getWidth()-basex)/tileWidth;//How many tiles wide the image to be converted is.
+		int convertTileHeight = (toConvert.getHeight()-basey)/tileHeight;//How many tiles tall the image to be converted is.
+		
+		for (int col = 0; col < convertTileWidth; col++) {
+			System.out.println(((double)col/convertTileWidth) + "%");
+			for (int row = 0; row < convertTileHeight; row++) {
+				BufferedImage sampleImg = toConvert.getSubimage(basex + col*tileWidth, basey + row*tileHeight, tileWidth, tileHeight);
+				if (artistic) {
+					threshold = 10;
+				} else {
+					threshold = 5;
+				}
+				boolean tileFound = false;
+				
+				do {
+				TestTiles:
+					for (int tile = 0; tile < 256; tile++) {
+						if (artistic) {
+							//These tiles mess with art rendering.
+							if (tile == 219 || tile == 0 || tile == 32 || tile == 158) {
+								tile++;
+							}
+							if (tile == 176) {
+								tile = 179;
+							}
+							if (tile == 255) {
+								continue;
+							}
+						}
+						int tileCol = tile%16;
+						int tileRow = (tile - tileCol)/16;
+						tileImg = tilesetImg.getSubimage(tileCol*tileWidth, tileRow*tileHeight, tileWidth, tileHeight);
+						
+						Tile tileObj = checkSimilarity(sampleImg, tileImg, tilesetUsesAlpha);
+
+						if (tileObj != null) {
+							tileObj.setID(tile);
+							tiles.add(tileObj);
+							tileFound = true;
+							break TestTiles;
+						} else if (tile == 255) {
+							if (!artistic) {
+								tiles.add(null);//On purpose
+								break TestTiles;
+							}
+						}
+					}
+					threshold += 10;
+				} while (!tileFound || !artistic);
+			}
+		}
+		
+		return new DecodedImage(tiles, convertTileWidth, convertTileHeight);
+	}
+	
+	private static void exportRenderedImage(DecodedImage decoded, ArrayList<Tileset> tilesets, int tilesetConvertTo, String exportPath) {
+		//Read in decoded info.
+		ArrayList<Tile> tiles = decoded.getTiles();
+		int convertTileWidth = decoded.getTilesWide();
+		int convertTileHeight = decoded.getTilesTall();
+		
+		//Data management
+		int tilesetID = tilesetConvertTo;//What tileset am I converting to.
+		Tileset tileset = tilesets.get(tilesetID);//Get that tileset.
+		BufferedImage tilesetImg = loadImage("/Tilesets" + tileset.getImagePath());//And its image.
+		int tileWidth = tileset.getTileWidth();//How wide are the tiles? Pixels
+		int tileHeight = tileset.getTileHeight();//How tall are the tiles?
+		System.out.println("Render to tileset:" + tileset.getAuthor() + ":" + tileset.getImagePath());//Handy.
+		
+		boolean tilesetUsesAlpha = false;//Does the tileset use alpha? This affects rendering.
+		BufferedImage tileImg = tilesetImg.getSubimage(0, 2*tileHeight, tileWidth, tileHeight);
+		Color c = new Color(tileImg.getRGB(0, 0), true);
+		tilesetUsesAlpha = c.getAlpha() != 255;
+		
+		//Set up image to write to
+		BufferedImage output = new BufferedImage(convertTileWidth*tileWidth, convertTileHeight*tileHeight, BufferedImage.TYPE_INT_RGB);
+		Graphics2D g2 = output.createGraphics();
+		g2.setColor(Color.BLACK);//Fill with black. Touche.
+		g2.fill(new Rectangle(0, 0, 1000, 1000));
+		
+		for (int col = 0; col < convertTileWidth; col++) {
+			for (int row = 0; row < convertTileHeight; row++) {
+				final Color PINK = new Color(255, 0, 255);
+				Tile tile = tiles.get(col*convertTileHeight + row);
+				
+				if (tile != null) {
+					//Grab tile
+					int tileID = tile.getID();
+					int tileCol = tileID%16;
+					int tileRow = (tileID - tileCol)/16;
+					tileImg = tilesetImg.getSubimage(tileCol*tileWidth, tileRow*tileHeight, tileWidth, tileHeight);
+					
+					for (int x = 0; x < tileWidth; x++) {
+						for (int y = 0; y < tileHeight; y++) {
+							
+							//Grab tile color
+							Color tileC = new Color(tileImg.getRGB(x,  y), true);
+							Color toDraw;
+							
+							if (tilesetUsesAlpha) {
+								toDraw = Color.BLACK;
+								boolean tileCisGrey = Math.abs(tileC.getRed()-tileC.getBlue()) < 8 && Math.abs(tileC.getRed() - tileC.getGreen()) < 8;
+								if (tileCisGrey) {
+									double grey = (tileC.getRed() + tileC.getGreen() + tileC.getBlue())/3.0;//Average out. This is done because of the high "grey" tolerance.
+									double transparency = grey/255.0;
+									double alpha = tileC.getAlpha()/255.0;//1.0 = foreground, 0.0 = background
+									Color foreground = tile.getForegroundColor();
+									Color background = tile.getBackgroundColor();
+									toDraw = new Color((int)((foreground.getRed()*transparency)*alpha + (background.getRed())*(1-alpha)),
+										(int)((foreground.getGreen()*transparency)*alpha + (background.getGreen())*(1-alpha)),
+										(int)((foreground.getBlue()*transparency)*alpha + (background.getBlue())*(1-alpha)));
+								} else {
+									boolean tileCisSemiGrey = Math.abs(tileC.getRed()-tileC.getBlue()) < 8 && Math.abs(tileC.getRed() - tileC.getGreen()) < 8;
+									if (tileCisSemiGrey) {
+										
+									} else {
+										double alpha = tileC.getAlpha()/255.0;//1.0 = foreground, 0.0 = background
+										toDraw = new Color(tileC.getRed(), tileC.getGreen(), tileC.getBlue());
+										Color background = tile.getBackgroundColor();
+										toDraw = new Color((int)((tileC.getRed())*alpha + (background.getRed())*(1-alpha)),
+												(int)((tileC.getGreen())*alpha + (background.getGreen())*(1-alpha)),
+												(int)((tileC.getBlue())*alpha + (background.getBlue())*(1-alpha)));
+									}
+								}
+							} else {
+								if (tileC.equals(PINK)) {
+									toDraw = tile.getBackgroundColor();
+								} else {
+									boolean tileCisGrey = Math.abs(tileC.getRed()-tileC.getBlue()) < 2 && Math.abs(tileC.getRed() - tileC.getGreen()) < 2;
+									if (tileCisGrey) {
+										double transparency = tileC.getRed()/255.0;
+										toDraw = new Color((int)(tile.getForegroundColor().getRed()*transparency),
+												(int)(tile.getForegroundColor().getGreen()*transparency),
+												(int)(tile.getForegroundColor().getBlue()*transparency));
+									} else {
+										toDraw = new Color(tileC.getRed(), tileC.getGreen(), tileC.getBlue());
+									}
+								}
+							}
+							g2.setColor(toDraw);
+							g2.fill(new Rectangle(col*tileWidth + x, row*tileHeight + y, 1, 1));
+						}
+					}
+				}
+			}
+		}
+		
+		g2.dispose();
+		
+		saveImage(output, exportPath);
+	}
+	
+	private static Tile checkSimilarity(BufferedImage sampleImg, BufferedImage tileImg, boolean tilesetUsesAlpha) {
+		return checkSimilarity(sampleImg, tileImg, tilesetUsesAlpha, false);
+	}
+	
+	private static Tile checkSimilarity(BufferedImage sampleImg, BufferedImage tileImg, boolean tilesetUsesAlpha, boolean meh) {
+		//Check that two tile images are equal
+		//TileImg - The tile image pulled from the tileset.
+		//SampleImg - A section of image to compare.
+		final Color PINK = new Color(255, 0, 255);
+
+		Color backgroundColor = null;//The background color of the tile.
+		Color foregroundColor = null;//The foreground color of the tile.
+		//Check all pixels
+		for (int x2 = 0; x2 < tileImg.getWidth(); x2++) {
+			for (int y2 = 0; y2 < tileImg.getHeight(); y2++) {
+				Color sampleC = new Color(sampleImg.getRGB(x2, y2));//From screenshot
+				Color tileC = new Color(tileImg.getRGB(x2, y2), true);//From tileset
+				
+				if (tilesetUsesAlpha) {
+					//Currently do not handle alpha tilesets because they are weird.
+					return null;
+				} else {
+					if (tileC.equals(PINK)) {
+						if (backgroundColor == null) {
+							//Assign background color.
+							backgroundColor = new Color(sampleC.getRed(), sampleC.getGreen(), sampleC.getBlue());
+						} else {
+							//Check for similarity
+							if (artistic) {
+								if (Math.abs(backgroundColor.getRed() - sampleC.getRed()) < threshold && 
+										Math.abs(backgroundColor.getGreen() - sampleC.getGreen()) < threshold &&
+										Math.abs(backgroundColor.getBlue() - sampleC.getBlue()) < threshold) {
+									//All's good
+								} else {
+									return null;
+								}
+							} else {
+								if (!sampleC.equals(backgroundColor)) {
+									//The sample should be background color, but is not.
+									return null;
+								}
+							}
+						}
+					} else {
+						boolean tileCisGrey = tileC.getRed() == tileC.getBlue() && tileC.getRed() == tileC.getGreen();
+						if (foregroundColor == null) {
+							if (tileCisGrey) {
+								//Assign foreground color.
+								double transparency = 255.0/tileC.getRed();
+								foregroundColor = new Color(Math.min((int)(transparency*sampleC.getRed()), 255),
+										Math.min((int)(transparency*sampleC.getGreen()), 255),
+										Math.min((int)(transparency*sampleC.getBlue()), 255));
+								if (foregroundColor.equals(backgroundColor)) {
+									//Shouldn't be the same.
+									return null;
+								}
+							}
+						} else {
+							//Check for similarity
+							if (tileCisGrey) {
+								//Check that sampleS is scalar of foreground color based on how white tileC is
+								
+								double transparency = (double)tileC.getRed()/255;
+								if (Math.abs(transparency*foregroundColor.getRed() - sampleC.getRed()) < threshold && 
+										Math.abs(transparency*foregroundColor.getGreen() - sampleC.getGreen()) < threshold &&
+										Math.abs(transparency*foregroundColor.getBlue() - sampleC.getBlue()) < threshold) {
+									//All's good
+								} else {
+									//fail
+									return null;
+								}
+							} else {
+								if (!sampleC.equals(tileC)) {
+									//The sample should be the tile color, but it is not.
+									return null;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		if (foregroundColor == null) {
+			foregroundColor = Color.WHITE;//To handle some egde cases.
+		}
+		if (backgroundColor == null) {
+			backgroundColor = Color.BLACK;//To handle some egde cases.
+		}
+		
+		return new Tile(backgroundColor, foregroundColor);
+	}
+	
+	public static BufferedImage loadImage(String path) {
+		BufferedImage image = null;
+		try {
+			image = ImageIO.read(Main.class.getResourceAsStream(path));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			System.out.println("Err");
+			e.printStackTrace();
+		}
+
+		return image;
+	}
+	
+	private static void saveImage(BufferedImage img, String title) {
+		try {
+		    // retrieve image
+		    BufferedImage bi = img;
+		    File outputfile = new File(title);
+		    outputfile.mkdirs();
+		    ImageIO.write(bi, "png", outputfile);
+		} catch (IOException e) {
+		    e.printStackTrace();
+		}
+	}
+}
