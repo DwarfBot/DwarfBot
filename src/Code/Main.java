@@ -411,10 +411,6 @@ public class Main {
 					int tileRow = (tileID - tileCol)/16;
 					tileImg = tilesetImg.getSubimage(tileCol*tileWidth, tileRow*tileHeight, tileWidth, tileHeight);
 					
-					if (col == 16 && row == 6) {
-						saveImage(tileImg, "Resources/tile.png");
-					}
-					
 					for (int x = 0; x < tileWidth; x++) {
 						for (int y = 0; y < tileHeight; y++) {
 							
@@ -437,12 +433,12 @@ public class Main {
 									double fgDegradation = 0.0;
 									float[] hsv = new float[3];//Hue = 0, Saturation = 1, Value = 2
 									Color.RGBtoHSB(tileC.getRed(), tileC.getGreen(), tileC.getBlue(), hsv);
-									float tileHue = hsv[0];//0...360
+									float tileHue = hsv[0];//0.0...1.0
 									float tileSaturation = hsv[1];//0.0...1.0
 									transparency = hsv[2];//0.0...1.0
 									float[] hsv2 = new float[3];
 									Color.RGBtoHSB(foreground.getRed(), foreground.getGreen(), foreground.getBlue(), hsv2);
-									float foregroundHue = hsv2[0];//0...360
+									float foregroundHue = hsv2[0];//0.0...1.0
 									float hueDifference = Math.abs(tileHue - foregroundHue);
 									hueDifference = Math.min(hueDifference, 1-hueDifference);
 									if (hueDifference < 0.16) {
