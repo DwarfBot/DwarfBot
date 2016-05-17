@@ -34,7 +34,7 @@ public class Main {
 	
 	public static void init() {
 		//IMAGE_IMPORT_PATH = "/Image_Vidumec15x15.png";
-		IMAGE_IMPORT_PATH = "/e.png";
+		IMAGE_IMPORT_PATH = "/c.png";
 		IMAGE_EXPORT_PATH = "/Converted.png";
 		threshold = 40;
 		artistic = false;
@@ -411,6 +411,10 @@ public class Main {
 					int tileRow = (tileID - tileCol)/16;
 					tileImg = tilesetImg.getSubimage(tileCol*tileWidth, tileRow*tileHeight, tileWidth, tileHeight);
 					
+					if (col == 16 && row == 6) {
+						saveImage(tileImg, "Resources/tile.png");
+					}
+					
 					for (int x = 0; x < tileWidth; x++) {
 						for (int y = 0; y < tileHeight; y++) {
 							
@@ -422,6 +426,7 @@ public class Main {
 								//The tileset uses alpha.
 								toDraw = Color.BLACK;
 									double alpha = tileC.getAlpha()/255.0;//1.0 = foreground, 0.0 = background
+									float transparency;
 									
 									Color foreground = tile.getForegroundColor();
 									Color background = tile.getBackgroundColor();
@@ -431,19 +436,37 @@ public class Main {
 									//The more saturated the tile, the greater the effect.
 									double fgDegradation = 0.0;
 									float[] hsv = new float[3];//Hue = 0, Saturation = 1, Value = 2
-									Color.RGBtoHSB(tileC.getRed(),tileC.getGreen(),tileC.getGreen(),hsv);
-									double tileHue = hsv[0];//0...360
-									double tileSaturation = hsv[1];//0.0...1.0
-									double transparency = hsv[2];//0.0...1.0
-									Color.RGBtoHSB(foreground.getRed(),foreground.getGreen(),foreground.getBlue(),hsv);
-									double foregroundHue = hsv[0];//0...360
-									double hueDifference = Math.abs(tileHue - foregroundHue);
-									hueDifference = Math.min(hueDifference, 360-hueDifference);
-									fgDegradation = (hueDifference/180.0)*tileSaturation;//1 = full degradation, 0 = no effect
+									Color.RGBtoHSB(tileC.getRed(), tileC.getGreen(), tileC.getBlue(), hsv);
+									float tileHue = hsv[0];//0...360
+									float tileSaturation = hsv[1];//0.0...1.0
+									transparency = hsv[2];//0.0...1.0
+									float[] hsv2 = new float[3];
+									Color.RGBtoHSB(foreground.getRed(), foreground.getGreen(), foreground.getBlue(), hsv2);
+									float foregroundHue = hsv2[0];//0...360
+									float hueDifference = Math.abs(tileHue - foregroundHue);
+									hueDifference = Math.min(hueDifference, 1-hueDifference);
+									if (hueDifference < 0.16) {
+										fgDegradation = 0.0;
+									} else if (hueDifference > 0.50 - 0.16) {
+										fgDegradation = tileSaturation;
+									} else {
+										fgDegradation = (hueDifference*2)*tileSaturation;//1 = full degradation, 0 = no effect
+									}
+									
+									//Dwarf Fortress also slightly tints the colors of the tiles.
+									int redBoost = 0;
+									int greenBoost = 0;
+									int blueBoost = 0;
+									if (alpha != 1.0) {
+										double average = (tileC.getRed() + tileC.getGreen() + tileC.getBlue())/3.0;
+										redBoost = (int)Math.min(Math.max(tileC.getRed()-average, 0), 25);
+										greenBoost = (int)Math.min(Math.max(tileC.getGreen()-average, 0), 25);
+										blueBoost = (int)Math.min(Math.max(tileC.getBlue()-average, 0), 25);
+									}
 
-									Color normal = new Color((int)((foreground.getRed()*transparency*(1 - fgDegradation))*alpha + (background.getRed())*(1-alpha)),
-											(int)((foreground.getGreen()*transparency*(1 - fgDegradation))*alpha + (background.getGreen())*(1-alpha)),
-											(int)((foreground.getBlue()*transparency*(1 - fgDegradation))*alpha + (background.getBlue())*(1-alpha)));//I think this is how colors are rendered.
+									Color normal = new Color((int)(((foreground.getRed() + redBoost)*transparency*(1 - fgDegradation))*alpha + (background.getRed())*(1-alpha)),
+											(int)(((foreground.getGreen() + greenBoost)*transparency*(1 - fgDegradation))*alpha + (background.getGreen())*(1-alpha)),
+											(int)(((foreground.getBlue() + blueBoost)*transparency*(1 - fgDegradation))*alpha + (background.getBlue())*(1-alpha)));//I think this is how colors are rendered.
 									toDraw = normal;
 							} else {
 								//The tileset does not use alpha.

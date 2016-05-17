@@ -174,7 +174,7 @@ Talryt, 2010-06-18
 /Talryth_square_15x15.png
 15 15
 Vidume, 2011-09-05
-/Vidumec_15x15b.png
+/Vidumec_15x15.png
 15 15
 Aesomatic, 2008-11-29
 /Aesomatica_16x16.png
