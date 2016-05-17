@@ -34,7 +34,7 @@ public class Main {
 	
 	public static void init() {
 		//IMAGE_IMPORT_PATH = "/Image_Vidumec15x15.png";
-		IMAGE_IMPORT_PATH = "/Image1.png";
+		IMAGE_IMPORT_PATH = "/c.png";
 		IMAGE_EXPORT_PATH = "/Converted.png";
 		threshold = 40;
 		artistic = false;
@@ -82,7 +82,7 @@ public class Main {
 	}
 	
 	private static void convertImage(int tilesetIDConvertTo) {
-		int numTilesetsToCheck = 161;//How many tilesets are we checking against?
+		int numTilesetsToCheck = 3;//How many tilesets are we checking against?
 		
 		//Load in tilesets
 		TilesetManager bot = new TilesetManager();
@@ -135,18 +135,28 @@ public class Main {
 			
 		TestTileset:
 			for (double attempts = 0; attempts < 5 && !tilesetMatches; attempts++) {
-				if (toConvert.getWidth() - 2*tileWidth+1 < 0 || toConvert.getWidth() - 2*tileHeight+1 < 0) {
+				if ( toConvert.getWidth() < tileWidth || toConvert.getWidth() < tileHeight ) {
 					break TestTileset;//Tiles from this tileset cannot fit inside the image.
 				}
-				x = rng.nextInt(toConvert.getWidth() - 2*tileWidth+1);
-				y = rng.nextInt(toConvert.getHeight() - 2*tileHeight+1);
+				if ( toConvert.getWidth() < 2*tileWidth ) {
+					//The image is not two tiles wide. Be conservative.
+					x = 0;
+				} else {
+					x = rng.nextInt(toConvert.getWidth() - 2*tileWidth);
+				}
+				if ( toConvert.getWidth() < tileHeight*2 ) {
+					//The image is not two tiles tall. Be conservative.
+					y = 0;
+				} else {
+					y = rng.nextInt(toConvert.getHeight() - 2*tileHeight);
+				}
+				
+				int spaceAllotedX = Math.min(toConvert.getWidth() - tileWidth, tileWidth);//How much space can we vary 
 				
 			TestAttempt:
-				for (offsetx = 0; offsetx < tileset.getTileWidth(); offsetx++) {
-					for (offsety = 0; offsety < tileset.getTileHeight(); offsety++) {
-						//Get a sample section of the screenshot.
-						
-					
+				for (offsetx = 0; offsetx < spaceAllotedX; offsetx++) {
+					int spaceAllotedY = Math.min(toConvert.getHeight() - tileHeight, tileHeight);
+					for (offsety = 0; offsety < spaceAllotedY; offsety++) {
 						//Check each tile in the tileset.
 						for (int tile = 0; tile < 256; tile++) {
 							int tileCol = tile%16;
@@ -320,6 +330,29 @@ public class Main {
 						Tile tileObj = checkSimilarity(sampleImg, tileImg, tilesetUsesAlpha);
 
 						if (tileObj != null) {
+							//Prefer tile 32 or 219 over tile 0 if they match.
+							if (tile == 0) {
+								Color bg = tileObj.getBackgroundColor();
+								if (bg.getRed() + bg.getGreen() + bg.getBlue() < 100) {
+									//Anything dim enough is likely an unexplored tile.
+									tileImg = tilesetImg.getSubimage(tileCol*tileWidth, (tileRow+2)*tileHeight, tileWidth, tileHeight);
+									Tile temp = checkSimilarity(sampleImg, tileImg, tilesetUsesAlpha);
+									if (temp != null) {
+										//Tile 32 does match
+										tileObj = temp;
+										tile = 32;
+									}
+								} else {
+									//Anything bright enough is likely an explored tile.
+									tileImg = tilesetImg.getSubimage(11*tileWidth, 13*tileHeight, tileWidth, tileHeight);
+									Tile temp = checkSimilarity(sampleImg, tileImg, tilesetUsesAlpha);
+									if (temp != null) {
+										//Tile 32 does match
+										tileObj = temp;
+										tile = 219;
+									}
+								}
+							}
 							tileObj.setID(tile);
 							tiles.add(tileObj);
 							tileFound = true;
@@ -373,6 +406,7 @@ public class Main {
 				if (tile != null) {
 					//Grab tile
 					int tileID = tile.getID();
+					//System.out.println(tileID + ":" + tile.getForegroundColor() + ":" + tile.getBackgroundColor());
 					int tileCol = tileID%16;
 					int tileRow = (tileID - tileCol)/16;
 					tileImg = tilesetImg.getSubimage(tileCol*tileWidth, tileRow*tileHeight, tileWidth, tileHeight);
@@ -385,8 +419,9 @@ public class Main {
 							Color toDraw;
 							
 							if (tilesetUsesAlpha) {
+								//The tileset uses alpha.
 								toDraw = Color.BLACK;
-								boolean tileCisGrey = Math.abs(tileC.getRed()-tileC.getBlue()) < 8 && Math.abs(tileC.getRed() - tileC.getGreen()) < 8;
+								boolean tileCisGrey = Math.abs(tileC.getRed()-tileC.getBlue()) < 2 && Math.abs(tileC.getRed() - tileC.getGreen()) < 2;
 								if (tileCisGrey) {
 									double grey = (tileC.getRed() + tileC.getGreen() + tileC.getBlue())/3.0;//Average out. This is done because of the high "grey" tolerance.
 									double transparency = grey/255.0;
@@ -397,19 +432,26 @@ public class Main {
 										(int)((foreground.getGreen()*transparency)*alpha + (background.getGreen())*(1-alpha)),
 										(int)((foreground.getBlue()*transparency)*alpha + (background.getBlue())*(1-alpha)));
 								} else {
-									boolean tileCisSemiGrey = Math.abs(tileC.getRed()-tileC.getBlue()) < 8 && Math.abs(tileC.getRed() - tileC.getGreen()) < 8;
-									if (tileCisSemiGrey) {
-										
-									} else {
-										double alpha = tileC.getAlpha()/255.0;//1.0 = foreground, 0.0 = background
-										toDraw = new Color(tileC.getRed(), tileC.getGreen(), tileC.getBlue());
-										Color background = tile.getBackgroundColor();
-										toDraw = new Color((int)((tileC.getRed())*alpha + (background.getRed())*(1-alpha)),
-												(int)((tileC.getGreen())*alpha + (background.getGreen())*(1-alpha)),
-												(int)((tileC.getBlue())*alpha + (background.getBlue())*(1-alpha)));
-									}
+									double grey = (tileC.getRed() + tileC.getGreen() + tileC.getBlue())/3.0;//Average out.
+									double transparency = grey/255.0;
+									double alpha = tileC.getAlpha()/255.0;//1.0 = foreground, 0.0 = background
+									Color foreground = tile.getForegroundColor();
+									Color background = tile.getBackgroundColor();
+									
+									Color normal = new Color((int)((foreground.getRed()*transparency)*alpha + (background.getRed())*(1-alpha)),
+											(int)((foreground.getGreen()*transparency)*alpha + (background.getGreen())*(1-alpha)),
+											(int)((foreground.getBlue()*transparency)*alpha + (background.getBlue())*(1-alpha)));
+									/*toDraw = new Color((int)((tileC.getRed())*alpha + (normal.getRed())*(1 - alpha)),
+										(int)((tileC.getGreen())*alpha + (normal.getGreen())*(1 - alpha)),
+										(int)((tileC.getBlue())*alpha + (normal.getBlue())*(1 - alpha)));//I think this is how colors are rendered.*/
+									toDraw = normal;
+									
+									/*toDraw = new Color((int)((tileC.getRed())*alpha*alpha + (background.getRed())*(1-alpha)),
+											(int)((tileC.getGreen())*alpha*alpha + (background.getGreen())*(1-alpha)),
+											(int)((tileC.getBlue())*alpha*alpha + (background.getBlue())*(1-alpha)));*/
 								}
 							} else {
+								//The tileset does not use alpha.
 								if (tileC.equals(PINK)) {
 									toDraw = tile.getBackgroundColor();
 								} else {
