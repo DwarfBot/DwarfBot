@@ -34,7 +34,7 @@ public class Main {
 	
 	public static void init() {
 		//IMAGE_IMPORT_PATH = "/Image_Vidumec15x15.png";
-		IMAGE_IMPORT_PATH = "/c.png";
+		IMAGE_IMPORT_PATH = "/e.png";
 		IMAGE_EXPORT_PATH = "/Converted.png";
 		threshold = 40;
 		artistic = false;
@@ -82,7 +82,7 @@ public class Main {
 	}
 	
 	private static void convertImage(int tilesetIDConvertTo) {
-		int numTilesetsToCheck = 3;//How many tilesets are we checking against?
+		int numTilesetsToCheck = 1;//How many tilesets are we checking against?
 		
 		//Load in tilesets
 		TilesetManager bot = new TilesetManager();
@@ -421,35 +421,30 @@ public class Main {
 							if (tilesetUsesAlpha) {
 								//The tileset uses alpha.
 								toDraw = Color.BLACK;
-								boolean tileCisGrey = Math.abs(tileC.getRed()-tileC.getBlue()) < 2 && Math.abs(tileC.getRed() - tileC.getGreen()) < 2;
-								if (tileCisGrey) {
-									double grey = (tileC.getRed() + tileC.getGreen() + tileC.getBlue())/3.0;//Average out. This is done because of the high "grey" tolerance.
-									double transparency = grey/255.0;
 									double alpha = tileC.getAlpha()/255.0;//1.0 = foreground, 0.0 = background
-									Color foreground = tile.getForegroundColor();
-									Color background = tile.getBackgroundColor();
-									toDraw = new Color((int)((foreground.getRed()*transparency)*alpha + (background.getRed())*(1-alpha)),
-										(int)((foreground.getGreen()*transparency)*alpha + (background.getGreen())*(1-alpha)),
-										(int)((foreground.getBlue()*transparency)*alpha + (background.getBlue())*(1-alpha)));
-								} else {
-									double grey = (tileC.getRed() + tileC.getGreen() + tileC.getBlue())/3.0;//Average out.
-									double transparency = grey/255.0;
-									double alpha = tileC.getAlpha()/255.0;//1.0 = foreground, 0.0 = background
+									
 									Color foreground = tile.getForegroundColor();
 									Color background = tile.getBackgroundColor();
 									
-									Color normal = new Color((int)((foreground.getRed()*transparency)*alpha + (background.getRed())*(1-alpha)),
-											(int)((foreground.getGreen()*transparency)*alpha + (background.getGreen())*(1-alpha)),
-											(int)((foreground.getBlue()*transparency)*alpha + (background.getBlue())*(1-alpha)));
-									/*toDraw = new Color((int)((tileC.getRed())*alpha + (normal.getRed())*(1 - alpha)),
-										(int)((tileC.getGreen())*alpha + (normal.getGreen())*(1 - alpha)),
-										(int)((tileC.getBlue())*alpha + (normal.getBlue())*(1 - alpha)));//I think this is how colors are rendered.*/
+									//The hue and saturation of the tileset tile affect the dimness of the foreground color.
+									//The greater the difference in the hue of the foreground and tile colors, the duller the rendered color.
+									//The more saturated the tile, the greater the effect.
+									double fgDegradation = 0.0;
+									float[] hsv = new float[3];//Hue = 0, Saturation = 1, Value = 2
+									Color.RGBtoHSB(tileC.getRed(),tileC.getGreen(),tileC.getGreen(),hsv);
+									double tileHue = hsv[0];//0...360
+									double tileSaturation = hsv[1];//0.0...1.0
+									double transparency = hsv[2];//0.0...1.0
+									Color.RGBtoHSB(foreground.getRed(),foreground.getGreen(),foreground.getBlue(),hsv);
+									double foregroundHue = hsv[0];//0...360
+									double hueDifference = Math.abs(tileHue - foregroundHue);
+									hueDifference = Math.min(hueDifference, 360-hueDifference);
+									fgDegradation = (hueDifference/180.0)*tileSaturation;//1 = full degradation, 0 = no effect
+
+									Color normal = new Color((int)((foreground.getRed()*transparency*(1 - fgDegradation))*alpha + (background.getRed())*(1-alpha)),
+											(int)((foreground.getGreen()*transparency*(1 - fgDegradation))*alpha + (background.getGreen())*(1-alpha)),
+											(int)((foreground.getBlue()*transparency*(1 - fgDegradation))*alpha + (background.getBlue())*(1-alpha)));//I think this is how colors are rendered.
 									toDraw = normal;
-									
-									/*toDraw = new Color((int)((tileC.getRed())*alpha*alpha + (background.getRed())*(1-alpha)),
-											(int)((tileC.getGreen())*alpha*alpha + (background.getGreen())*(1-alpha)),
-											(int)((tileC.getBlue())*alpha*alpha + (background.getBlue())*(1-alpha)));*/
-								}
 							} else {
 								//The tileset does not use alpha.
 								if (tileC.equals(PINK)) {
@@ -492,10 +487,11 @@ public class Main {
 		Color backgroundColor = null;//The background color of the tile.
 		Color foregroundColor = null;//The foreground color of the tile.
 		//Check all pixels
+		Color tileC = null;
 		for (int x2 = 0; x2 < tileImg.getWidth(); x2++) {
 			for (int y2 = 0; y2 < tileImg.getHeight(); y2++) {
 				Color sampleC = new Color(sampleImg.getRGB(x2, y2));//From screenshot
-				Color tileC = new Color(tileImg.getRGB(x2, y2), true);//From tileset
+				tileC = new Color(tileImg.getRGB(x2, y2), true);//From tileset
 				
 				if (tilesetUsesAlpha) {
 					//Currently do not handle alpha tilesets because they are weird.
@@ -563,10 +559,10 @@ public class Main {
 		}
 		
 		if (foregroundColor == null) {
-			foregroundColor = Color.WHITE;//To handle some egde cases.
+			foregroundColor = Color.BLACK;//To handle some edge cases.
 		}
 		if (backgroundColor == null) {
-			backgroundColor = Color.BLACK;//To handle some egde cases.
+			backgroundColor = Color.BLACK;//To handle some edge cases.
 		}
 		
 		return new Tile(backgroundColor, foregroundColor);
