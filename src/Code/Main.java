@@ -34,7 +34,7 @@ public class Main {
 	
 	public static void init() {
 		//IMAGE_IMPORT_PATH = "/Image_Vidumec15x15.png";
-		IMAGE_IMPORT_PATH = "/c.png";
+		IMAGE_IMPORT_PATH = "/d.png";
 		IMAGE_EXPORT_PATH = "/Converted.png";
 		threshold = 40;
 		artistic = false;
@@ -44,10 +44,10 @@ public class Main {
 		init();
 		//findTileset("Vidum");
 		//refreshTilesets();
-		convertImage(57);
-		//14 anikki 8x8
+		convertImage(112);
+		//14 anikki 8x8 Nice solid tileset
 		//57 vidume 15x15 Uses alpha
-		//112 - Good for rendering too.
+		//112 - Uses alpha, good for rendering
 	}
 	
 	@SuppressWarnings("unused")
@@ -87,10 +87,10 @@ public class Main {
 		//Load in tilesets
 		TilesetManager bot = new TilesetManager();
 		ArrayList<Tileset> tilesets = bot.getTilesets();
-		ArrayList<Integer> tilesetMatchCount = new ArrayList<Integer>();//How closely does a tileset match the image to convert?
+		ArrayList<Integer> tilesetMatchCount = new ArrayList<Integer>();//How closely does a tileset match the image to convert? This counts the number of matching tiles.
 		int bestTilesetMatch = 0;
-		ArrayList<Integer> basexList = new ArrayList<Integer>();
-		ArrayList<Integer> baseyList = new ArrayList<Integer>();
+		ArrayList<Integer> basexList = new ArrayList<Integer>();//The offsetx where a tile match was detected.
+		ArrayList<Integer> baseyList = new ArrayList<Integer>();//The offsety where a tile match was detected.
 		
 		//Read in our image.
 		BufferedImage toConvert = loadImage(IMAGE_IMPORT_PATH);
@@ -444,26 +444,26 @@ public class Main {
 									if (hueDifference < 0.16) {
 										fgDegradation = 0.0;
 									} else if (hueDifference > 0.50 - 0.16) {
-										fgDegradation = tileSaturation;
+										fgDegradation = tileSaturation*alpha;
 									} else {
-										fgDegradation = (hueDifference*2)*tileSaturation;//1 = full degradation, 0 = no effect
+										fgDegradation = (hueDifference*2)*tileSaturation*alpha;//1 = full degradation, 0 = no effect
 									}
 									
-									//Dwarf Fortress also slightly tints the colors of the tiles.
+									//Dwarf Fortress a slightly tints the colors of the tiles.
 									int redBoost = 0;
 									int greenBoost = 0;
 									int blueBoost = 0;
-									if (alpha != 1.0) {
-										double average = (tileC.getRed() + tileC.getGreen() + tileC.getBlue())/3.0;
-										redBoost = (int)Math.min(Math.max(tileC.getRed()-average, 0), 25);
-										greenBoost = (int)Math.min(Math.max(tileC.getGreen()-average, 0), 25);
-										blueBoost = (int)Math.min(Math.max(tileC.getBlue()-average, 0), 25);
-									}
+									double average = transparency*255.0;
+									redBoost = (int)(Math.min(tileC.getRed()-average, 25)*(foreground.getRed()/255.0));
+									greenBoost = (int)(Math.min(tileC.getGreen()-average, 25)*(foreground.getGreen()/255.0));
+									blueBoost = (int)(Math.min(tileC.getBlue()-average, 25)*(foreground.getBlue()/255.0));
 
-									Color normal = new Color((int)(((foreground.getRed() + redBoost)*transparency*(1 - fgDegradation))*alpha + (background.getRed())*(1-alpha)),
-											(int)(((foreground.getGreen() + greenBoost)*transparency*(1 - fgDegradation))*alpha + (background.getGreen())*(1-alpha)),
-											(int)(((foreground.getBlue() + blueBoost)*transparency*(1 - fgDegradation))*alpha + (background.getBlue())*(1-alpha)));//I think this is how colors are rendered.
-									toDraw = normal;
+									int red = (int)(((foreground.getRed() + redBoost)*transparency*(1 - fgDegradation))*alpha + (background.getRed())*(1.0-alpha));
+									int green = (int)(((foreground.getGreen() + greenBoost)*transparency*(1 - fgDegradation))*alpha + (background.getGreen())*(1.0-alpha));
+									int blue = (int)(((foreground.getBlue() + blueBoost)*transparency*(1 - fgDegradation))*alpha + (background.getBlue())*(1.0-alpha));
+									toDraw = new Color(Math.min(Math.max(red, 0), 255),
+											Math.min(Math.max(green, 0), 255),
+											Math.min(Math.max(blue, 0), 255));//I think this is how colors are rendered.
 							} else {
 								//The tileset does not use alpha.
 								if (tileC.equals(PINK)) {
