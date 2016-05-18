@@ -266,8 +266,8 @@ public class Main {
 		}
 		
 		//Find tileset with most matched area.
-		int bestTilesetMatch = -1;
-		for (int tilesetID = 0; tilesetID < numTilesetsToCheck; tilesetID++) {
+		int bestTilesetMatch = 0;
+		for (int tilesetID = 1; tilesetID < numTilesetsToCheck; tilesetID++) {
 			Tileset tileset = tilesets.get(tilesetID);
 			Tileset best = tilesets.get(bestTilesetMatch);
 			double tileSize = tileset.getTileWidth()*tileset.getTileHeight();
