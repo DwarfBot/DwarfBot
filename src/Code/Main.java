@@ -303,7 +303,7 @@ public class Main {
 		
 		for (int col = 0; col < convertTileWidth; col++) {
 			if (col%5 == 0) {
-				System.out.println(((double)col/convertTileWidth) + "%");
+				System.out.println((100.0*col/convertTileWidth) + "%");
 			}
 			for (int row = 0; row < convertTileHeight; row++) {
 				BufferedImage sampleImg = toConvert.getSubimage(basex + col*tileWidth, basey + row*tileHeight, tileWidth, tileHeight);
