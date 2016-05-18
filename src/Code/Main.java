@@ -34,7 +34,7 @@ public class Main {
 	
 	public static void init() {
 		//IMAGE_IMPORT_PATH = "/Image_Vidumec15x15.png";
-		IMAGE_IMPORT_PATH = "/ImageLake.jpg";
+		IMAGE_IMPORT_PATH = "/Image_Anikki8x8.png";
 		IMAGE_EXPORT_PATH = "/Converted.png";
 		threshold = 40;
 		artistic = true;
@@ -102,7 +102,7 @@ public class Main {
 	}
 
 	private static TilesetDetected extractTileset( ArrayList<Tileset> tilesets, BufferedImage toConvert ) throws Error {
-		int numTilesetsToCheck = 7;//How many tilesets are we checking against?
+		int numTilesetsToCheck = 20;//How many tilesets are we checking against?
 		
 		ArrayList<Integer> tilesetMatchCount = new ArrayList<Integer>();//How closely does a tileset match the image to convert? This counts the number of matching tiles.
 		Random rng = new Random();
