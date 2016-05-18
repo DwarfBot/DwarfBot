@@ -42,8 +42,6 @@ public class Main {
 	
 	public static void main(String [] args) {
 		init();
-		//printTileset(22);
-		//refreshTilesets();
 		convertImage(112);
 		//14 anikki 8x8 Nice solid tileset
 		//57 vidume 15x15 Uses alpha
@@ -97,7 +95,6 @@ public class Main {
 		DecodedImage decoded = readTiles(toConvert, tilesets, detected.getBasex(), detected.getBasey(), detected.getTilesetID());
 
 		//Re-render the image with the new tileset
-		//exportRenderedImage(decoded, tilesets, bestTilesetMatch, "Resources" + "/Decoded.png");
 		exportRenderedImage(decoded, tilesets, tilesetIDConvertTo, "Resources" + IMAGE_EXPORT_PATH);
 	}
 
@@ -194,12 +191,9 @@ public class Main {
 							}
 							if (sameColor) {
 								attempts -= 0.6;//0.4 attempt penalty
-								//saveImage(sampleImg, "Resources/ImageAA" + Math.floor(attempts) + ".png");
 								break TestAttempt;
-							} else {
-								//saveImage(sampleImg, "Resources/ImageBB" + Math.floor(attempts) + ".png");
 							}
-							
+
 							//Does it match?
 							if (checkSimilarity(sampleImg, tileImg, tilesetUsesAlpha) != null) {
 								tilesetMatches = true;
@@ -412,7 +406,6 @@ public class Main {
 				if (tile != null) {
 					//Grab tile
 					int tileID = tile.getID();
-					//System.out.println(tileID + ":" + tile.getForegroundColor() + ":" + tile.getBackgroundColor());
 					int tileCol = tileID%16;
 					int tileRow = (tileID - tileCol)/16;
 					tileImg = tilesetImg.getSubimage(tileCol*tileWidth, tileRow*tileHeight, tileWidth, tileHeight);
