@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.concurrent.*;
 
 import javax.imageio.ImageIO;
 
@@ -241,6 +242,20 @@ public class Main {
         }
 	}
 
+	private static Callable<ArrayList<MatchObject>> threadCallableForTilesetRange(int start, int length, ArrayList<Tileset> allTilesets, BufferedImage toConvert) {
+		return new Callable<ArrayList<MatchObject>>() {
+			@Override
+			public ArrayList<MatchObject> call() throws Exception {
+				ArrayList<MatchObject> mObjs = new ArrayList<>();
+				Random threadRandom = new Random();
+				for (int i = start; i < start + length; i++) {
+					mObjs.add(matchObjectForTileset(allTilesets.get(i), threadRandom, toConvert));
+				}
+				return mObjs;
+			}
+		};
+	}
+
 	private static TilesetDetected extractTileset( ArrayList<Tileset> tilesets, BufferedImage toConvert ) throws Error {
 		int numTilesetsToCheck = 20;//How many tilesets are we checking against?
 		
@@ -252,13 +267,33 @@ public class Main {
 		
 		//The way I detect tilesets:
 		//I check each tileset one by one.
-		for (int tilesetID = 0; tilesetID < numTilesetsToCheck; tilesetID++) {
-			MatchObject matchObject = matchObjectForTileset(tilesets.get(tilesetID), rng, toConvert);
-			basexList.add(matchObject.getBasex());
-			baseyList.add(matchObject.getBasey());
-			tilesetMatchCount.add(matchObject.getMatchCount());
+
+		int numThreads = Math.min(8, numTilesetsToCheck / 2);
+		int typicalLength = (int)Math.ceil((double)numTilesetsToCheck / numThreads);
+		ExecutorService pool = Executors.newFixedThreadPool(numThreads);
+		ArrayList<Future<ArrayList<MatchObject>>> futures = new ArrayList<>();
+		for (int i = 0; i < numThreads; i++) {
+			int index = Math.max(numThreads - 1, i * typicalLength);
+			int length = Math.max(0, Math.min(numTilesetsToCheck - index, typicalLength));
+			System.out.println("Creating thread with index " + index + ", length " + length);
+			futures.add(pool.submit(threadCallableForTilesetRange(index, length, tilesets, toConvert)));
 		}
-		
+
+		for (Future<ArrayList<MatchObject>> future : futures) {
+			ArrayList<MatchObject> list;
+			try {
+				list = future.get();
+			} catch (Exception e) {
+				throw new Error("A thread failed. This shouldn't happen under normal usage.");
+			}
+			for (MatchObject matchObject : list) {
+				basexList.add(matchObject.getBasex());
+				baseyList.add(matchObject.getBasey());
+				tilesetMatchCount.add(matchObject.getMatchCount());
+			}
+		}
+		pool.shutdown();
+
 		//Find tileset with most matched area.
 		int bestTilesetMatch = 0;
 		for (int tilesetID = 1; tilesetID < numTilesetsToCheck; tilesetID++) {
