@@ -34,15 +34,15 @@ public class Main {
 	
 	public static void init() {
 		//IMAGE_IMPORT_PATH = "/Image_Vidumec15x15.png";
-		IMAGE_IMPORT_PATH = "/d.png";
+		IMAGE_IMPORT_PATH = "/ImageLake.jpg";
 		IMAGE_EXPORT_PATH = "/Converted.png";
 		threshold = 40;
-		artistic = false;
+		artistic = true;
 	}
 	
 	public static void main(String [] args) {
 		init();
-		//findTileset("Vidum");
+		//printTileset(22);
 		//refreshTilesets();
 		convertImage(112);
 		//14 anikki 8x8 Nice solid tileset
@@ -69,46 +69,54 @@ public class Main {
 	}
 	
 	@SuppressWarnings("unused")
-	private static void findTileset(String author) {
+	private static void findTileset(String identifier) {
 		TilesetManager bot = new TilesetManager();
 		ArrayList<Tileset> tilesets = bot.getTilesets();
 		
 		for (int i = 0; i < tilesets.size(); i++) {
 			Tileset tileset = tilesets.get(i);
-			if (tileset.getAuthor().contains(author)) {
+			if (tileset.getAuthor().contains(identifier) || tileset.getImagePath().contains(identifier)) {
 				System.out.println(i);
 			}
 		}
 	}
 	
 	private static void convertImage(int tilesetIDConvertTo) {
-		int numTilesetsToCheck = 1;//How many tilesets are we checking against?
-		
 		//Load in tilesets
 		TilesetManager bot = new TilesetManager();
 		ArrayList<Tileset> tilesets = bot.getTilesets();
-		ArrayList<Integer> tilesetMatchCount = new ArrayList<Integer>();//How closely does a tileset match the image to convert? This counts the number of matching tiles.
-		int bestTilesetMatch = 0;
-		ArrayList<Integer> basexList = new ArrayList<Integer>();//The offsetx where a tile match was detected.
-		ArrayList<Integer> baseyList = new ArrayList<Integer>();//The offsety where a tile match was detected.
 		
 		//Read in our image.
 		BufferedImage toConvert = loadImage(IMAGE_IMPORT_PATH);
 		
-		//Neccessary data management
+		//Necessary data management
+
+		TilesetDetected detected = extractTileset(tilesets, toConvert);
+		
+		//Now that I know the tileset of the image, decode the image into its colors and tile id's
+		DecodedImage decoded = readTiles(toConvert, tilesets, detected.getBasex(), detected.getBasey(), detected.getTilesetID());
+
+		//Re-render the image with the new tileset
+		//exportRenderedImage(decoded, tilesets, bestTilesetMatch, "Resources" + "/Decoded.png");
+		exportRenderedImage(decoded, tilesets, tilesetIDConvertTo, "Resources" + IMAGE_EXPORT_PATH);
+	}
+
+	private static TilesetDetected extractTileset( ArrayList<Tileset> tilesets, BufferedImage toConvert ) throws Error {
+		int numTilesetsToCheck = 7;//How many tilesets are we checking against?
+		
+		ArrayList<Integer> tilesetMatchCount = new ArrayList<Integer>();//How closely does a tileset match the image to convert? This counts the number of matching tiles.
 		Random rng = new Random();
 		
-		int offsetx = 0;
-		int offsety = 0;
-		int tilesetID;
-
+		ArrayList<Integer> basexList = new ArrayList<Integer>();//The offsetx where a tile match was detected.
+		ArrayList<Integer> baseyList = new ArrayList<Integer>();//The offsety where a tile match was detected.
+		
 		//The way I detect tilesets:
 		//I check each tileset one by one.
 		//I make multiple attempts to match a tileset, in case of error.
 		//I do not expect the tile grid to line up with the edges of the image, so I vary the tile starting position, using offsetx and offsety.
 		//I check every tile in the tileset to see if it matches.
 		//If the tile from the tileset is the same color, I abandon the attempt. It leads to false positives in black areas.
-		for (tilesetID = 0; tilesetID < numTilesetsToCheck; tilesetID++) {
+		for (int tilesetID = 0; tilesetID < numTilesetsToCheck; tilesetID++) {
 			System.out.println(tilesetID);
 			tilesetMatchCount.add(0);//0 matches so far. Will update later if any matches found.
 			
@@ -132,6 +140,9 @@ public class Main {
 			
 			int x = 0;
 			int y = 0;
+			
+			int offsetx = 0;
+			int offsety = 0;
 			
 		TestTileset:
 			for (double attempts = 0; attempts < 5 && !tilesetMatches; attempts++) {
@@ -255,7 +266,8 @@ public class Main {
 		}
 		
 		//Find tileset with most matched area.
-		for (tilesetID = 0; tilesetID < numTilesetsToCheck; tilesetID++) {
+		int bestTilesetMatch = -1;
+		for (int tilesetID = 0; tilesetID < numTilesetsToCheck; tilesetID++) {
 			Tileset tileset = tilesets.get(tilesetID);
 			Tileset best = tilesets.get(bestTilesetMatch);
 			double tileSize = tileset.getTileWidth()*tileset.getTileHeight();
@@ -267,16 +279,10 @@ public class Main {
 		
 		if (tilesetMatchCount.get(bestTilesetMatch) == 0) {
 			System.out.println("No suitable match found.");
-			return;
+			return null;
 		}
 		
-		//Now that I know the tileset of the image, decode the image into its colors and tile id's
-		DecodedImage decoded = readTiles(toConvert, tilesets, basexList.get(bestTilesetMatch), baseyList.get(bestTilesetMatch), bestTilesetMatch);
-
-		//Re-render the image with the new tileset
-		exportRenderedImage(decoded, tilesets, bestTilesetMatch, "Resources" + "/Decoded.png");
-		exportRenderedImage(decoded, tilesets, tilesetIDConvertTo, "Resources" + IMAGE_EXPORT_PATH);
-		//exportRenderedImage(tiles, tilesets, tilesetConvertTo, convertTileWidth, convertTileHeight,  "Resources" + IMAGE_EXPORT_PATH);
+		return new TilesetDetected(basexList.get(bestTilesetMatch), baseyList.get(bestTilesetMatch), bestTilesetMatch);
 	}
 	
 	private static DecodedImage readTiles(BufferedImage toConvert, ArrayList<Tileset> tilesets, int basex, int basey, int tilesetID) {

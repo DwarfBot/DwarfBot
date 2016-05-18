@@ -34,7 +34,6 @@ import WikiBot.Core.GenericBot;
 public class TilesetManager extends GenericBot {
 	
 	private static String TILESET_INFO_FILE;
-	private static String TILESET_IMAGE_REPO;
 	
 	public TilesetManager() {
 		//What MediaWiki family am I browsing?
@@ -43,7 +42,6 @@ public class TilesetManager extends GenericBot {
 		revisionDepth = 0;
 		
 		TILESET_INFO_FILE = "Resources/tileset.txt";
-		TILESET_IMAGE_REPO = "Resources/Tilesets";
 	}
 	
 	public void refreshTilesets() {
