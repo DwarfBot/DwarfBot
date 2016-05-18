@@ -3,7 +3,11 @@ package Code;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.color.ColorSpace;
+import java.awt.color.ICC_ColorSpace;
+import java.awt.color.ICC_Profile;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorConvertOp;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,7 +38,7 @@ public class Main {
 	
 	public static void init() {
 		//IMAGE_IMPORT_PATH = "/Image_Vidumec15x15.png";
-		IMAGE_IMPORT_PATH = "/ImageLake.jpg";
+		IMAGE_IMPORT_PATH = "/Tarn.jpg";
 		IMAGE_EXPORT_PATH = "/Converted.png";
 		threshold = 40;
 		artistic = true;
@@ -43,11 +47,13 @@ public class Main {
 	public static void main(String [] args) {
 		init();
 		//printTileset(22);
+		//findTileset("Phoebus");
 		//refreshTilesets();
-		convertImage(112);
+		convertImage(0);
 		//14 anikki 8x8 Nice solid tileset
 		//57 vidume 15x15 Uses alpha
-		//112 - Uses alpha, good for rendering
+		//112 - Lemunde, uses alpha, good for rendering
+		//114 - Phoebus
 	}
 	
 	@SuppressWarnings("unused")
@@ -98,7 +104,7 @@ public class Main {
 
 		//Re-render the image with the new tileset
 		//exportRenderedImage(decoded, tilesets, bestTilesetMatch, "Resources" + "/Decoded.png");
-		exportRenderedImage(decoded, tilesets, tilesetIDConvertTo, "Resources" + IMAGE_EXPORT_PATH);
+		exportRenderedImage(toConvert, decoded, tilesets, tilesetIDConvertTo, "Resources" + IMAGE_EXPORT_PATH);
 	}
 
 	private static TilesetDetected extractTileset( ArrayList<Tileset> tilesets, BufferedImage toConvert ) throws Error {
@@ -266,7 +272,7 @@ public class Main {
 		}
 		
 		//Find tileset with most matched area.
-		int bestTilesetMatch = -1;
+		int bestTilesetMatch = 0;
 		for (int tilesetID = 0; tilesetID < numTilesetsToCheck; tilesetID++) {
 			Tileset tileset = tilesets.get(tilesetID);
 			Tileset best = tilesets.get(bestTilesetMatch);
@@ -379,7 +385,7 @@ public class Main {
 		return new DecodedImage(tiles, convertTileWidth, convertTileHeight);
 	}
 	
-	private static void exportRenderedImage(DecodedImage decoded, ArrayList<Tileset> tilesets, int tilesetConvertTo, String exportPath) {
+	private static void exportRenderedImage(BufferedImage toConvert, DecodedImage decoded, ArrayList<Tileset> tilesets, int tilesetConvertTo, String exportPath) {
 		//Read in decoded info.
 		ArrayList<Tile> tiles = decoded.getTiles();
 		int convertTileWidth = decoded.getTilesWide();
@@ -433,40 +439,25 @@ public class Main {
 									Color foreground = tile.getForegroundColor();
 									Color background = tile.getBackgroundColor();
 									
-									//The hue and saturation of the tileset tile affect the dimness of the foreground color.
-									//The greater the difference in the hue of the foreground and tile colors, the duller the rendered color.
-									//The more saturated the tile, the greater the effect.
-									double fgDegradation = 0.0;
 									float[] hsv = new float[3];//Hue = 0, Saturation = 1, Value = 2
 									Color.RGBtoHSB(tileC.getRed(), tileC.getGreen(), tileC.getBlue(), hsv);
 									float tileHue = hsv[0];//0.0...1.0
-									float tileSaturation = hsv[1];//0.0...1.0
 									transparency = hsv[2];//0.0...1.0
 									float[] hsv2 = new float[3];
 									Color.RGBtoHSB(foreground.getRed(), foreground.getGreen(), foreground.getBlue(), hsv2);
 									float foregroundHue = hsv2[0];//0.0...1.0
 									float hueDifference = Math.abs(tileHue - foregroundHue);
 									hueDifference = Math.min(hueDifference, 1-hueDifference);
-									if (hueDifference < 0.16) {
-										fgDegradation = 0.0;
-									} else if (hueDifference > 0.50 - 0.16) {
-										fgDegradation = tileSaturation*alpha;
-									} else {
-										fgDegradation = (hueDifference*2)*tileSaturation*alpha;//1 = full degradation, 0 = no effect
-									}
 									
 									//Dwarf Fortress a slightly tints the colors of the tiles.
-									int redBoost = 0;
-									int greenBoost = 0;
-									int blueBoost = 0;
 									double average = transparency*255.0;
-									redBoost = (int)(Math.min(tileC.getRed()-average, 25)*(foreground.getRed()/255.0));
-									greenBoost = (int)(Math.min(tileC.getGreen()-average, 25)*(foreground.getGreen()/255.0));
-									blueBoost = (int)(Math.min(tileC.getBlue()-average, 25)*(foreground.getBlue()/255.0));
+									int redBoost = (int)(Math.min(tileC.getRed()-average, 25)*(foreground.getRed()/255.0));
+									int greenBoost = (int)(Math.min(tileC.getGreen()-average, 25)*(foreground.getGreen()/255.0));
+									int blueBoost = (int)(Math.min(tileC.getBlue()-average, 25)*(foreground.getBlue()/255.0));
 
-									int red = (int)(((foreground.getRed() + redBoost)*transparency*(1 - fgDegradation))*alpha + (background.getRed())*(1.0-alpha));
-									int green = (int)(((foreground.getGreen() + greenBoost)*transparency*(1 - fgDegradation))*alpha + (background.getGreen())*(1.0-alpha));
-									int blue = (int)(((foreground.getBlue() + blueBoost)*transparency*(1 - fgDegradation))*alpha + (background.getBlue())*(1.0-alpha));
+									int red = (int)(((foreground.getRed() + redBoost)*transparency)*alpha + (background.getRed())*(1.0-alpha));
+									int green = (int)(((foreground.getGreen() + greenBoost)*transparency)*alpha + (background.getGreen())*(1.0-alpha));
+									int blue = (int)(((foreground.getBlue() + blueBoost)*transparency)*alpha + (background.getBlue())*(1.0-alpha));
 									toDraw = new Color(Math.min(Math.max(red, 0), 255),
 											Math.min(Math.max(green, 0), 255),
 											Math.min(Math.max(blue, 0), 255));//I think this is how colors are rendered.
