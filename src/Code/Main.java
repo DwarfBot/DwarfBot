@@ -37,7 +37,7 @@ public class Main {
 		IMAGE_IMPORT_PATH = "/Image_Anikki8x8.png";
 		IMAGE_EXPORT_PATH = "/Converted.png";
 		threshold = 40;
-		artistic = true;
+		artistic = false;
 	}
 	
 	public static void main(String [] args) {
