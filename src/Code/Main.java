@@ -39,7 +39,7 @@ public class Main {
 	
 	public static void init() {
 		//IMAGE_IMPORT_PATH = "/Image_Vidumec15x15.png";
-		IMAGE_IMPORT_PATH = "/Tarn.jpg";
+		IMAGE_IMPORT_PATH = "/Image_Anikki8x8.png";
 		IMAGE_EXPORT_PATH = "/Converted.png";
 		threshold = 40;
 		artistic = false;
@@ -104,10 +104,10 @@ public class Main {
 		DecodedImage decoded = readTiles(toConvert, tilesets, detected.getBasex(), detected.getBasey(), detected.getTilesetID());
 
 		//Re-render the image with the new tileset
-		exportRenderedImage(decoded, tilesets, tilesetIDConvertTo, "Resources" + IMAGE_EXPORT_PATH);
+		exportRenderedImage(toConvert, decoded, tilesets, tilesetIDConvertTo, "Resources" + IMAGE_EXPORT_PATH);
 	}
 
-	private static MatchObject matchObjectForTileset(Tileset tileset, Random rng, BufferedImage toConvert) {
+	public static MatchObject matchObjectForTileset(Tileset tileset, Random rng, BufferedImage toConvert) {
 		//I make multiple attempts to match a tileset, in case of error.
 		//I do not expect the tile grid to line up with the edges of the image, so I vary the tile starting position, using offsetx and offsety.
 		//I check every tile in the tileset to see if it matches.
@@ -251,21 +251,11 @@ public class Main {
 	}
 
 	private static Callable<ArrayList<MatchObject>> threadCallableForTilesetRange(int start, int length, ArrayList<Tileset> allTilesets, BufferedImage toConvert) {
-		return new Callable<ArrayList<MatchObject>>() {
-			@Override
-			public ArrayList<MatchObject> call() throws Exception {
-				ArrayList<MatchObject> mObjs = new ArrayList<>();
-				Random threadRandom = new Random();
-				for (int i = start; i < start + length; i++) {
-					mObjs.add(matchObjectForTileset(allTilesets.get(i), threadRandom, toConvert));
-				}
-				return mObjs;
-			}
-		};
+		return new ThreadCallable(start, length, allTilesets, toConvert);
 	}
 
 	private static TilesetDetected extractTileset( ArrayList<Tileset> tilesets, BufferedImage toConvert ) throws Error {
-		int numTilesetsToCheck = 20;//How many tilesets are we checking against?
+		int numTilesetsToCheck = tilesets.size();//How many tilesets are we checking against?
 		
 		ArrayList<Integer> tilesetMatchCount = new ArrayList<Integer>();//How closely does a tileset match the image to convert? This counts the number of matching tiles.
 		Random rng = new Random();
@@ -281,7 +271,7 @@ public class Main {
 		ExecutorService pool = Executors.newFixedThreadPool(numThreads);
 		ArrayList<Future<ArrayList<MatchObject>>> futures = new ArrayList<>();
 		for (int i = 0; i < numThreads; i++) {
-			int index = Math.max(numThreads - 1, i * typicalLength);
+			int index = Math.min(numTilesetsToCheck - 1, i * typicalLength);
 			int length = Math.max(0, Math.min(numTilesetsToCheck - index, typicalLength));
 			System.out.println("Creating thread with index " + index + ", length " + length);
 			futures.add(pool.submit(threadCallableForTilesetRange(index, length, tilesets, toConvert)));
