@@ -153,42 +153,43 @@ public class Main {
             }
 
             int spaceAllotedX = Math.min(toConvert.getWidth() - tileWidth, tileWidth);//How much space can we vary
+			int spaceAllotedY = Math.min(toConvert.getHeight() - tileHeight, tileHeight);
+			BufferedImage[] tileImages = new BufferedImage[256];
+			for (int tile = 0; tile < 256; tile++) {
+				int tileCol = tile%16;
+				int tileRow = (tile - tileCol)/16;
+				tileImages[tile] = tilesetImg.getSubimage(tileCol*tileWidth, tileRow*tileHeight, tileWidth, tileHeight);
+			}
 
         TestAttempt:
             for (offsetx = 0; offsetx < spaceAllotedX; offsetx++) {
-                int spaceAllotedY = Math.min(toConvert.getHeight() - tileHeight, tileHeight);
                 for (offsety = 0; offsety < spaceAllotedY; offsety++) {
+					BufferedImage sampleImg = toConvert.getSubimage(x + offsetx, y + offsety, tileWidth, tileHeight);
+
+					//Check if sampleImg is all black. If true, ignore with minor attempt penalty.
+					//The reason I do it here and not later is because the checkSimlarity method only returns a boolean
+					boolean sameColor = true;
+					int baseColor = sampleImg.getRGB(0, 0);
+
+                checkTileSameColor:
+					for (int col = 0; col < tileWidth; col++) {
+						for (int row = 0; row < tileHeight; row++) {
+							int sampleC = sampleImg.getRGB(col, row);
+							if (baseColor != sampleC) {
+								sameColor = false;
+								break checkTileSameColor;
+							}
+						}
+					}
+					if (sameColor) {
+						attempts -= 0.6;//0.4 attempt penalty
+						break TestAttempt;
+					}
+
                     //Check each tile in the tileset.
                     for (int tile = 0; tile < 256; tile++) {
-                        int tileCol = tile%16;
-                        int tileRow = (tile - tileCol)/16;
-                        tileImg = tilesetImg.getSubimage(tileCol*tileWidth, tileRow*tileHeight, tileWidth, tileHeight);
-
-                        BufferedImage sampleImg = toConvert.getSubimage(x + offsetx, y + offsety, tileWidth, tileHeight);
-
-                        //Check if sampleImg is all black. If true, ignore with minor attempt penalty.
-                        //The reason I do it here and not later is because the checkSimlarity method only returns a boolean
-                        boolean sameColor = true;
-                        Color baseColor = null;
-                    checkTileSameColor:
-                        for (int col = 0; col < tileWidth; col++) {
-                            for (int row = 0; row < tileHeight; row++) {
-                                Color sampleC = new Color(sampleImg.getRGB(col, row), true);
-                                if (baseColor == null) {
-                                    baseColor = new Color(sampleC.getRed(), sampleC.getGreen(), sampleC.getBlue(), sampleC.getAlpha());
-                                } else if (!baseColor.equals(sampleC)) {
-                                    sameColor = false;
-                                    break checkTileSameColor;
-                                }
-                            }
-                        }
-                        if (sameColor) {
-                            attempts -= 0.6;//0.4 attempt penalty
-                            break TestAttempt;
-                        }
-
                         //Does it match?
-                        if (checkSimilarity(sampleImg, tileImg, tilesetUsesAlpha) != null) {
+                        if (checkSimilarity(sampleImg, tileImages[tile], tilesetUsesAlpha) != null) {
                             tilesetMatches = true;
 
 
