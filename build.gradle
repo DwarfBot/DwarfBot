@@ -1,0 +1,14 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: 'findbugs'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile project(':JavaMediawikiBot')
+    testCompile 'junit:junit:4.+'
+}
+
