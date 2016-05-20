@@ -279,6 +279,8 @@ public class Main {
 			try {
 				list = future.get();
 			} catch (Exception e) {
+				// Attempt to clean up remaining threads.
+				pool.shutdownNow();
 				throw new Error("A thread failed. This shouldn't happen under normal usage.");
 			}
 			for (MatchObject matchObject : list) {
