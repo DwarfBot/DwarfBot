@@ -95,9 +95,13 @@ public class Main {
 		//Read in our image.
 		BufferedImage toConvert = loadImage(IMAGE_IMPORT_PATH);
 		
+		
+		long timeBeforeExtraction = System.currentTimeMillis();
 		//Necessary data management
 
 		TilesetDetected detected = extractTileset(tilesets, toConvert);
+		
+		System.out.println("Extraction time: "+(System.currentTimeMillis() - timeBeforeExtraction));
 		
 		//Now that I know the tileset of the image, decode the image into its colors and tile id's
 		DecodedImage decoded = readTiles(toConvert, tilesets, detected.getBasex(), detected.getBasey(), detected.getTilesetID());
@@ -111,7 +115,6 @@ public class Main {
 		//I do not expect the tile grid to line up with the edges of the image, so I vary the tile starting position, using offsetx and offsety.
 		//I check every tile in the tileset to see if it matches.
 		//If the tile from the tileset is the same color, I abandon the attempt. It leads to false positives in black areas.
-		System.out.println(tileset.getImagePath());
 		BufferedImage tilesetImg = loadImage("/Tilesets" + tileset.getImagePath());
 
 		//Read in some vars.
