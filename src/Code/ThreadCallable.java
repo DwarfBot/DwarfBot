@@ -22,6 +22,7 @@ public class ThreadCallable implements Callable<ArrayList<MatchObject>> {
 		Random threadRandom = new Random();
 		for (int i = start; i < start + length; i++) {
 			mObjs.add(Main.matchObjectForTileset(allTilesets.get(i), threadRandom, toConvert));
+			Main.incrementNumTilesetChecksComplete();
 		}
 		return mObjs;
 	}
