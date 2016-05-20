@@ -302,8 +302,7 @@ public class Main {
 		}
 		
 		if (tilesetMatchCount.get(bestTilesetMatch) == 0) {
-			System.out.println("No suitable match found.");
-			return null;
+			throw new Error("No suitable match found.");
 		}
 		
 		return new TilesetDetected(basexList.get(bestTilesetMatch), baseyList.get(bestTilesetMatch), bestTilesetMatch);
