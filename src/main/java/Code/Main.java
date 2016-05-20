@@ -265,7 +265,6 @@ public class Main {
 		int numTilesetsToCheck = tilesets.size();//How many tilesets are we checking against?
 		
 		ArrayList<Integer> tilesetMatchCount = new ArrayList<Integer>();//How closely does a tileset match the image to convert? This counts the number of matching tiles.
-		Random rng = new Random();
 		
 		ArrayList<Integer> basexList = new ArrayList<Integer>();//The offsetx where a tile match was detected.
 		ArrayList<Integer> baseyList = new ArrayList<Integer>();//The offsety where a tile match was detected.
@@ -330,6 +329,8 @@ public class Main {
 			throw new Error("No suitable match found.");
 		}
 		
+		Tileset best = tilesets.get(bestTilesetMatch);
+		System.out.println("Detected tileset: " + best.getImagePath());
 		return new TilesetDetected(basexList.get(bestTilesetMatch), baseyList.get(bestTilesetMatch), bestTilesetMatch);
 	}
 	
@@ -350,8 +351,8 @@ public class Main {
 		int convertTileHeight = (toConvert.getHeight()-basey)/tileHeight;//How many tiles tall the image to be converted is.
 		
 		for (int col = 0; col < convertTileWidth; col++) {
-			if (col%5 == 0) {
-				System.out.println((100.0*col/convertTileWidth) + "%");
+			if (col%((int)((convertTileWidth+1)*0.1)) == 0) {
+				System.out.println((100.0*col/convertTileWidth) + "%");//Nice to see where we are in the algorithm.
 			}
 			for (int row = 0; row < convertTileHeight; row++) {
 				BufferedImage sampleImg = toConvert.getSubimage(basex + col*tileWidth, basey + row*tileHeight, tileWidth, tileHeight);
@@ -439,7 +440,7 @@ public class Main {
 		BufferedImage tilesetImg = loadImage("/Tilesets" + tileset.getImagePath());//And its image.
 		int tileWidth = tileset.getTileWidth();//How wide are the tiles? Pixels
 		int tileHeight = tileset.getTileHeight();//How tall are the tiles?
-		System.out.println("Render to tileset:" + tileset.getAuthor() + ":" + tileset.getImagePath());//Handy.
+		System.out.println("Render to tileset: " + tileset.getAuthor() + ":" + tileset.getImagePath());//Handy.
 		
 		boolean tilesetUsesAlpha = false;//Does the tileset use alpha? This affects rendering.
 		BufferedImage tileImg = tilesetImg.getSubimage(0, 2*tileHeight, tileWidth, tileHeight);
@@ -453,6 +454,9 @@ public class Main {
 		g2.fill(new Rectangle(0, 0, 1000, 1000));
 		
 		for (int col = 0; col < convertTileWidth; col++) {
+			if (col%((int)((convertTileWidth+1)*0.1)) == 0) {
+				System.out.println((100.0*col/convertTileWidth) + "%");//Nice to see where we are in the algorithm.
+			}
 			for (int row = 0; row < convertTileHeight; row++) {
 				final Color PINK = new Color(255, 0, 255);
 				Tile tile = tiles.get(col*convertTileHeight + row);
