@@ -17,7 +17,6 @@ import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
-import WikiBot.ContentRep.Image;
 import WikiBot.ContentRep.Template;
 import WikiBot.ContentRep.Page;
 import WikiBot.ContentRep.PageLocation;
