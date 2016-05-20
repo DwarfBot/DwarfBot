@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.imageio.ImageIO;
 
@@ -32,6 +33,8 @@ public class Main {
 	
 	private static int threshold;
 	private static boolean artistic;//Changes parsing slightly for making artistic DF pieces
+
+	private static AtomicInteger numTilesetChecksComplete; // For giving progress information during extractTileset.
 	
 	public static void init() {
 		//IMAGE_IMPORT_PATH = "/Image_Vidumec15x15.png";
@@ -251,6 +254,10 @@ public class Main {
 		return new ThreadCallable(start, length, allTilesets, toConvert);
 	}
 
+	public static void incrementNumTilesetChecksComplete() {
+		numTilesetChecksComplete.incrementAndGet();
+	}
+
 	private static TilesetDetected extractTileset( ArrayList<Tileset> tilesets, BufferedImage toConvert ) throws Error {
 		int numTilesetsToCheck = tilesets.size();//How many tilesets are we checking against?
 		
@@ -259,6 +266,9 @@ public class Main {
 		
 		ArrayList<Integer> basexList = new ArrayList<Integer>();//The offsetx where a tile match was detected.
 		ArrayList<Integer> baseyList = new ArrayList<Integer>();//The offsety where a tile match was detected.
+
+		// Before we start any other threads, make the AtomicInteger for progress information.
+		numTilesetChecksComplete = new AtomicInteger(0);
 		
 		//The way I detect tilesets:
 		//I check each tileset one by one.
@@ -273,6 +283,17 @@ public class Main {
 			System.out.println("Creating thread with index " + index + ", length " + length);
 			futures.add(pool.submit(threadCallableForTilesetRange(index, length, tilesets, toConvert)));
 		}
+		pool.shutdown(); // This line means it will stop accepting new threads; it will not terminate existing ones
+
+		// Give progress information.
+		try {
+			do {
+				System.out.println("Tileset checks " + 100.0 * numTilesetChecksComplete.get() / numTilesetsToCheck + "% complete.");
+			} while (!pool.awaitTermination(1, TimeUnit.SECONDS));
+		} catch (InterruptedException ie) {
+			// We can safely ignore this and move on to the next code block, which will handle the error.
+		}
+		System.out.println("Tileset checks now finished.");
 
 		for (Future<ArrayList<MatchObject>> future : futures) {
 			ArrayList<MatchObject> list;
@@ -289,7 +310,6 @@ public class Main {
 				tilesetMatchCount.add(matchObject.getMatchCount());
 			}
 		}
-		pool.shutdown();
 
 		//Find tileset with most matched area.
 		int bestTilesetMatch = 0;
