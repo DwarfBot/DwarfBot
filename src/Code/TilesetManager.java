@@ -142,7 +142,7 @@ public class TilesetManager extends GenericBot {
 					} catch (Throwable e) {
 						//Corrupted image. Halt code.
 						e.printStackTrace();
-						System.exit(0);
+						System.exit(1);
 					}
 				} catch (IOException e) {
 					System.out.println("IOError");
