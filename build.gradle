@@ -1,7 +1,10 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
-apply plugin: 'findbugs'
+apply plugin: 'application'
+
+sourceCompatibility = 1.7
+mainClassName = "Code.Main"
 
 repositories {
     mavenCentral()
