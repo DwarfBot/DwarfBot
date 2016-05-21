@@ -83,7 +83,6 @@ local.properties
 
 ## File-based project format:
 *.iws
-*.iml
 *.ipr
 
 ## Plugin-specific files:
@@ -105,9 +104,10 @@ fabric.properties
 
 ### Intellij Patch ###
 # Comment Reason: https://github.com/joeblau/gitignore.io/issues/186#issuecomment-215987721
+# Uncommented as these files should not be in our repos.
 
-# *.iml
-# modules.xml
+*.iml
+modules.xml
 
 
 ### OSX ###
@@ -189,3 +189,7 @@ gradle-app.setting
 # # Work around https://youtrack.jetbrains.com/issue/IDEA-116898
 # gradle/wrapper/gradle-wrapper.properties
 
+.idea/compiler.xml
+.idea/copyright/profiles_settings.xml
+.idea/findbugs-idea.xml
+.idea/misc.xml

@@ -271,7 +271,7 @@ public class TilesetManager extends GenericBot {
 		return null;
 	}
 	
-	private void saveImage(BufferedImage img, String title) {
+	public static void saveImage(BufferedImage img, String title) {
 		try {
 			// retrieve image
 			BufferedImage bi = img;
@@ -280,6 +280,19 @@ public class TilesetManager extends GenericBot {
 			ImageIO.write(bi, "png", outputfile);
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+	}
+
+	public void printTilesets() {
+		ArrayList<Tileset> tilesets = getTilesets();
+		for (int i = 0; i < tilesets.size(); i++) {
+			Tileset tile = tilesets.get(i);
+			System.out.println("#" + i + ": " + tile.getImagePath()
+					+ "\n\tAuthor: " + tile.getAuthor()
+					+ "\n\tWidth: " + tile.getTileWidth()
+					+ "\n\tHeight: " + tile.getTileHeight()
+					+ "\n");
+
 		}
 	}
 }
