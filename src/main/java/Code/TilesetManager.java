@@ -42,7 +42,7 @@ public class TilesetManager extends GenericBot {
 		mdm.readFamily(family, 0);
 		revisionDepth = 0;
 		
-		TILESET_INFO_FILE = "Resources/tileset.txt";
+		TILESET_INFO_FILE = "/tileset.txt";
 	}
 	
 	public void refreshTilesets() {
@@ -138,7 +138,7 @@ public class TilesetManager extends GenericBot {
 				try {
 					URL url = new URL(directUrl);
 					png = ImageIO.read(url);
-					saveImage(png, "Resources/Tilesets" + imagePath);
+					saveImage(png, "src/main/resources/Tilesets" + imagePath);
 					try {
 						BufferedImage tilesetImg = Main.loadImage("/Tilesets" + imagePath);
 					} catch (Throwable e) {
@@ -163,7 +163,7 @@ public class TilesetManager extends GenericBot {
 			}
 		}
 		
-		writeFile(fileOutput, TILESET_INFO_FILE);
+		writeFile(fileOutput, "src/main/resources" + TILESET_INFO_FILE);
 	}
 	
 	public String getParameterValue(Template t, String parameterName) {
@@ -179,7 +179,7 @@ public class TilesetManager extends GenericBot {
 	public ArrayList<Tileset> getTilesets() {
 		ArrayList<Tileset> tilesets = new ArrayList<Tileset>();
 		
-		ArrayList<String> rawTilesetData = readFileAsList("/tileset.txt", "#", true, true);
+		ArrayList<String> rawTilesetData = readFileAsList(TILESET_INFO_FILE, "#", true, true);
 		for (int row = 0; row < rawTilesetData.size(); row += 3 ) {
 			//# Name, Author, (Optional)Nickname
 			//# Image Location
