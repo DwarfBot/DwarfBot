@@ -2,20 +2,22 @@ package Code;
 
 public class Tileset {
 	
-	String imgPath;
-	String author;
-	String nickname;
-	String dateCreated;
-	int tileWidth;
-	int tileHeight;
+	private String imgPath;
+	private String author;
+	private String nickname;
+	private String dateCreated;
+	private int tileWidth;
+	private int tileHeight;
+	private int id;
 	
-	public Tileset(String imgPath_, String author_, String nickname_, String date, int twidth_, int theight_) {
+	public Tileset(String imgPath_, String author_, String nickname_, String date, int twidth_, int theight_, int id_) {
 		imgPath = imgPath_;
 		author = author_;
 		nickname = nickname_;
 		dateCreated = date;
 		tileWidth = twidth_;
 		tileHeight = theight_;
+		id = id_;
 	}
 	
 	public String getImagePath() {
@@ -45,7 +47,11 @@ public class Tileset {
 	public int getTileHeight() {
 		return tileHeight;
 	}
-	
+
+	public int getId() {
+		return id;
+	}
+
 	public boolean equals(Object obj) {
 		if (obj == null) {
 			return false;

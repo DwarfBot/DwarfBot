@@ -2,14 +2,16 @@ package Code;
 
 public class TilesetDetected {
 	
-	int basex;
-	int basey;
-	int tilesetID;
+	private int basex;
+	private int basey;
+	private int tilesetID;
+	private int matchCount;
 	
-	public TilesetDetected(int basex_, int basey_, int tilesetID_) {
+	public TilesetDetected(int basex_, int basey_, int tilesetID_, int matchCount_) {
 		basex = basex_;
 		basey = basey_;
 		tilesetID = tilesetID_;
+		matchCount = matchCount_;
 	}
 	
 	public int getBasex() {
@@ -22,5 +24,9 @@ public class TilesetDetected {
 	
 	public int getTilesetID() {
 		return tilesetID;
+	}
+
+	public int getMatchCount() {
+		return matchCount;
 	}
 }

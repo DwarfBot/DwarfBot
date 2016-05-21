@@ -4,7 +4,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class ThreadCallable implements Callable<ArrayList<MatchObject>> {
+public class ThreadCallable implements Callable<ArrayList<TilesetDetected>> {
 	private int start, length;
 	private ArrayList<Tileset> allTilesets;
 	private BufferedImage toConvert;
@@ -17,11 +17,11 @@ public class ThreadCallable implements Callable<ArrayList<MatchObject>> {
 	}
 	
 	@Override
-	public ArrayList<MatchObject> call() throws Exception {
-		ArrayList<MatchObject> mObjs = new ArrayList<>();
+	public ArrayList<TilesetDetected> call() throws Exception {
+		ArrayList<TilesetDetected> mObjs = new ArrayList<>();
 		Random threadRandom = new Random();
 		for (int i = start; i < start + length; i++) {
-			mObjs.add(Main.matchObjectForTileset(allTilesets.get(i), threadRandom, toConvert));
+			mObjs.add(Main.matchForTileset(allTilesets.get(i), threadRandom, toConvert));
 			Main.incrementNumTilesetChecksComplete();
 		}
 		return mObjs;

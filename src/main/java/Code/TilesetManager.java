@@ -207,8 +207,7 @@ public class TilesetManager extends GenericBot {
 			int width = Integer.parseInt(size.substring(0, size.indexOf(" ")));
 			int height = Integer.parseInt(size.substring(size.indexOf(" ") + 1));
 			
-			//String imgPath_, String author_, String nickname_, String date, int twidth_, int theight_
-			Tileset tileset = new Tileset(imagePath, author, nickname, dateCreated, width, height);
+			Tileset tileset = new Tileset(imagePath, author, nickname, dateCreated, width, height, tilesets.size());
 			
 			tilesets.add(tileset);
 		}
