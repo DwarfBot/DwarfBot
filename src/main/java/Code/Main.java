@@ -37,13 +37,12 @@ public class Main {
 	private static boolean artistic;//Changes parsing slightly for making artistic DF pieces
 
 	private static AtomicInteger numTilesetChecksComplete; // For giving progress information during extractTileset.
-
 	
 	public static void main(String[] args) {
 		//printTileset(22);
 		//findTileset("Phoebus");
 		//refreshTilesets();
-		//convertImage(0); //All ready added above
+		//convertImage(0); //All ready added below
 		//14 anikki 8x8 Nice solid tileset
 		//57 vidume 15x15 Uses alpha
 		//112 - Lemunde, uses alpha, good for rendering
