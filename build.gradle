@@ -7,7 +7,7 @@ sourceCompatibility = 1.7
 mainClassName = "Code.Main"
 
 repositories {
-    mavenCentral()
+    jcenter()
 }
 
 dependencies {
