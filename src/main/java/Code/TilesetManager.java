@@ -17,6 +17,8 @@ import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
+import Code.Main;
+import Code.Tileset;
 import WikiBot.ContentRep.Template;
 import WikiBot.ContentRep.Page;
 import WikiBot.ContentRep.PageLocation;
@@ -40,7 +42,7 @@ public class TilesetManager extends GenericBot {
 		mdm.readFamily(family, 0);
 		revisionDepth = 0;
 		
-		TILESET_INFO_FILE = "Resources/tileset.txt";
+		TILESET_INFO_FILE = "/tileset.txt";
 	}
 	
 	public void refreshTilesets() {
@@ -136,7 +138,7 @@ public class TilesetManager extends GenericBot {
 				try {
 					URL url = new URL(directUrl);
 					png = ImageIO.read(url);
-					saveImage(png, "Resources/Tilesets" + imagePath);
+					saveImage(png, "src/main/resources/Tilesets" + imagePath);
 					try {
 						BufferedImage tilesetImg = Main.loadImage("/Tilesets" + imagePath);
 					} catch (Throwable e) {
@@ -161,7 +163,7 @@ public class TilesetManager extends GenericBot {
 			}
 		}
 		
-		writeFile(fileOutput, TILESET_INFO_FILE);
+		writeFile(fileOutput, "src/main/resources" + TILESET_INFO_FILE);
 	}
 	
 	public String getParameterValue(Template t, String parameterName) {
@@ -177,7 +179,7 @@ public class TilesetManager extends GenericBot {
 	public ArrayList<Tileset> getTilesets() {
 		ArrayList<Tileset> tilesets = new ArrayList<Tileset>();
 		
-		ArrayList<String> rawTilesetData = readFileAsList("/tileset.txt", "#", true, true);
+		ArrayList<String> rawTilesetData = readFileAsList(TILESET_INFO_FILE, "#", true, true);
 		for (int row = 0; row < rawTilesetData.size(); row += 3 ) {
 			//# Name, Author, (Optional)Nickname
 			//# Image Location
@@ -268,7 +270,7 @@ public class TilesetManager extends GenericBot {
 		return null;
 	}
 	
-	private void saveImage(BufferedImage img, String title) {
+	public static void saveImage(BufferedImage img, String title) {
 		try {
 			// retrieve image
 			BufferedImage bi = img;
@@ -277,6 +279,19 @@ public class TilesetManager extends GenericBot {
 			ImageIO.write(bi, "png", outputfile);
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+	}
+
+	public void printTilesets() {
+		ArrayList<Tileset> tilesets = getTilesets();
+		for (int i = 0; i < tilesets.size(); i++) {
+			Tileset tile = tilesets.get(i);
+			System.out.println("#" + i + ": " + tile.getImagePath()
+					+ "\n\tAuthor: " + tile.getAuthor()
+					+ "\n\tWidth: " + tile.getTileWidth()
+					+ "\n\tHeight: " + tile.getTileHeight()
+					+ "\n");
+
 		}
 	}
 }

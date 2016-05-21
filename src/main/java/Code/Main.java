@@ -1,5 +1,7 @@
 package Code;
 
+import org.apache.commons.cli.*;
+
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -36,24 +38,79 @@ public class Main {
 
 	private static AtomicInteger numTilesetChecksComplete; // For giving progress information during extractTileset.
 	
-	public static void init() {
-		//IMAGE_IMPORT_PATH = "/Image_Vidumec15x15.png";
-		IMAGE_IMPORT_PATH = "/Image_Anikki8x8.png";
-		IMAGE_EXPORT_PATH = "/Converted.png";
-		threshold = 40;
-		artistic = false;
-	}
-	
-	public static void main(String [] args) {
-		init();
+	public static void main(String[] args) {
 		//printTileset(22);
 		//findTileset("Phoebus");
 		//refreshTilesets();
-		convertImage(0);
+		//convertImage(0); //All ready added below
 		//14 anikki 8x8 Nice solid tileset
 		//57 vidume 15x15 Uses alpha
 		//112 - Lemunde, uses alpha, good for rendering
 		//114 - Phoebus
+
+		threshold = 40;
+		artistic = false;
+
+		Options options = new Options();
+		options.addOption(Option.builder("l")
+				.longOpt("list-tilesets")
+				.desc("list all tileset ids and exit")
+				.hasArg(false)
+				.build());
+		options.addOption(Option.builder("h")
+				.longOpt("help")
+				.desc("show help message and exit")
+				.hasArg(false)
+				.build());
+		options.addOption(Option.builder("i")
+				.longOpt("import-path")
+				.hasArg(true)
+				.argName("path")
+				.desc("Image import path (Default: Image_Anikki8x8.png)")
+				.type(String.class)
+				.build());
+		options.addOption(Option.builder("o")
+				.longOpt("export-path")
+				.hasArg(true)
+				.argName("path")
+				.desc("Image export path (Default: Converted.png)")
+				.type(String.class)
+				.build());
+		options.addOption(Option.builder("t")
+				.longOpt("tileset")
+				.hasArg(true)
+				.argName("tileset-id")
+				.desc("Use tileset by id")
+				.type(Integer.class)
+				.build());
+
+		CommandLineParser parser = new DefaultParser();
+		try {
+			CommandLine line = parser.parse(options, args);
+
+			IMAGE_IMPORT_PATH = line.getOptionValue("i", "/Image_Anikki8x8.png");
+			IMAGE_EXPORT_PATH = line.getOptionValue("o", "/Converted.png");
+
+			if (line.hasOption("h")) {
+				HelpFormatter formatter = new HelpFormatter();
+				formatter.printHelp("dwarfbot", options);
+				System.exit(0);
+			}
+
+			if (line.hasOption("l")) {
+				new TilesetManager().printTilesets();
+				System.exit(0);
+			}
+			else {
+				convertImage(Integer.parseInt(line.getOptionValue("t", "0")));
+			}
+		}
+		catch (ParseException e) {
+			System.err.println("Parsing failed.  Reason: " + e.getMessage());
+		}
+		catch (NumberFormatException e) {
+			System.err.println("Not a ID integer.  Reason: " + e.getMessage());
+		}
 	}
 	
 	@SuppressWarnings("unused")
@@ -532,7 +589,7 @@ public class Main {
 		
 		g2.dispose();
 		
-		saveImage(output, exportPath);
+		TilesetManager.saveImage(output, exportPath);
 	}
 	
 	private static Tile checkSimilarity(BufferedImage sampleImg, BufferedImage tileImg, boolean tilesetUsesAlpha) {
@@ -636,17 +693,5 @@ public class Main {
 		}
 
 		return image;
-	}
-	
-	private static void saveImage(BufferedImage img, String title) {
-		try {
-			// retrieve image
-			BufferedImage bi = img;
-			File outputfile = new File(title);
-			outputfile.mkdirs();
-			ImageIO.write(bi, "png", outputfile);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 }
