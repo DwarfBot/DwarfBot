@@ -3,15 +3,13 @@ package Code;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.color.ColorSpace;
-import java.awt.color.ICC_ColorSpace;
-import java.awt.color.ICC_Profile;
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorConvertOp;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.imageio.ImageIO;
 
@@ -35,13 +33,15 @@ public class Main {
 	
 	private static int threshold;
 	private static boolean artistic;//Changes parsing slightly for making artistic DF pieces
+
+	private static AtomicInteger numTilesetChecksComplete; // For giving progress information during extractTileset.
 	
 	public static void init() {
 		//IMAGE_IMPORT_PATH = "/Image_Vidumec15x15.png";
-		IMAGE_IMPORT_PATH = "/Tarn.jpg";
+		IMAGE_IMPORT_PATH = "/Image_Anikki8x8.png";
 		IMAGE_EXPORT_PATH = "/Converted.png";
 		threshold = 40;
-		artistic = true;
+		artistic = false;
 	}
 	
 	public static void main(String [] args) {
@@ -95,185 +95,227 @@ public class Main {
 		//Read in our image.
 		BufferedImage toConvert = loadImage(IMAGE_IMPORT_PATH);
 		
+		
+		long timeBeforeExtraction = System.currentTimeMillis();
 		//Necessary data management
 
 		TilesetDetected detected = extractTileset(tilesets, toConvert);
+		
+		System.out.println("Extraction time: "+(System.currentTimeMillis() - timeBeforeExtraction));
 		
 		//Now that I know the tileset of the image, decode the image into its colors and tile id's
 		DecodedImage decoded = readTiles(toConvert, tilesets, detected.getBasex(), detected.getBasey(), detected.getTilesetID());
 
 		//Re-render the image with the new tileset
-		//exportRenderedImage(decoded, tilesets, bestTilesetMatch, "Resources" + "/Decoded.png");
 		exportRenderedImage(toConvert, decoded, tilesets, tilesetIDConvertTo, "Resources" + IMAGE_EXPORT_PATH);
 	}
 
-	private static TilesetDetected extractTileset( ArrayList<Tileset> tilesets, BufferedImage toConvert ) throws Error {
-		int numTilesetsToCheck = 7;//How many tilesets are we checking against?
-		
-		ArrayList<Integer> tilesetMatchCount = new ArrayList<Integer>();//How closely does a tileset match the image to convert? This counts the number of matching tiles.
-		Random rng = new Random();
-		
-		ArrayList<Integer> basexList = new ArrayList<Integer>();//The offsetx where a tile match was detected.
-		ArrayList<Integer> baseyList = new ArrayList<Integer>();//The offsety where a tile match was detected.
-		
-		//The way I detect tilesets:
-		//I check each tileset one by one.
+	public static MatchObject matchObjectForTileset(Tileset tileset, Random rng, BufferedImage toConvert) {
 		//I make multiple attempts to match a tileset, in case of error.
 		//I do not expect the tile grid to line up with the edges of the image, so I vary the tile starting position, using offsetx and offsety.
 		//I check every tile in the tileset to see if it matches.
 		//If the tile from the tileset is the same color, I abandon the attempt. It leads to false positives in black areas.
-		for (int tilesetID = 0; tilesetID < numTilesetsToCheck; tilesetID++) {
-			System.out.println(tilesetID);
-			tilesetMatchCount.add(0);//0 matches so far. Will update later if any matches found.
-			
-			//Load tileset.
-			Tileset tileset = tilesets.get(tilesetID);
-			System.out.println(tileset.getImagePath());
-			BufferedImage tilesetImg = loadImage("/Tilesets" + tileset.getImagePath());
-			
-			//Read in some vars.
-			int tileWidth = tileset.getTileWidth();
-			int tileHeight = tileset.getTileHeight();
-			
-			//Does the tileset use alpha or a pink background?
-			boolean tilesetUsesAlpha = false;
-			BufferedImage tileImg = tilesetImg.getSubimage(0, 2*tileHeight, tileWidth, tileHeight);
+		BufferedImage tilesetImg = loadImage("/Tilesets" + tileset.getImagePath());
 
-			Color c = new Color(tileImg.getRGB(0, 0), true);
-			tilesetUsesAlpha = c.getAlpha() != 255;
-			
-			boolean tilesetMatches = false;
-			
-			int x = 0;
-			int y = 0;
-			
-			int offsetx = 0;
-			int offsety = 0;
-			
-		TestTileset:
-			for (double attempts = 0; attempts < 5 && !tilesetMatches; attempts++) {
-				if ( toConvert.getWidth() < tileWidth || toConvert.getWidth() < tileHeight ) {
-					break TestTileset;//Tiles from this tileset cannot fit inside the image.
-				}
-				if ( toConvert.getWidth() < 2*tileWidth ) {
-					//The image is not two tiles wide. Be conservative.
-					x = 0;
-				} else {
-					x = rng.nextInt(toConvert.getWidth() - 2*tileWidth);
-				}
-				if ( toConvert.getWidth() < tileHeight*2 ) {
-					//The image is not two tiles tall. Be conservative.
-					y = 0;
-				} else {
-					y = rng.nextInt(toConvert.getHeight() - 2*tileHeight);
-				}
-				
-				int spaceAllotedX = Math.min(toConvert.getWidth() - tileWidth, tileWidth);//How much space can we vary 
-				
-			TestAttempt:
-				for (offsetx = 0; offsetx < spaceAllotedX; offsetx++) {
-					int spaceAllotedY = Math.min(toConvert.getHeight() - tileHeight, tileHeight);
-					for (offsety = 0; offsety < spaceAllotedY; offsety++) {
-						//Check each tile in the tileset.
-						for (int tile = 0; tile < 256; tile++) {
-							int tileCol = tile%16;
-							int tileRow = (tile - tileCol)/16;
-							tileImg = tilesetImg.getSubimage(tileCol*tileWidth, tileRow*tileHeight, tileWidth, tileHeight);
-							
-							BufferedImage sampleImg = toConvert.getSubimage(x + offsetx, y + offsety, tileWidth, tileHeight);
-							
-							//Check if sampleImg is all black. If true, ignore with minor attempt penalty.
-							//The reason I do it here and not later is because the checkSimlarity method only returns a boolean
-							boolean sameColor = true;
-							Color baseColor = null;
-						checkTileSameColor:
-							for (int col = 0; col < tileWidth; col++) {
-								for (int row = 0; row < tileHeight; row++) {
-									Color sampleC = new Color(sampleImg.getRGB(col, row), true);
-									if (baseColor == null) {
-										baseColor = new Color(sampleC.getRed(), sampleC.getGreen(), sampleC.getBlue(), sampleC.getAlpha());
-									} else if (!baseColor.equals(sampleC)) {
-										sameColor = false;
-										break checkTileSameColor;
-									}
-								}
-							}
-							if (sameColor) {
-								attempts -= 0.6;//0.4 attempt penalty
-								//saveImage(sampleImg, "Resources/ImageAA" + Math.floor(attempts) + ".png");
-								break TestAttempt;
-							} else {
-								//saveImage(sampleImg, "Resources/ImageBB" + Math.floor(attempts) + ".png");
-							}
-							
-							//Does it match?
-							if (checkSimilarity(sampleImg, tileImg, tilesetUsesAlpha) != null) {
-								tilesetMatches = true;
-								
-								
-								break TestTileset;
-							}
-						}
-					}
-				}
+		//Read in some vars.
+		int tileWidth = tileset.getTileWidth();
+		int tileHeight = tileset.getTileHeight();
+
+		//Does the tileset use alpha or a pink background?
+		boolean tilesetUsesAlpha = false;
+		BufferedImage tileImg = tilesetImg.getSubimage(0, 2*tileHeight, tileWidth, tileHeight);
+
+		Color c = new Color(tileImg.getRGB(0, 0), true);
+		tilesetUsesAlpha = c.getAlpha() != 255;
+
+		boolean tilesetMatches = false;
+
+		int x = 0;
+		int y = 0;
+
+		int offsetx = 0;
+		int offsety = 0;
+
+	TestTileset:
+		for (double attempts = 0; attempts < 5 && !tilesetMatches; attempts++) {
+			if ( toConvert.getWidth() < tileWidth || toConvert.getWidth() < tileHeight ) {
+				break TestTileset;//Tiles from this tileset cannot fit inside the image.
 			}
-			
-			if (tilesetMatches) {
-				//See how closely the tileset matches the screenshot.
-				int numMatches = 0;
-				
-				int basex = (x + offsetx)%tileWidth;
-				int basey = (y + offsety)%tileHeight;
-				basexList.add(basex);
-				baseyList.add(basey);
-				
-				for (int col = 0; col < (toConvert.getWidth()-basex)/tileWidth; col++) {
-					for (int row = 0; row < (toConvert.getHeight()-basey)/tileHeight; row++) {
-						BufferedImage sampleImg = toConvert.getSubimage(basex + col*tileWidth, basey + row*tileHeight, tileWidth, tileHeight);
-						
-						//Check each tile in the tileset.
-					tileSearch:
-						for (int tile = 0; tile < 256; tile++) {
-							if (artistic) {
-								//These tiles mess with art rendering.
-								if (tile == 219 || tile == 0 || tile == 32 || tile == 158) {
-									tile++;
-								}
-								if (tile == 176) {
-									tile = 179;
-								}
-								if (tile == 255) {
-									continue;
-								}
-							}
-							int tileCol = tile%16;
-							int tileRow = (tile - tileCol)/16;
-							tileImg = tilesetImg.getSubimage(tileCol*tileWidth, tileRow*tileHeight, tileWidth, tileHeight);
-							
-							if (checkSimilarity(sampleImg, tileImg, tilesetUsesAlpha) != null) {
-								numMatches++;
-								break tileSearch;
+			if ( toConvert.getWidth() < 2*tileWidth ) {
+				//The image is not two tiles wide. Be conservative.
+				x = 0;
+			} else {
+				x = rng.nextInt(toConvert.getWidth() - 2*tileWidth);
+			}
+			if ( toConvert.getWidth() < tileHeight*2 ) {
+				//The image is not two tiles tall. Be conservative.
+				y = 0;
+			} else {
+				y = rng.nextInt(toConvert.getHeight() - 2*tileHeight);
+			}
+
+			int spaceAllotedX = Math.min(toConvert.getWidth() - tileWidth, tileWidth);//How much space can we vary
+			int spaceAllotedY = Math.min(toConvert.getHeight() - tileHeight, tileHeight);
+			BufferedImage[] tileImages = new BufferedImage[256];
+			for (int tile = 0; tile < 256; tile++) {
+				int tileCol = tile%16;
+				int tileRow = (tile - tileCol)/16;
+				tileImages[tile] = tilesetImg.getSubimage(tileCol*tileWidth, tileRow*tileHeight, tileWidth, tileHeight);
+			}
+
+		TestAttempt:
+			for (offsetx = 0; offsetx < spaceAllotedX; offsetx++) {
+				for (offsety = 0; offsety < spaceAllotedY; offsety++) {
+					BufferedImage sampleImg = toConvert.getSubimage(x + offsetx, y + offsety, tileWidth, tileHeight);
+
+					//Check if sampleImg is all black. If true, ignore with minor attempt penalty.
+					//The reason I do it here and not later is because the checkSimlarity method only returns a boolean
+					boolean sameColor = true;
+					int baseColor = sampleImg.getRGB(0, 0);
+
+				checkTileSameColor:
+					for (int col = 0; col < tileWidth; col++) {
+						for (int row = 0; row < tileHeight; row++) {
+							int sampleC = sampleImg.getRGB(col, row);
+							if (baseColor != sampleC) {
+								sameColor = false;
+								break checkTileSameColor;
 							}
 						}
 					}
-				}
-				
-				tilesetMatchCount.set(tilesetID, numMatches);
-				if (numMatches == 0) {
-					//Contradictory if no matches found when one match is confirmed. Faulty code above!!
-					throw new Error();
-				}
+					if (sameColor) {
+						attempts -= 0.6;//0.4 attempt penalty
+						break TestAttempt;
+					}
 
-			} else {
-				//Tileset does not match
-				basexList.add(0);
-				baseyList.add(0);
+					//Check each tile in the tileset.
+					for (int tile = 0; tile < 256; tile++) {
+						//Does it match?
+						if (checkSimilarity(sampleImg, tileImages[tile], tilesetUsesAlpha) != null) {
+							tilesetMatches = true;
+
+
+							break TestTileset;
+						}
+					}
+				}
 			}
 		}
+
+		if (tilesetMatches) {
+			//See how closely the tileset matches the screenshot.
+			int numMatches = 0;
+
+			int basex = (x + offsetx)%tileWidth;
+			int basey = (y + offsety)%tileHeight;
+
+			for (int col = 0; col < (toConvert.getWidth()-basex)/tileWidth; col++) {
+				for (int row = 0; row < (toConvert.getHeight()-basey)/tileHeight; row++) {
+					BufferedImage sampleImg = toConvert.getSubimage(basex + col*tileWidth, basey + row*tileHeight, tileWidth, tileHeight);
+
+					//Check each tile in the tileset.
+				tileSearch:
+					for (int tile = 0; tile < 256; tile++) {
+						if (artistic) {
+							//These tiles mess with art rendering.
+							if (tile == 219 || tile == 0 || tile == 32 || tile == 158) {
+								tile++;
+							}
+							if (tile == 176) {
+								tile = 179;
+							}
+							if (tile == 255) {
+								continue;
+							}
+						}
+						int tileCol = tile%16;
+						int tileRow = (tile - tileCol)/16;
+						tileImg = tilesetImg.getSubimage(tileCol*tileWidth, tileRow*tileHeight, tileWidth, tileHeight);
+
+						if (checkSimilarity(sampleImg, tileImg, tilesetUsesAlpha) != null) {
+							numMatches++;
+							break tileSearch;
+						}
+					}
+				}
+			}
+
+			if (numMatches == 0) {
+				//Contradictory if no matches found when one match is confirmed. Faulty code above!!
+				throw new Error();
+			}
+
+			return new MatchObject(numMatches, basex, basey);
+
+		} else {
+			//Tileset does not match
+			return new MatchObject(0, 0, 0);
+		}
+	}
+
+	private static Callable<ArrayList<MatchObject>> threadCallableForTilesetRange(int start, int length, ArrayList<Tileset> allTilesets, BufferedImage toConvert) {
+		return new ThreadCallable(start, length, allTilesets, toConvert);
+	}
+
+	public static void incrementNumTilesetChecksComplete() {
+		numTilesetChecksComplete.incrementAndGet();
+	}
+
+	private static TilesetDetected extractTileset( ArrayList<Tileset> tilesets, BufferedImage toConvert ) throws Error {
+		int numTilesetsToCheck = tilesets.size();//How many tilesets are we checking against?
 		
+		ArrayList<Integer> tilesetMatchCount = new ArrayList<Integer>();//How closely does a tileset match the image to convert? This counts the number of matching tiles.
+		
+		ArrayList<Integer> basexList = new ArrayList<Integer>();//The offsetx where a tile match was detected.
+		ArrayList<Integer> baseyList = new ArrayList<Integer>();//The offsety where a tile match was detected.
+
+		// Before we start any other threads, make the AtomicInteger for progress information.
+		numTilesetChecksComplete = new AtomicInteger(0);
+		
+		//The way I detect tilesets:
+		//I check each tileset one by one.
+
+		int numThreads = Math.min(8, numTilesetsToCheck / 2);
+		int typicalLength = (int)Math.ceil((double)numTilesetsToCheck / numThreads);
+		ExecutorService pool = Executors.newFixedThreadPool(numThreads);
+		ArrayList<Future<ArrayList<MatchObject>>> futures = new ArrayList<>();
+		for (int i = 0; i < numThreads; i++) {
+			int index = Math.min(numTilesetsToCheck - 1, i * typicalLength);
+			int length = Math.max(0, Math.min(numTilesetsToCheck - index, typicalLength));
+			System.out.println("Creating thread with index " + index + ", length " + length);
+			futures.add(pool.submit(threadCallableForTilesetRange(index, length, tilesets, toConvert)));
+		}
+		pool.shutdown(); // This line means it will stop accepting new threads; it will not terminate existing ones
+
+		// Give progress information.
+		try {
+			do {
+				System.out.println("Tileset checks " + 100.0 * numTilesetChecksComplete.get() / numTilesetsToCheck + "% complete.");
+			} while (!pool.awaitTermination(1, TimeUnit.SECONDS));
+		} catch (InterruptedException ie) {
+			// We can safely ignore this and move on to the next code block, which will handle the error.
+		}
+		System.out.println("Tileset checks now finished.");
+
+		for (Future<ArrayList<MatchObject>> future : futures) {
+			ArrayList<MatchObject> list;
+			try {
+				list = future.get();
+			} catch (Exception e) {
+				// Attempt to clean up remaining threads.
+				pool.shutdownNow();
+				throw new Error("A thread failed. This shouldn't happen under normal usage.");
+			}
+			for (MatchObject matchObject : list) {
+				basexList.add(matchObject.getBasex());
+				baseyList.add(matchObject.getBasey());
+				tilesetMatchCount.add(matchObject.getMatchCount());
+			}
+		}
+
 		//Find tileset with most matched area.
 		int bestTilesetMatch = 0;
-		for (int tilesetID = 0; tilesetID < numTilesetsToCheck; tilesetID++) {
+		for (int tilesetID = 1; tilesetID < numTilesetsToCheck; tilesetID++) {
 			Tileset tileset = tilesets.get(tilesetID);
 			Tileset best = tilesets.get(bestTilesetMatch);
 			double tileSize = tileset.getTileWidth()*tileset.getTileHeight();
@@ -284,10 +326,11 @@ public class Main {
 		}
 		
 		if (tilesetMatchCount.get(bestTilesetMatch) == 0) {
-			System.out.println("No suitable match found.");
-			return null;
+			throw new Error("No suitable match found.");
 		}
 		
+		Tileset best = tilesets.get(bestTilesetMatch);
+		System.out.println("Detected tileset: " + best.getImagePath());
 		return new TilesetDetected(basexList.get(bestTilesetMatch), baseyList.get(bestTilesetMatch), bestTilesetMatch);
 	}
 	
@@ -308,8 +351,8 @@ public class Main {
 		int convertTileHeight = (toConvert.getHeight()-basey)/tileHeight;//How many tiles tall the image to be converted is.
 		
 		for (int col = 0; col < convertTileWidth; col++) {
-			if (col%5 == 0) {
-				System.out.println(((double)col/convertTileWidth) + "%");
+			if (col%((int)((convertTileWidth+1)*0.1)) == 0) {
+				System.out.println((100.0*col/convertTileWidth) + "%");//Nice to see where we are in the algorithm.
 			}
 			for (int row = 0; row < convertTileHeight; row++) {
 				BufferedImage sampleImg = toConvert.getSubimage(basex + col*tileWidth, basey + row*tileHeight, tileWidth, tileHeight);
@@ -397,7 +440,7 @@ public class Main {
 		BufferedImage tilesetImg = loadImage("/Tilesets" + tileset.getImagePath());//And its image.
 		int tileWidth = tileset.getTileWidth();//How wide are the tiles? Pixels
 		int tileHeight = tileset.getTileHeight();//How tall are the tiles?
-		System.out.println("Render to tileset:" + tileset.getAuthor() + ":" + tileset.getImagePath());//Handy.
+		System.out.println("Render to tileset: " + tileset.getAuthor() + ":" + tileset.getImagePath());//Handy.
 		
 		boolean tilesetUsesAlpha = false;//Does the tileset use alpha? This affects rendering.
 		BufferedImage tileImg = tilesetImg.getSubimage(0, 2*tileHeight, tileWidth, tileHeight);
@@ -411,6 +454,9 @@ public class Main {
 		g2.fill(new Rectangle(0, 0, 1000, 1000));
 		
 		for (int col = 0; col < convertTileWidth; col++) {
+			if (col%((int)((convertTileWidth+1)*0.1)) == 0) {
+				System.out.println((100.0*col/convertTileWidth) + "%");//Nice to see where we are in the algorithm.
+			}
 			for (int row = 0; row < convertTileHeight; row++) {
 				final Color PINK = new Color(255, 0, 255);
 				Tile tile = tiles.get(col*convertTileHeight + row);
@@ -418,7 +464,6 @@ public class Main {
 				if (tile != null) {
 					//Grab tile
 					int tileID = tile.getID();
-					//System.out.println(tileID + ":" + tile.getForegroundColor() + ":" + tile.getBackgroundColor());
 					int tileCol = tileID%16;
 					int tileRow = (tileID - tileCol)/16;
 					tileImg = tilesetImg.getSubimage(tileCol*tileWidth, tileRow*tileHeight, tileWidth, tileHeight);
@@ -491,10 +536,6 @@ public class Main {
 	}
 	
 	private static Tile checkSimilarity(BufferedImage sampleImg, BufferedImage tileImg, boolean tilesetUsesAlpha) {
-		return checkSimilarity(sampleImg, tileImg, tilesetUsesAlpha, false);
-	}
-	
-	private static Tile checkSimilarity(BufferedImage sampleImg, BufferedImage tileImg, boolean tilesetUsesAlpha, boolean meh) {
 		//Check that two tile images are equal
 		//TileImg - The tile image pulled from the tileset.
 		//SampleImg - A section of image to compare.
@@ -599,13 +640,13 @@ public class Main {
 	
 	private static void saveImage(BufferedImage img, String title) {
 		try {
-		    // retrieve image
-		    BufferedImage bi = img;
-		    File outputfile = new File(title);
-		    outputfile.mkdirs();
-		    ImageIO.write(bi, "png", outputfile);
+			// retrieve image
+			BufferedImage bi = img;
+			File outputfile = new File(title);
+			outputfile.mkdirs();
+			ImageIO.write(bi, "png", outputfile);
 		} catch (IOException e) {
-		    e.printStackTrace();
+			e.printStackTrace();
 		}
 	}
 }

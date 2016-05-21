@@ -1,0 +1,3 @@
+[submodule "JavaMediawikiBot"]
+	path = JavaMediawikiBot
+	url = https://github.com/Choco31415/JavaMediawikiBot

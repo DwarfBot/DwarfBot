@@ -17,7 +17,6 @@ import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
-import WikiBot.ContentRep.Image;
 import WikiBot.ContentRep.Template;
 import WikiBot.ContentRep.Page;
 import WikiBot.ContentRep.PageLocation;
@@ -135,16 +134,16 @@ public class TilesetManager extends GenericBot {
 				
 				BufferedImage png = null;
 				try {
-				    URL url = new URL(directUrl);
-				    png = ImageIO.read(url);
-				    saveImage(png, "Resources/Tilesets" + imagePath);
-				    try {
-				    	BufferedImage tilesetImg = Main.loadImage("/Tilesets" + imagePath);
-				    } catch (Throwable e) {
-				    	//Corrupted image. Halt code.
-				    	e.printStackTrace();
-				    	System.exit(0);
-				    }
+					URL url = new URL(directUrl);
+					png = ImageIO.read(url);
+					saveImage(png, "Resources/Tilesets" + imagePath);
+					try {
+						BufferedImage tilesetImg = Main.loadImage("/Tilesets" + imagePath);
+					} catch (Throwable e) {
+						//Corrupted image. Halt code.
+						e.printStackTrace();
+						System.exit(1);
+					}
 				} catch (IOException e) {
 					System.out.println("IOError");
 				}
@@ -272,13 +271,13 @@ public class TilesetManager extends GenericBot {
 	
 	private void saveImage(BufferedImage img, String title) {
 		try {
-		    // retrieve image
-		    BufferedImage bi = img;
-		    File outputfile = new File(title);
-		    outputfile.mkdirs();
-		    ImageIO.write(bi, "png", outputfile);
+			// retrieve image
+			BufferedImage bi = img;
+			File outputfile = new File(title);
+			outputfile.mkdirs();
+			ImageIO.write(bi, "png", outputfile);
 		} catch (IOException e) {
-		    e.printStackTrace();
+			e.printStackTrace();
 		}
 	}
 }
