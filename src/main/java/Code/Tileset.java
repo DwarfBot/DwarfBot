@@ -1,5 +1,9 @@
 package Code;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+
 public class Tileset {
 	
 	private String imgPath;
@@ -44,6 +48,10 @@ public class Tileset {
 	
 	public int getTileHeight() {
 		return tileHeight;
+	}
+
+	public BufferedImage loadImage() throws IOException {
+		return ImageIO.read(Main.class.getResourceAsStream("/Tilesets" + imgPath));
 	}
 
 	public boolean equals(Object obj) {

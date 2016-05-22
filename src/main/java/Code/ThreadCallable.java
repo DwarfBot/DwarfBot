@@ -1,27 +1,25 @@
 package Code;
 import java.util.concurrent.*;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Random;
 
 public class ThreadCallable implements Callable<ArrayList<TilesetDetected>> {
 	private int start, length;
-	private ArrayList<Tileset> allTilesets;
-	private BufferedImage toConvert;
+	private TileFitter fitter;
 	
-	public ThreadCallable(int _start, int _length, ArrayList<Tileset> _allTilesets, BufferedImage _toConvert) {
+	public ThreadCallable(int _start, int _length, TileFitter _fitter) {
 		start = _start;
 		length = _length;
-		allTilesets = _allTilesets;
-		toConvert = _toConvert;
+		fitter = _fitter;
 	}
 	
 	@Override
 	public ArrayList<TilesetDetected> call() throws Exception {
 		ArrayList<TilesetDetected> mObjs = new ArrayList<>();
 		Random threadRandom = new Random();
+		ArrayList<Tileset> tilesets = fitter.getTilesets();
 		for (int i = start; i < start + length; i++) {
-			mObjs.add(Main.matchForTileset(allTilesets.get(i), threadRandom, toConvert));
+			mObjs.add(fitter.matchForTileset(tilesets.get(i), threadRandom));
 			Main.incrementNumTilesetChecksComplete();
 		}
 		return mObjs;
