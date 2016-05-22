@@ -34,14 +34,15 @@ import WikiBot.Core.GenericBot;
 
 public class TilesetManager extends GenericBot {
 	
-	private static String TILESET_INFO_FILE;
+	private String TILESET_INFO_FILE;
+	protected static int revisionDepth = 0;
+
 	
 	public TilesetManager() {
 		//What MediaWiki family am I browsing?
 		String family = "Random";
 		mdm.readFamily(family, 0);
-		revisionDepth = 0;
-		
+
 		TILESET_INFO_FILE = "/tileset.txt";
 	}
 	
@@ -60,7 +61,6 @@ public class TilesetManager extends GenericBot {
 		fileOutput += "Toady, null\n/curses_800x600.png\n10 12\n";
 		fileOutput += "Toady, null DefaultSquare\n/curses_square_16x16.png\n16 16\n";
 		
-		ArrayList<Tileset> tilesets = new ArrayList<Tileset>();
 		for (Template t : templates) {
 			//Get template values.
 			String author = getParameterValue(t, "author");
@@ -144,7 +144,7 @@ public class TilesetManager extends GenericBot {
 					} catch (Throwable e) {
 						//Corrupted image. Halt code.
 						e.printStackTrace();
-						System.exit(1);
+						throw new Error("Stopping because a corrupted image was found on the wiki.", e);
 					}
 				} catch (IOException e) {
 					System.out.println("IOError");
@@ -156,10 +156,9 @@ public class TilesetManager extends GenericBot {
 			
 			//Easier on the wiki.
 			try {
-				this.wait(200);
-			} catch (InterruptedException|IllegalMonitorStateException e) {
-				// TODO Auto-generated catch block
-				//e.printStackTrace();
+				Thread.sleep(200);
+			} catch (InterruptedException e) {
+				// Just continue running. The wait isn't so critical we need to worry about it being interrupted
 			}
 		}
 		
@@ -238,7 +237,7 @@ public class TilesetManager extends GenericBot {
 			// Read in the file!
 			InputStream in = getClass().getResourceAsStream(location);
 			BufferedReader br = new BufferedReader(
-						new InputStreamReader(in)
+						new InputStreamReader(in, "UTF-8")
 					);
 
 			
@@ -275,10 +274,18 @@ public class TilesetManager extends GenericBot {
 			// retrieve image
 			BufferedImage bi = img;
 			File outputfile = new File(title);
-			outputfile.mkdirs();
-			ImageIO.write(bi, "png", outputfile);
-		} catch (IOException e) {
+			boolean parentPathExists = true;
+			if (!outputfile.getParentFile().isDirectory()) {
+				parentPathExists = outputfile.mkdirs();
+			}
+			if (parentPathExists) {
+				ImageIO.write(bi, "png", outputfile);
+			} else {
+				throw new Error();
+			}
+		} catch (IOException|Error e) {
 			e.printStackTrace();
+			throw new Error("Could not write to a file.", e);
 		}
 	}
 
