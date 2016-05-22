@@ -1,44 +1,64 @@
 package Code;
 
-import org.apache.commons.cli.*;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.imageio.ImageIO;
 
 /**
- * 
+ *
  * @author ErnieParke
- * 
+ *
  * This code converts an DF image from one tileset to another tileset.
- * 
+ *
  * It can also be used to take an image and render some DF pop art. This
  * mode, toggled by setting artistic to true in init(), can take awhile.
- * 
+ *
  * Some example images to convert are at Resources/ImageXXX.png
- * 
+ *
  */
 
 public class Main {
 
-	private static String IMAGE_IMPORT_PATH;//The location of the image to be converted.
-	private static String IMAGE_EXPORT_PATH;//The location of the converted image to be converted.
-	
-	private static int threshold;
-	private static boolean artistic;//Changes parsing slightly for making artistic DF pieces
+	/** The location of the image to be converted. */
+	private static String imageImportPath;
 
-	private static AtomicInteger numTilesetChecksComplete; // For giving progress information during extractTileset.
-	
-	public static void main(String[] args) {
+	/** The location of the converted image to be converted. */
+	private static String imageExportPath;
+
+	/** Threshold at which two colors are considered similar. */
+	private static int threshold;
+
+	/** Changes parsing slightly for making artistic DF pieces. */
+	private static boolean artistic;
+
+	/** For giving progress information during extractTileset. */
+	private static AtomicInteger numTilesetChecksComplete;
+
+	/**
+	 * Run all this beautiful code...
+	 * @param args Arguments given on the command line.
+	 */
+	public static void main(final String[] args) {
 		//printTileset(22);
 		//findTileset("Phoebus");
 		//refreshTilesets();
@@ -88,8 +108,8 @@ public class Main {
 		try {
 			CommandLine line = parser.parse(options, args);
 
-			IMAGE_IMPORT_PATH = line.getOptionValue("i", "/Image_Anikki8x8.png");
-			IMAGE_EXPORT_PATH = line.getOptionValue("o", "/Converted.png");
+			imageImportPath = line.getOptionValue("i", "/Image_Anikki8x8.png");
+			imageExportPath = line.getOptionValue("o", "/Converted.png");
 
 			if (line.hasOption("h")) {
 				HelpFormatter formatter = new HelpFormatter();
@@ -100,42 +120,50 @@ public class Main {
 			if (line.hasOption("l")) {
 				new TilesetManager().printTilesets();
 				System.exit(0);
-			}
-			else {
+			} else {
 				convertImage(Integer.parseInt(line.getOptionValue("t", "0")));
 			}
-		}
-		catch (ParseException e) {
+		} catch (ParseException e) {
 			System.err.println("Parsing failed.  Reason: " + e.getMessage());
-		}
-		catch (NumberFormatException e) {
+		} catch (NumberFormatException e) {
 			System.err.println("Not a ID integer.  Reason: " + e.getMessage());
 		}
 	}
-	
+
+	/**
+	 * Redownload the tilesets from the wiki.
+	 */
 	@SuppressWarnings("unused")
 	private static void refreshTilesets() {
 		TilesetManager bot = new TilesetManager();
 		bot.refreshTilesets();
 	}
-	
+
+	/**
+	 * Print the tileset with the given id.
+	 * @param id The id of the tileset.
+	 */
 	@SuppressWarnings("unused")
-	private static void printTileset(int ID) {
+	private static void printTileset(final int id) {
 		TilesetManager bot = new TilesetManager();
 		ArrayList<Tileset> tilesets = bot.getTilesets();
-		
+
 		for (int i = 0; i < tilesets.size(); i++) {
-			if (i == ID) {
-				System.out.println(tilesets.get(ID));
+			if (i == id) {
+				System.out.println(tilesets.get(id));
 			}
 		}
 	}
-	
+
+	/**
+	 * Print the index of the first tileset with an author or path containing identifier.
+	 * @param identifier The string to check.
+	 */
 	@SuppressWarnings("unused")
-	private static void findTileset(String identifier) {
+	private static void findTileset(final String identifier) {
 		TilesetManager bot = new TilesetManager();
 		ArrayList<Tileset> tilesets = bot.getTilesets();
-		
+
 		for (int i = 0; i < tilesets.size(); i++) {
 			Tileset tileset = tilesets.get(i);
 			if (tileset.getAuthor().contains(identifier) || tileset.getImagePath().contains(identifier)) {
@@ -143,31 +171,43 @@ public class Main {
 			}
 		}
 	}
-	
-	private static void convertImage(int tilesetIDConvertTo) {
+
+	/**
+	 * Convert the image given in the file `imageImportPath` to another tileset.
+	 * @param tilesetIDConvertTo The index of the tileset to convert the image to.
+	 */
+	private static void convertImage(final int tilesetIDConvertTo) {
 		//Load in tilesets
 		TilesetManager bot = new TilesetManager();
 		ArrayList<Tileset> tilesets = bot.getTilesets();
-		
+
 		//Read in our image.
-		BufferedImage toConvert = loadImage(IMAGE_IMPORT_PATH);
-		
-		
+		BufferedImage toConvert = loadImage(imageImportPath);
+
+
 		long timeBeforeExtraction = System.currentTimeMillis();
 		//Necessary data management
 
 		TilesetDetected detected = extractTileset(tilesets, toConvert);
-		
-		System.out.println("Extraction time: "+(System.currentTimeMillis() - timeBeforeExtraction));
-		
+
+		System.out.println("Extraction time: " + (System.currentTimeMillis() - timeBeforeExtraction));
+
 		//Now that I know the tileset of the image, decode the image into its colors and tile id's
 		DecodedImage decoded = readTiles(toConvert, tilesets, detected.getBasex(), detected.getBasey(), detected.getTilesetID());
 
 		//Re-render the image with the new tileset
-		exportRenderedImage(toConvert, decoded, tilesets, tilesetIDConvertTo, "Resources" + IMAGE_EXPORT_PATH);
+		exportRenderedImage(toConvert, decoded, tilesets, tilesetIDConvertTo, "Resources" + imageExportPath);
 	}
 
-	public static TilesetDetected matchForTileset(Tileset tileset, Random rng, BufferedImage toConvert) {
+	/**
+	 * Get match information from the tileset. This includes base coordinates and the quality of the match (the number
+	 * of tiles that are similar to the ones shown in the image)
+	 * @param tileset The tileset to retrieve information for.
+	 * @param rng The random number generator to use.
+	 * @param toConvert The image to check.
+	 * @return a TilesetDetected object with the match coordinates and quality.
+	 */
+	public static TilesetDetected matchForTileset(final Tileset tileset, final Random rng, final BufferedImage toConvert) {
 		//I make multiple attempts to match a tileset, in case of error.
 		//I do not expect the tile grid to line up with the edges of the image, so I vary the tile starting position, using offsetx and offsety.
 		//I check every tile in the tileset to see if it matches.
@@ -180,7 +220,7 @@ public class Main {
 
 		//Does the tileset use alpha or a pink background?
 		boolean tilesetUsesAlpha = false;
-		BufferedImage tileImg = tilesetImg.getSubimage(0, 2*tileHeight, tileWidth, tileHeight);
+		BufferedImage tileImg = tilesetImg.getSubimage(0, 2 * tileHeight, tileWidth, tileHeight);
 
 		Color c = new Color(tileImg.getRGB(0, 0), true);
 		tilesetUsesAlpha = c.getAlpha() != 255;
@@ -195,16 +235,16 @@ public class Main {
 
 	TestTileset:
 		for (double attempts = 0; attempts < 5 && !tilesetMatches; attempts++) {
-			if ( toConvert.getWidth() < tileWidth || toConvert.getWidth() < tileHeight ) {
-				break TestTileset;//Tiles from this tileset cannot fit inside the image.
+			if (toConvert.getWidth() < tileWidth || toConvert.getWidth() < tileHeight) {
+				break TestTileset; //Tiles from this tileset cannot fit inside the image.
 			}
-			if ( toConvert.getWidth() < 2*tileWidth ) {
+			if (toConvert.getWidth() < 2 * tileWidth) {
 				//The image is not two tiles wide. Be conservative.
 				x = 0;
 			} else {
-				x = rng.nextInt(toConvert.getWidth() - 2*tileWidth);
+				x = rng.nextInt(toConvert.getWidth() - 2 * tileWidth);
 			}
-			if ( toConvert.getWidth() < tileHeight*2 ) {
+			if (toConvert.getWidth() < tileHeight*2) {
 				//The image is not two tiles tall. Be conservative.
 				y = 0;
 			} else {
@@ -320,15 +360,15 @@ public class Main {
 
 	private static TilesetDetected extractTileset( ArrayList<Tileset> tilesets, BufferedImage toConvert ) throws Error {
 		int numTilesetsToCheck = tilesets.size();//How many tilesets are we checking against?
-		
+
 		ArrayList<Integer> tilesetMatchCount = new ArrayList<Integer>();//How closely does a tileset match the image to convert? This counts the number of matching tiles.
-		
+
 		ArrayList<Integer> basexList = new ArrayList<Integer>();//The offsetx where a tile match was detected.
 		ArrayList<Integer> baseyList = new ArrayList<Integer>();//The offsety where a tile match was detected.
 
 		// Before we start any other threads, make the AtomicInteger for progress information.
 		numTilesetChecksComplete = new AtomicInteger(0);
-		
+
 		//The way I detect tilesets:
 		//I check each tileset one by one.
 
@@ -381,23 +421,23 @@ public class Main {
 				bestTilesetMatch = tilesetID;
 			}
 		}
-		
+
 		if (tilesetMatchCount.get(bestTilesetMatch) == 0) {
 			throw new Error("No suitable match found.");
 		}
-		
+
 		Tileset best = tilesets.get(bestTilesetMatch);
 		System.out.println("Detected tileset: " + best.getImagePath());
 		return new TilesetDetected(basexList.get(bestTilesetMatch), baseyList.get(bestTilesetMatch), bestTilesetMatch, tilesetMatchCount.get(bestTilesetMatch));
 	}
-	
+
 	private static DecodedImage readTiles(BufferedImage toConvert, ArrayList<Tileset> tilesets, int basex, int basey, int tilesetID) {
 		Tileset tileset = tilesets.get(tilesetID);//The tileset you think this image is in.
 		BufferedImage tilesetImg = loadImage("/Tilesets" + tileset.getImagePath());//Get its image.
 		int tileWidth = tileset.getTileWidth();//How wide is a tile? Pixels.
 		int tileHeight = tileset.getTileHeight();//How tall is a tile?
 		System.out.println("Detected:" + tileset.getAuthor() + ":" + tileset.getImagePath());//It's kind of the program to think of us...
-		
+
 		boolean tilesetUsesAlpha = false;//Does the tileset use alpha? This affects how the tileset is rendered.
 		BufferedImage tileImg = tilesetImg.getSubimage(0, 2*tileHeight, tileWidth, tileHeight);
 		Color c = new Color(tileImg.getRGB(0, 0), true);
@@ -406,7 +446,7 @@ public class Main {
 		ArrayList<Tile> tiles = new ArrayList<Tile>();//Set up some "storage" variables. This stores what tiles are found.
 		int convertTileWidth = (toConvert.getWidth()-basex)/tileWidth;//How many tiles wide the image to be converted is.
 		int convertTileHeight = (toConvert.getHeight()-basey)/tileHeight;//How many tiles tall the image to be converted is.
-		
+
 		for (int col = 0; col < convertTileWidth; col++) {
 			if (col%((int)((convertTileWidth+1)*0.1)) == 0) {
 				System.out.println((100.0*col/convertTileWidth) + "%");//Nice to see where we are in the algorithm.
@@ -419,7 +459,7 @@ public class Main {
 					threshold = 5;
 				}
 				boolean tileFound = false;
-				
+
 				do {
 				TestTiles:
 					for (int tile = 0; tile < 256; tile++) {
@@ -438,7 +478,7 @@ public class Main {
 						int tileCol = tile%16;
 						int tileRow = (tile - tileCol)/16;
 						tileImg = tilesetImg.getSubimage(tileCol*tileWidth, tileRow*tileHeight, tileWidth, tileHeight);
-						
+
 						Tile tileObj = checkSimilarity(sampleImg, tileImg, tilesetUsesAlpha);
 
 						if (tileObj != null) {
@@ -481,16 +521,16 @@ public class Main {
 				} while (!tileFound);
 			}
 		}
-		
+
 		return new DecodedImage(tiles, convertTileWidth, convertTileHeight);
 	}
-	
+
 	private static void exportRenderedImage(BufferedImage toConvert, DecodedImage decoded, ArrayList<Tileset> tilesets, int tilesetConvertTo, String exportPath) {
 		//Read in decoded info.
 		ArrayList<Tile> tiles = decoded.getTiles();
 		int convertTileWidth = decoded.getTilesWide();
 		int convertTileHeight = decoded.getTilesTall();
-		
+
 		//Data management
 		int tilesetID = tilesetConvertTo;//What tileset am I converting to.
 		Tileset tileset = tilesets.get(tilesetID);//Get that tileset.
@@ -498,18 +538,18 @@ public class Main {
 		int tileWidth = tileset.getTileWidth();//How wide are the tiles? Pixels
 		int tileHeight = tileset.getTileHeight();//How tall are the tiles?
 		System.out.println("Render to tileset: " + tileset.getAuthor() + ":" + tileset.getImagePath());//Handy.
-		
+
 		boolean tilesetUsesAlpha = false;//Does the tileset use alpha? This affects rendering.
 		BufferedImage tileImg = tilesetImg.getSubimage(0, 2*tileHeight, tileWidth, tileHeight);
 		Color c = new Color(tileImg.getRGB(0, 0), true);
 		tilesetUsesAlpha = c.getAlpha() != 255;
-		
+
 		//Set up image to write to
 		BufferedImage output = new BufferedImage(convertTileWidth*tileWidth, convertTileHeight*tileHeight, BufferedImage.TYPE_INT_RGB);
 		Graphics2D g2 = output.createGraphics();
 		g2.setColor(Color.BLACK);//Fill with black. Touche.
 		g2.fill(new Rectangle(0, 0, 1000, 1000));
-		
+
 		for (int col = 0; col < convertTileWidth; col++) {
 			if (col%((int)((convertTileWidth+1)*0.1)) == 0) {
 				System.out.println((100.0*col/convertTileWidth) + "%");//Nice to see where we are in the algorithm.
@@ -517,30 +557,30 @@ public class Main {
 			for (int row = 0; row < convertTileHeight; row++) {
 				final Color PINK = new Color(255, 0, 255);
 				Tile tile = tiles.get(col*convertTileHeight + row);
-				
+
 				if (tile != null) {
 					//Grab tile
 					int tileID = tile.getID();
 					int tileCol = tileID%16;
 					int tileRow = (tileID - tileCol)/16;
 					tileImg = tilesetImg.getSubimage(tileCol*tileWidth, tileRow*tileHeight, tileWidth, tileHeight);
-					
+
 					for (int x = 0; x < tileWidth; x++) {
 						for (int y = 0; y < tileHeight; y++) {
-							
+
 							//Grab tile color
 							Color tileC = new Color(tileImg.getRGB(x,  y), true);
 							Color toDraw;
-							
+
 							if (tilesetUsesAlpha) {
 								//The tileset uses alpha.
 								toDraw = Color.BLACK;
 									double alpha = tileC.getAlpha()/255.0;//1.0 = foreground, 0.0 = background
 									float transparency;
-									
+
 									Color foreground = tile.getForegroundColor();
 									Color background = tile.getBackgroundColor();
-									
+
 									float[] hsv = new float[3];//Hue = 0, Saturation = 1, Value = 2
 									Color.RGBtoHSB(tileC.getRed(), tileC.getGreen(), tileC.getBlue(), hsv);
 									float tileHue = hsv[0];//0.0...1.0
@@ -550,7 +590,7 @@ public class Main {
 									float foregroundHue = hsv2[0];//0.0...1.0
 									float hueDifference = Math.abs(tileHue - foregroundHue);
 									hueDifference = Math.min(hueDifference, 1-hueDifference);
-									
+
 									//Dwarf Fortress a slightly tints the colors of the tiles.
 									double average = transparency*255.0;
 									int redBoost = (int)(Math.min(tileC.getRed()-average, 25)*(foreground.getRed()/255.0));
@@ -586,12 +626,12 @@ public class Main {
 				}
 			}
 		}
-		
+
 		g2.dispose();
-		
+
 		TilesetManager.saveImage(output, exportPath);
 	}
-	
+
 	private static Tile checkSimilarity(BufferedImage sampleImg, BufferedImage tileImg, boolean tilesetUsesAlpha) {
 		//Check that two tile images are equal
 		//TileImg - The tile image pulled from the tileset.
@@ -606,7 +646,7 @@ public class Main {
 			for (int y2 = 0; y2 < tileImg.getHeight(); y2++) {
 				Color sampleC = new Color(sampleImg.getRGB(x2, y2));//From screenshot
 				tileC = new Color(tileImg.getRGB(x2, y2), true);//From tileset
-				
+
 				if (tilesetUsesAlpha) {
 					//Currently do not handle alpha tilesets because they are weird.
 					return null;
@@ -650,7 +690,7 @@ public class Main {
 							//Check for similarity
 							if (tileCisGrey) {
 								//Check that sampleS is scalar of foreground color based on how white tileC is
-								
+
 								double transparency = (double)tileC.getRed()/255;
 								if (Math.abs(transparency*foregroundColor.getRed() - sampleC.getRed()) < threshold && 
 										Math.abs(transparency*foregroundColor.getGreen() - sampleC.getGreen()) < threshold &&
@@ -671,17 +711,17 @@ public class Main {
 				}
 			}
 		}
-		
+
 		if (foregroundColor == null) {
 			foregroundColor = Color.BLACK;//To handle some edge cases.
 		}
 		if (backgroundColor == null) {
 			backgroundColor = Color.BLACK;//To handle some edge cases.
 		}
-		
+
 		return new Tile(backgroundColor, foregroundColor);
 	}
-	
+
 	public static BufferedImage loadImage(String path) {
 		BufferedImage image = null;
 		try {
