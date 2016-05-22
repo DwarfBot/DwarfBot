@@ -193,7 +193,7 @@ public class Main {
 		System.out.println("Extraction time: " + (System.currentTimeMillis() - timeBeforeExtraction));
 
 		//Now that I know the tileset of the image, decode the image into its colors and tile id's
-		DecodedImage decoded = readTiles(toConvert, tilesets, detected.getBasex(), detected.getBasey(), detected.getTilesetID());
+		DecodedImage decoded = readTiles(toConvert, detected.getTileset(), detected.getBasex(), detected.getBasey());
 
 		//Re-render the image with the new tileset
 		exportRenderedImage(toConvert, decoded, tilesets, tilesetIDConvertTo, "Resources" + imageExportPath);
@@ -342,11 +342,11 @@ public class Main {
 				throw new Error();
 			}
 
-			return new TilesetDetected(basex, basey, tileset.getId(), numMatches);
+			return new TilesetDetected(basex, basey, tileset, numMatches);
 
 		} else {
 			//Tileset does not match
-			return new TilesetDetected(0, 0, tileset.getId(), 0);
+			return new TilesetDetected(0, 0, tileset, 0);
 		}
 	}
 
@@ -428,11 +428,10 @@ public class Main {
 
 		Tileset best = tilesets.get(bestTilesetMatch);
 		System.out.println("Detected tileset: " + best.getImagePath());
-		return new TilesetDetected(basexList.get(bestTilesetMatch), baseyList.get(bestTilesetMatch), bestTilesetMatch, tilesetMatchCount.get(bestTilesetMatch));
+		return new TilesetDetected(basexList.get(bestTilesetMatch), baseyList.get(bestTilesetMatch), tilesets.get(bestTilesetMatch), tilesetMatchCount.get(bestTilesetMatch));
 	}
-
-	private static DecodedImage readTiles(BufferedImage toConvert, ArrayList<Tileset> tilesets, int basex, int basey, int tilesetID) {
-		Tileset tileset = tilesets.get(tilesetID);//The tileset you think this image is in.
+	
+	private static DecodedImage readTiles(BufferedImage toConvert, Tileset tileset, int basex, int basey) {
 		BufferedImage tilesetImg = loadImage("/Tilesets" + tileset.getImagePath());//Get its image.
 		int tileWidth = tileset.getTileWidth();//How wide is a tile? Pixels.
 		int tileHeight = tileset.getTileHeight();//How tall is a tile?
