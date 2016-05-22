@@ -3,6 +3,7 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'application'
+    id 'findbugs'
     id "com.github.johnrengelman.shadow" version "1.2.3"
 }
 
@@ -19,3 +20,13 @@ dependencies {
     testCompile 'junit:junit:4.+'
 }
 
+findbugs {
+    ignoreFailures = true
+}
+
+tasks.withType(FindBugs) {
+    reports {
+        xml.enabled = false
+        html.enabled = true
+    }
+}
