@@ -5,9 +5,9 @@ import java.util.Random;
 
 public class ThreadCallable implements Callable<ArrayList<TilesetDetected>> {
 	private int start, length;
-	private TileFitter fitter;
+	private TilesetFitter fitter;
 	
-	public ThreadCallable(int _start, int _length, TileFitter _fitter) {
+	public ThreadCallable(int _start, int _length, TilesetFitter _fitter) {
 		start = _start;
 		length = _length;
 		fitter = _fitter;

@@ -35,13 +35,12 @@ import WikiBot.Core.GenericBot;
 public class TilesetManager extends GenericBot {
 	
 	private String TILESET_INFO_FILE;
-	protected static int revisionDepth = 0;
-
 	
 	public TilesetManager() {
 		//What MediaWiki family am I browsing?
 		String family = "Random";
 		mdm.readFamily(family, 0);
+		revisionDepth = 0;
 
 		TILESET_INFO_FILE = "/tileset.txt";
 	}
@@ -144,7 +143,7 @@ public class TilesetManager extends GenericBot {
 					} catch (Throwable e) {
 						//Corrupted image. Halt code.
 						e.printStackTrace();
-						throw new Error("Stopping because a corrupted image was found on the wiki.", e);
+						throw new Error("Stopping because somehow images are corrupted.", e);
 					}
 				} catch (IOException e) {
 					System.out.println("IOError");

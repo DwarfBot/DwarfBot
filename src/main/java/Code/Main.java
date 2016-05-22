@@ -183,7 +183,7 @@ public class Main {
 		//Read in our image.
 		BufferedImage toConvert = loadImage(imageImportPath);
 
-		TileFitter fitter = new TileFitter(tilesets, artistic, toConvert, threshold);
+		TilesetFitter fitter = new TilesetFitter(tilesets, artistic, toConvert, threshold);
 
 
 
@@ -201,7 +201,7 @@ public class Main {
 	}
 
 
-	private static Callable<ArrayList<TilesetDetected>> threadCallableForTilesetRange(int start, int length, TileFitter fitter) {
+	private static Callable<ArrayList<TilesetDetected>> threadCallableForTilesetRange(int start, int length, TilesetFitter fitter) {
 		return new ThreadCallable(start, length, fitter);
 	}
 
@@ -209,7 +209,7 @@ public class Main {
 		numTilesetChecksComplete.incrementAndGet();
 	}
 
-	private static TilesetDetected extractTileset(TileFitter fitter) throws Error {
+	private static TilesetDetected extractTileset(TilesetFitter fitter) throws Error {
 		ArrayList<Tileset> tilesets = fitter.getTilesets();
 		int numTilesetsToCheck = tilesets.size();//How many tilesets are we checking against?
 

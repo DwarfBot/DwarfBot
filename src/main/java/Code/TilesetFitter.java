@@ -9,13 +9,13 @@ import java.util.Random;
 /**
  * Created by jacob on 2016-05-22.
  */
-public class TileFitter {
+public class TilesetFitter {
 	private ArrayList<Tileset> tilesets;
 	private BufferedImage toConvert;
 	private boolean artistic;
 	private int similarityThreshold;
 
-	public TileFitter(ArrayList<Tileset> _tilesets, boolean _artistic, BufferedImage _toConvert, int _similarityThreshold) {
+	public TilesetFitter(ArrayList<Tileset> _tilesets, boolean _artistic, BufferedImage _toConvert, int _similarityThreshold) {
 		tilesets = _tilesets;
 		artistic = _artistic;
 		toConvert = _toConvert;
