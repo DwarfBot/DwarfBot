@@ -161,13 +161,13 @@ public class Main {
 		System.out.println("Extraction time: "+(System.currentTimeMillis() - timeBeforeExtraction));
 		
 		//Now that I know the tileset of the image, decode the image into its colors and tile id's
-		DecodedImage decoded = readTiles(toConvert, tilesets, detected.getBasex(), detected.getBasey(), detected.getTilesetID());
+		DecodedImage decoded = readTiles(toConvert, detected.getTileset(), detected.getBasex(), detected.getBasey());
 
 		//Re-render the image with the new tileset
 		exportRenderedImage(toConvert, decoded, tilesets, tilesetIDConvertTo, "Resources" + IMAGE_EXPORT_PATH);
 	}
 
-	public static MatchObject matchObjectForTileset(Tileset tileset, Random rng, BufferedImage toConvert) {
+	public static TilesetDetected matchForTileset(Tileset tileset, Random rng, BufferedImage toConvert) {
 		//I make multiple attempts to match a tileset, in case of error.
 		//I do not expect the tile grid to line up with the edges of the image, so I vary the tile starting position, using offsetx and offsety.
 		//I check every tile in the tileset to see if it matches.
@@ -302,15 +302,15 @@ public class Main {
 				throw new Error();
 			}
 
-			return new MatchObject(numMatches, basex, basey);
+			return new TilesetDetected(basex, basey, tileset, numMatches);
 
 		} else {
 			//Tileset does not match
-			return new MatchObject(0, 0, 0);
+			return new TilesetDetected(0, 0, tileset, 0);
 		}
 	}
 
-	private static Callable<ArrayList<MatchObject>> threadCallableForTilesetRange(int start, int length, ArrayList<Tileset> allTilesets, BufferedImage toConvert) {
+	private static Callable<ArrayList<TilesetDetected>> threadCallableForTilesetRange(int start, int length, ArrayList<Tileset> allTilesets, BufferedImage toConvert) {
 		return new ThreadCallable(start, length, allTilesets, toConvert);
 	}
 
@@ -335,7 +335,7 @@ public class Main {
 		int numThreads = Math.min(8, numTilesetsToCheck / 2);
 		int typicalLength = (int)Math.ceil((double)numTilesetsToCheck / numThreads);
 		ExecutorService pool = Executors.newFixedThreadPool(numThreads);
-		ArrayList<Future<ArrayList<MatchObject>>> futures = new ArrayList<>();
+		ArrayList<Future<ArrayList<TilesetDetected>>> futures = new ArrayList<>();
 		for (int i = 0; i < numThreads; i++) {
 			int index = Math.min(numTilesetsToCheck - 1, i * typicalLength);
 			int length = Math.max(0, Math.min(numTilesetsToCheck - index, typicalLength));
@@ -354,8 +354,8 @@ public class Main {
 		}
 		System.out.println("Tileset checks now finished.");
 
-		for (Future<ArrayList<MatchObject>> future : futures) {
-			ArrayList<MatchObject> list;
+		for (Future<ArrayList<TilesetDetected>> future : futures) {
+			ArrayList<TilesetDetected> list;
 			try {
 				list = future.get();
 			} catch (Exception e) {
@@ -363,10 +363,10 @@ public class Main {
 				pool.shutdownNow();
 				throw new Error("A thread failed. This shouldn't happen under normal usage.");
 			}
-			for (MatchObject matchObject : list) {
-				basexList.add(matchObject.getBasex());
-				baseyList.add(matchObject.getBasey());
-				tilesetMatchCount.add(matchObject.getMatchCount());
+			for (TilesetDetected tilesetDetected : list) {
+				basexList.add(tilesetDetected.getBasex());
+				baseyList.add(tilesetDetected.getBasey());
+				tilesetMatchCount.add(tilesetDetected.getMatchCount());
 			}
 		}
 
@@ -388,11 +388,10 @@ public class Main {
 		
 		Tileset best = tilesets.get(bestTilesetMatch);
 		System.out.println("Detected tileset: " + best.getImagePath());
-		return new TilesetDetected(basexList.get(bestTilesetMatch), baseyList.get(bestTilesetMatch), bestTilesetMatch);
+		return new TilesetDetected(basexList.get(bestTilesetMatch), baseyList.get(bestTilesetMatch), tilesets.get(bestTilesetMatch), tilesetMatchCount.get(bestTilesetMatch));
 	}
 	
-	private static DecodedImage readTiles(BufferedImage toConvert, ArrayList<Tileset> tilesets, int basex, int basey, int tilesetID) {
-		Tileset tileset = tilesets.get(tilesetID);//The tileset you think this image is in.
+	private static DecodedImage readTiles(BufferedImage toConvert, Tileset tileset, int basex, int basey) {
 		BufferedImage tilesetImg = loadImage("/Tilesets" + tileset.getImagePath());//Get its image.
 		int tileWidth = tileset.getTileWidth();//How wide is a tile? Pixels.
 		int tileHeight = tileset.getTileHeight();//How tall is a tile?
