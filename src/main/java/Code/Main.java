@@ -342,13 +342,7 @@ public class Main {
 
 								float[] hsv = new float[3];//Hue = 0, Saturation = 1, Value = 2
 								Color.RGBtoHSB(tileC.getRed(), tileC.getGreen(), tileC.getBlue(), hsv);
-								float tileHue = hsv[0];//0.0...1.0
 								transparency = hsv[2];//0.0...1.0
-								float[] hsv2 = new float[3];
-								Color.RGBtoHSB(foreground.getRed(), foreground.getGreen(), foreground.getBlue(), hsv2);
-								float foregroundHue = hsv2[0];//0.0...1.0
-								float hueDifference = Math.abs(tileHue - foregroundHue);
-								hueDifference = Math.min(hueDifference, 1-hueDifference);
 
 								//Dwarf Fortress a slightly tints the colors of the tiles.
 								double average = transparency*255.0;
