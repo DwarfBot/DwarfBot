@@ -46,6 +46,7 @@ public class Main {
 		//convertImage(0);
 		//14 anikki 8x8, nice solid tileset
 		//57 vidume 15x15, uses alpha
+		//111 - isenhertz, uses color boosts, good for testing, uses altered RAWS
 		//112 - Lemunde, uses alpha, good for rendering, uses altered RAWS
 		//114 - Phoebus, uses alpha, uses altered RAWS
 
@@ -169,7 +170,7 @@ public class Main {
 		DecodedImage decoded = fitter.decodeImage();
 
 		//Re-render the image with the new tileset
-		fitter.exportRenderedImage(decoded, 111/*tilesetIDConvertTo*/, "Resources" + imageExportPath);
+		fitter.exportRenderedImage(decoded, 57/*tilesetIDConvertTo*/, "Resources" + imageExportPath);
 	}
 	
 	public static BufferedImage loadImage(String path) {
