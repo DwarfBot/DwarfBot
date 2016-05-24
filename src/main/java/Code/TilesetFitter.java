@@ -530,7 +530,7 @@ public class TilesetFitter {
 		int convertTileHeight = (toConvert.getHeight()-basey)/tileHeight;//How many tiles tall the image to be converted is.
 
 		for (int col = 0; col < convertTileWidth; col++) {
-			if (col%((int)((convertTileWidth+1)*0.1)) == 0) {
+			if (col%((int)(Math.ceil((convertTileWidth+1)*0.1))) == 0) {
 				System.out.println((100.0*col/convertTileWidth) + "%");//Nice to see where we are in the algorithm.
 			}
 			for (int row = 0; row < convertTileHeight; row++) {
@@ -630,7 +630,7 @@ public class TilesetFitter {
 		g2.fill(new Rectangle(0, 0, 1000, 1000));
 
 		for (int col = 0; col < convertTileWidth; col++) {
-			if (col%((int)((convertTileWidth+1)*0.1)) == 0) {
+			if (col%((int)(Math.ceil((convertTileWidth+1)*0.1))) == 0) {
 				System.out.println((100.0*col/convertTileWidth) + "%");//Nice to see where we are in the algorithm.
 			}
 			for (int row = 0; row < convertTileHeight; row++) {
