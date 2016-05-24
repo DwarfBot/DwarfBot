@@ -692,15 +692,18 @@ public class TilesetFitter {
 			if (isPink) {
 				toReturn = backgroundC;
 			} else {
-				boolean tileCisGrey = Math.abs(tileC.getRed()-tileC.getBlue()) < 2 && Math.abs(tileC.getRed() - tileC.getGreen()) < 2;
-				if (tileCisGrey) {
-					double transparency = tileC.getRed()/255.0;
-					toReturn = new Color((int)(foregroundC.getRed()*transparency),
-							(int)(foregroundC.getGreen()*transparency),
-							(int)(foregroundC.getBlue()*transparency));
-				} else {
-					toReturn = new Color(tileC.getRed(), tileC.getGreen(), tileC.getBlue());
-				}
+				float[] hsv = new float[3];//Hue = 0, Saturation = 1, Value = 2
+				Color.RGBtoHSB(tileC.getRed(), tileC.getGreen(), tileC.getBlue(), hsv);
+				double transparency = hsv[2];//How much the foreground color is showing against black.
+				
+				double average = transparency*255.0;
+				int redBoost = (int)(Math.min(tileC.getRed()-average, 25)*(foregroundC.getRed()/255.0));
+				int greenBoost = (int)(Math.min(tileC.getGreen()-average, 25)*(foregroundC.getGreen()/255.0));
+				int blueBoost = (int)(Math.min(tileC.getBlue()-average, 25)*(foregroundC.getBlue()/255.0));
+				
+				toReturn = new Color((int)((foregroundC.getRed() + redBoost)*transparency),
+						(int)((foregroundC.getGreen() + greenBoost)*transparency),
+						(int)((foregroundC.getBlue() + blueBoost)*transparency));
 			}
 		}
 		return toReturn;

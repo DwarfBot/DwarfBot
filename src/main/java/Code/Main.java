@@ -88,7 +88,7 @@ public class Main {
 		try {
 			CommandLine line = parser.parse(options, args);
 
-			imageImportPath = line.getOptionValue("i", "/Image_Vidumec15x15c.png");
+			imageImportPath = line.getOptionValue("i", "/b.png");
 			imageExportPath = line.getOptionValue("o", "/Converted.png");
 
 			if (line.hasOption("h")) {
@@ -169,7 +169,7 @@ public class Main {
 		DecodedImage decoded = fitter.decodeImage();
 
 		//Re-render the image with the new tileset
-		fitter.exportRenderedImage(decoded, 0/*tilesetIDConvertTo*/, "Resources" + imageExportPath);
+		fitter.exportRenderedImage(decoded, 111/*tilesetIDConvertTo*/, "Resources" + imageExportPath);
 	}
 	
 	public static BufferedImage loadImage(String path) {
