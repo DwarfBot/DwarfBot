@@ -284,7 +284,6 @@ public class TilesetFitter {
 		//Check that two tile images are equal
 		//TileImg - The tile image pulled from the tileset.
 		//SampleImg - A section of image to compare.
-		final Color PINK = new Color(255, 0, 255);
 
 		Color backgroundC = null;//The background color of the tile.
 		Color foregroundC = null;//The foreground color of the tile.
@@ -418,7 +417,8 @@ public class TilesetFitter {
 					}
 				} else {
 					//The tileset does not use alpha.
-					if (tileC.equals(PINK)) {
+					boolean isPink = tileC.getRed() > 250 && tileC.getGreen() < 5 && tileC.getBlue() > 250;
+					if (isPink) {
 						if (backgroundC == null) {
 							//Assign background color.
 							backgroundC = new Color(sampleC.getRed(), sampleC.getGreen(), sampleC.getBlue());
@@ -662,9 +662,7 @@ public class TilesetFitter {
 		TilesetManager.saveImage(output, exportPath);
 	}
 	
-	public static Color getRenderColor(Color foregroundC, Color backgroundC, Color tileC, boolean tilesetUsesAlpha) {
-		final Color PINK = new Color(255, 0, 255);
-		
+	public static Color getRenderColor(Color foregroundC, Color backgroundC, Color tileC, boolean tilesetUsesAlpha) {		
 		Color toReturn;//Return this.
 		
 		if (tilesetUsesAlpha) {
@@ -690,7 +688,8 @@ public class TilesetFitter {
 					Math.min(Math.max(blue, 0), 255));//I think this is how colors are rendered.
 		} else {
 			//The tileset does not use alpha.
-			if (tileC.equals(PINK)) {
+			boolean isPink = tileC.getRed() > 250 && tileC.getGreen() < 5 && tileC.getBlue() > 250;
+			if (isPink) {
 				toReturn = backgroundC;
 			} else {
 				boolean tileCisGrey = Math.abs(tileC.getRed()-tileC.getBlue()) < 2 && Math.abs(tileC.getRed() - tileC.getGreen()) < 2;
