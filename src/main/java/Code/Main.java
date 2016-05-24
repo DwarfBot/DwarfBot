@@ -41,14 +41,13 @@ public class Main {
 	 * @param args Arguments given on the command line.
 	 */
 	public static void main(final String[] args) {
-		//printTileset(22);
 		//findTileset("Phoebus");
 		//refreshTilesets();
-		//convertImage(0); //All ready added below
-		//14 anikki 8x8 Nice solid tileset
-		//57 vidume 15x15 Uses alpha
-		//112 - Lemunde, uses alpha, good for rendering
-		//114 - Phoebus
+		//convertImage(0);
+		//14 anikki 8x8, nice solid tileset
+		//57 vidume 15x15, uses alpha
+		//112 - Lemunde, uses alpha, good for rendering, uses altered RAWS
+		//114 - Phoebus, uses alpha, uses altered RAWS
 
 		artistic = false;
 
@@ -89,7 +88,7 @@ public class Main {
 		try {
 			CommandLine line = parser.parse(options, args);
 
-			imageImportPath = line.getOptionValue("i", "/Image_Anikki8x8.png");
+			imageImportPath = line.getOptionValue("i", "/Image_Vidumec15x15c.png");
 			imageExportPath = line.getOptionValue("o", "/Converted.png");
 
 			if (line.hasOption("h")) {
@@ -158,13 +157,6 @@ public class Main {
 	 * @param tilesetIDConvertTo The index of the tileset to convert the image to.
 	 */
 	private static void convertImage(int tilesetIDConvertTo) {
-		findTileset("Anikk");
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		//Load in tilesets
 		TilesetManager bot = new TilesetManager();
 		ArrayList<Tileset> tilesets = bot.getTilesets();
@@ -177,7 +169,7 @@ public class Main {
 		DecodedImage decoded = fitter.decodeImage();
 
 		//Re-render the image with the new tileset
-		fitter.exportRenderedImage(decoded, 57/*tilesetIDConvertTo*/, "Resources" + imageExportPath);
+		fitter.exportRenderedImage(decoded, 0/*tilesetIDConvertTo*/, "Resources" + imageExportPath);
 	}
 	
 	public static BufferedImage loadImage(String path) {
