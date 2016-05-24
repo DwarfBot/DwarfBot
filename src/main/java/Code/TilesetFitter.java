@@ -317,6 +317,8 @@ public class TilesetFitter {
 			throw new Error("You should never have a tile this small.");
 		}
 		
+		
+		
 		boolean performedCheck = false;//Require one check to be performed for positive signal to be sent. Only used when considering alpha tilesets.
 		for (int x2 = 0; x2 < tileImg.getWidth(); x2++) {
 			for (int y2 = 0; y2 < tileImg.getHeight(); y2++) {
