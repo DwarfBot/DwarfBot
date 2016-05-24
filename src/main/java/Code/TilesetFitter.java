@@ -665,8 +665,11 @@ public class TilesetFitter {
 	public static Color getRenderColor(Color foregroundC, Color backgroundC, Color tileC, boolean tilesetUsesAlpha) {		
 		Color toReturn;//Return this.
 		
-		if (tilesetUsesAlpha) {
-			//The tileset uses alpha.
+		boolean isPink = tileC.getRed() > 250 && tileC.getGreen() < 5 && tileC.getBlue() > 250;
+		
+		if (isPink && !tilesetUsesAlpha) {
+			toReturn = backgroundC;
+		} else {
 			double alpha = tileC.getAlpha()/255.0;//1.0 = foreground, 0.0 = background
 			float transparency;//How much the foreground color is showing against black.
 
@@ -685,26 +688,7 @@ public class TilesetFitter {
 			int blue = (int)(((foregroundC.getBlue() + blueBoost)*transparency)*alpha + (backgroundC.getBlue())*(1.0-alpha));
 			toReturn = new Color(Math.min(Math.max(red, 0), 255),
 					Math.min(Math.max(green, 0), 255),
-					Math.min(Math.max(blue, 0), 255));//I think this is how colors are rendered.
-		} else {
-			//The tileset does not use alpha.
-			boolean isPink = tileC.getRed() > 250 && tileC.getGreen() < 5 && tileC.getBlue() > 250;
-			if (isPink) {
-				toReturn = backgroundC;
-			} else {
-				float[] hsv = new float[3];//Hue = 0, Saturation = 1, Value = 2
-				Color.RGBtoHSB(tileC.getRed(), tileC.getGreen(), tileC.getBlue(), hsv);
-				double transparency = hsv[2];//How much the foreground color is showing against black.
-				
-				double average = transparency*255.0;
-				int redBoost = (int)(Math.min(tileC.getRed()-average, 25)*(foregroundC.getRed()/255.0));
-				int greenBoost = (int)(Math.min(tileC.getGreen()-average, 25)*(foregroundC.getGreen()/255.0));
-				int blueBoost = (int)(Math.min(tileC.getBlue()-average, 25)*(foregroundC.getBlue()/255.0));
-				
-				toReturn = new Color((int)((foregroundC.getRed() + redBoost)*transparency),
-						(int)((foregroundC.getGreen() + greenBoost)*transparency),
-						(int)((foregroundC.getBlue() + blueBoost)*transparency));
-			}
+					Math.min(Math.max(blue, 0), 255));//I think this is how colors are rendered. ¯\_(ツ)_/¯
 		}
 		return toReturn;
 	}
