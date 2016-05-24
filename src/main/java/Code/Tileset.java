@@ -12,6 +12,7 @@ public class Tileset {
 	private String dateCreated;
 	private int tileWidth;
 	private int tileHeight;
+	private int id;
 
 	public Tileset(String imgPath_, String author_, String nickname_, String date, int twidth_, int theight_, int id_) {
 		imgPath = imgPath_;
@@ -20,6 +21,7 @@ public class Tileset {
 		dateCreated = date;
 		tileWidth = twidth_;
 		tileHeight = theight_;
+		id = id_;
 	}
 	
 	public String getImagePath() {
@@ -48,6 +50,10 @@ public class Tileset {
 	
 	public int getTileHeight() {
 		return tileHeight;
+	}
+	
+	public int getID() {
+		return id;
 	}
 
 	public BufferedImage loadImage() throws IOException {

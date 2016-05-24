@@ -139,7 +139,7 @@ public class TilesetManager extends GenericBot {
 					png = ImageIO.read(url);
 					saveImage(png, "src/main/resources/Tilesets" + imagePath);
 					try {
-						BufferedImage tilesetImg = Main.loadImage("/Tilesets" + imagePath);
+						BufferedImage tilesetImg = TilesetFitter.loadImage("/Tilesets" + imagePath);
 					} catch (Throwable e) {
 						//Corrupted image. Halt code.
 						e.printStackTrace();
@@ -274,7 +274,7 @@ public class TilesetManager extends GenericBot {
 			BufferedImage bi = img;
 			File outputfile = new File(title);
 			boolean parentPathExists = true;
-			if (!outputfile.getParentFile().isDirectory()) {
+			if (outputfile.getParentFile() != null && !outputfile.getParentFile().isDirectory()) {
 				parentPathExists = outputfile.mkdirs();
 			}
 			if (parentPathExists) {

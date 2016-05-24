@@ -20,7 +20,7 @@ public class ThreadCallable implements Callable<ArrayList<TilesetDetected>> {
 		ArrayList<Tileset> tilesets = fitter.getTilesets();
 		for (int i = start; i < start + length; i++) {
 			mObjs.add(fitter.matchForTileset(tilesets.get(i), threadRandom));
-			Main.incrementNumTilesetChecksComplete();
+			TilesetFitter.incrementNumTilesetChecksComplete();
 		}
 		return mObjs;
 	}
