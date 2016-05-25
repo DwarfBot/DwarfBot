@@ -100,7 +100,7 @@ public class TilesetFitter {
 		try {
 			do {
 				logger.log(Level.FINE, "Tileset checks " + 100.0 * numTilesetChecksComplete.get() / numTilesetsToCheck + "% complete.");
-			} while (!pool.awaitTermination(1, TimeUnit.SECONDS));
+			} while (!pool.awaitTermination(5, TimeUnit.SECONDS));
 		} catch (InterruptedException ie) {
 			// We can safely ignore this and move on to the next code block, which will handle the error.
 		}
