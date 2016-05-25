@@ -16,6 +16,9 @@ import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
+import java.io.IOException;
 
 /**
  *
@@ -209,6 +212,16 @@ public class Main {
 		TilesetFitter fitter = new TilesetFitter(tilesets, artistic);
 		fitter.loadImageForConverting(toConvert);
 		DecodedImage decoded = fitter.decodeImage();
+		
+		try {
+			FileOutputStream fileOut = new FileOutputStream("/tmp/a.ser");
+			ObjectOutputStream objOut = new ObjectOutputStream(fileOut);
+			objOut.writeObject(decoded);
+			objOut.close();
+			fileOut.close();
+		} catch (IOException e) {
+			//TODO
+		}
 
 		//Re-render the image with the new tileset
 		fitter.exportRenderedImage(decoded, 57/*tilesetIDConvertTo*/, "Resources" + imageExportPath);
