@@ -8,9 +8,14 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.lang3.SystemUtils;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -26,6 +31,18 @@ import java.util.ArrayList;
  */
 
 public class Main {
+
+	/**
+	 * The name of the logger
+	 * Logging levels are: - SEVERE (fatal errors)
+	 *                     - WARNING
+	 *                     - INFO (algorithm progress)
+	 *                     - CONFIG
+	 *                     - FINE (percentages)
+	 *                     - FINER (thread creation)
+	 *                     - FINEST (Previously known as `boolean meh`)
+	 */
+	public static final String LOGGER_NAME = "Code";
 
 	/** The location of the image to be converted. */
 	private static String imageImportPath;
@@ -49,6 +66,12 @@ public class Main {
 		//111 - isenhertz, uses color boosts, good for testing, uses altered RAWS
 		//112 - Lemunde, uses alpha, good for rendering, uses altered RAWS
 		//114 - Phoebus, uses alpha, uses altered RAWS
+
+		Logger logger = Logger.getLogger(Main.LOGGER_NAME);
+		logger.setLevel(Level.FINEST); // The Levels will be limited by the handler, not by logger.
+		ConsoleHandler handler = new ConsoleHandler();
+		handler.setLevel(Level.INFO);
+		logger.addHandler(handler);
 
 		artistic = false;
 
@@ -84,30 +107,48 @@ public class Main {
 				.desc("Use tileset by id")
 				.type(Integer.class)
 				.build());
+		options.addOption(Option.builder("L")
+				.longOpt("log-level")
+				.hasArg(true)
+				.argName("level")
+				.desc("Use this logging level. (Default: INFO). SEVERE, WARNING, INFO, CONFIG, FINE, FINER, FINEST")
+				.type(String.class)
+				.build());
 
 		CommandLineParser parser = new DefaultParser();
+		CommandLine line = null;
 		try {
-			CommandLine line = parser.parse(options, args);
-
-			imageImportPath = line.getOptionValue("i", "/b.png");
-			imageExportPath = line.getOptionValue("o", "/Converted.png");
-
-			if (line.hasOption("h")) {
-				HelpFormatter formatter = new HelpFormatter();
-				formatter.printHelp("dwarfbot", options);
-				System.exit(0);
-			}
-
-			if (line.hasOption("l")) {
-				new TilesetManager().printTilesets();
-				System.exit(0);
-			} else {
-				convertImage(Integer.parseInt(line.getOptionValue("t", "0")));
-			}
+			line = parser.parse(options, args);
 		} catch (ParseException e) {
-			System.err.println("Parsing failed.  Reason: " + e.getMessage());
-		} catch (NumberFormatException e) {
-			System.err.println("Not a ID integer.  Reason: " + e.getMessage());
+			logger.log(Level.SEVERE, "Parsing failed.  Reason: " + e.getMessage());
+			System.exit(1);
+		}
+		try {
+			Level logLevel = Level.parse(line.getOptionValue("log-level", "INFO"));
+			handler.setLevel(logLevel);
+		} catch (IllegalArgumentException e) {
+			logger.log(Level.SEVERE, "Failed to parse log level. Check the help for allowed values.");
+		}
+
+		imageImportPath = line.getOptionValue("i", "/b.png");
+		imageExportPath = line.getOptionValue("o", "/Converted.png");
+
+		if (line.hasOption("h")) {
+			HelpFormatter formatter = new HelpFormatter();
+			formatter.printHelp("dwarfbot", options);
+			System.exit(0);
+		}
+
+		if (line.hasOption("l")) {
+			new TilesetManager().printTilesets();
+			System.exit(0);
+		} else {
+			try {
+				convertImage(Integer.parseInt(line.getOptionValue("t", "0")));
+			} catch (NumberFormatException e) {
+				logger.log(Level.SEVERE, "ID is not an integer.  Reason: " + e.getMessage());
+				System.exit(1);
+			}
 		}
 	}
 

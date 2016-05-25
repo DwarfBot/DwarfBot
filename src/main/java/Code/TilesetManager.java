@@ -14,6 +14,8 @@ import java.util.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 
@@ -35,12 +37,14 @@ import WikiBot.Core.GenericBot;
 public class TilesetManager extends GenericBot {
 	
 	private String TILESET_INFO_FILE;
+	private Logger logger;
 	
 	public TilesetManager() {
 		//What MediaWiki family am I browsing?
 		String family = "Random";
 		mdm.readFamily(family, 0);
 		revisionDepth = 0;
+		logger = Logger.getLogger(Main.LOGGER_NAME);
 
 		TILESET_INFO_FILE = "/tileset.txt";
 	}
@@ -131,8 +135,8 @@ public class TilesetManager extends GenericBot {
 			String directUrl = "";
 			try {
 				directUrl = getDirectImageURL(new PageLocation(imageName, "dw"));
-				System.out.println(directUrl);
-				
+				logger.log(Level.FINE, "Found image at URL " + directUrl);
+
 				BufferedImage png = null;
 				try {
 					URL url = new URL(directUrl);
@@ -146,11 +150,11 @@ public class TilesetManager extends GenericBot {
 						throw new Error("Stopping because somehow images are corrupted.", e);
 					}
 				} catch (IOException e) {
-					System.out.println("IOError");
+					logger.log(Level.SEVERE, "IOError");
 				}
 			} catch (NullPointerException e) {
-				System.out.println("Error!!");
-				System.out.println(new PageLocation(image.substring(2, image.length()-2), "dw"));
+				logger.log(Level.SEVERE, "Error!!");
+				logger.log(Level.SEVERE, new PageLocation(image.substring(2, image.length()-2), "dw").toString());
 			}
 			
 			//Easier on the wiki.
@@ -218,13 +222,13 @@ public class TilesetManager extends GenericBot {
 	public static void writeFile(String text, String location) {
 		PrintWriter writer = null;
 		try {
-			System.out.println(location);
+			Logger.getLogger(Main.LOGGER_NAME).log(Level.INFO, "Writing text to file " + location);
 			writer = new PrintWriter(location, "UTF-8");
 		} catch (FileNotFoundException e) {
-			System.out.println("Err1 File Not Found");
+			Logger.getLogger(Main.LOGGER_NAME).log(Level.WARNING, "Ignoring Err1 File Not Found while writing");
 			return;
 		} catch (UnsupportedEncodingException e) {
-			System.out.println("Err2 Unsupported file format");
+			Logger.getLogger(Main.LOGGER_NAME).log(Level.WARNING, "Ignoring Err2 Unsupported file format while writing");
 			return;
 		}
 		writer.write(text);
@@ -263,7 +267,7 @@ public class TilesetManager extends GenericBot {
 			return lines;
 			
 		} catch (IOException e) {
-			System.out.println("Error reading in list.");
+			logger.log(Level.SEVERE, "Error reading in file as list.");
 		}
 		return null;
 	}

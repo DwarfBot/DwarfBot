@@ -11,6 +11,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 
@@ -23,12 +25,14 @@ public class TilesetFitter {
 	private int similarityThreshold;
 	private BufferedImage toConvert;
 	private BufferedImage sampleFromToConvert;
+	private Logger logger;
 	private static AtomicInteger numTilesetChecksComplete;
 
 	public TilesetFitter(ArrayList<Tileset> _tilesets, boolean _artistic) {
 		tilesets = _tilesets;
 		artistic = _artistic;
 		similarityThreshold = 10;
+		logger = Logger.getLogger(Main.LOGGER_NAME);
 	}
 	
 	public void loadImageForConverting(BufferedImage toConvert_) {
@@ -59,7 +63,7 @@ public class TilesetFitter {
 		//What tileset is the image using?
 		TilesetDetected detected = extractTileset();
 
-		System.out.println("Extraction time: " + (System.currentTimeMillis() - timeBeforeExtraction));
+		logger.log(Level.INFO, "Extraction time: " + (System.currentTimeMillis() - timeBeforeExtraction));
 
 		//Decode the image into its tile colors and tile id's.
 		return readTiles(detected.getBasex(), detected.getBasey(), detected.getTileset());
@@ -87,7 +91,7 @@ public class TilesetFitter {
 		for (int i = 0; i < numThreads; i++) {
 			int index = Math.min(numTilesetsToCheck - 1, i * typicalLength);
 			int length = Math.max(0, Math.min(numTilesetsToCheck - index, typicalLength));
-			System.out.println("Creating thread with index " + index + ", length " + length);
+			logger.log(Level.FINER, "Creating thread with index " + index + ", length " + length);
 			futures.add(pool.submit(threadCallableForTilesetRange(index, length, this)));
 		}
 		pool.shutdown(); // This line means it will stop accepting new threads; it will not terminate existing ones
@@ -95,12 +99,12 @@ public class TilesetFitter {
 		// Give progress information.
 		try {
 			do {
-				System.out.println("Tileset checks " + 100.0 * numTilesetChecksComplete.get() / numTilesetsToCheck + "% complete.");
+				logger.log(Level.FINE, "Tileset checks " + 100.0 * numTilesetChecksComplete.get() / numTilesetsToCheck + "% complete.");
 			} while (!pool.awaitTermination(1, TimeUnit.SECONDS));
 		} catch (InterruptedException ie) {
 			// We can safely ignore this and move on to the next code block, which will handle the error.
 		}
-		System.out.println("Tileset checks now finished.");
+		logger.log(Level.INFO, "Tileset checks now finished.");
 
 		for (Future<ArrayList<TilesetDetected>> future : futures) {
 			ArrayList<TilesetDetected> list;
@@ -137,7 +141,7 @@ public class TilesetFitter {
 
 		Tileset best = tilesets.get(bestTilesetMatch);//Extract the tiles from the image.
 		
-		System.out.println("Detected tileset: " + best.getImagePath());
+		logger.log(Level.INFO, "Detected tileset: " + best.getImagePath());
 		return new TilesetDetected(basexList.get(bestTilesetMatch), baseyList.get(bestTilesetMatch), tilesets.get(bestTilesetMatch), tilesetMatchCount.get(bestTilesetMatch));
 	}
 
@@ -304,7 +308,7 @@ public class TilesetFitter {
 	}
 
 	private Tile checkSimilarity(BufferedImage sampleImg, BufferedImage tileImg, boolean tilesetUsesAlpha, int id, boolean meh) {
-		if (meh) System.out.println("---");
+		logger.log(Level.FINEST, "---");
 		//Check that two tile images are equal
 		//TileImg - The tile image pulled from the tileset.
 		//SampleImg - A section of image to compare.
@@ -381,7 +385,7 @@ public class TilesetFitter {
 							int greenGuess = (int)((sampleC.getGreen() - (backgroundC2.getGreen()*(1.0 - alpha)))/alpha/transparency/greenBoost);
 							int blueGuess = (int)((sampleC.getBlue() - (backgroundC2.getBlue()*(1.0 - alpha)))/alpha/transparency/blueBoost);
 							foregroundC = new Color(Math.min(Math.max(redGuess, 0), 255), Math.min(Math.max(greenGuess, 0), 255), Math.min(Math.max(blueGuess, 0), 255));
-							if (meh) System.out.println("f:" + foregroundC.getRed() + ":" + foregroundC.getGreen() + ":" + foregroundC.getBlue());
+							logger.log(Level.FINEST, "f:" + foregroundC.getRed() + ":" + foregroundC.getGreen() + ":" + foregroundC.getBlue());
 						} else if ((alpha == 0.0 || transparency == 0.0) && backgroundC != null) {
 							//The color only depends on the foreground. We can test that easily.
 							attemptProcess = true;
@@ -412,7 +416,7 @@ public class TilesetFitter {
 							int greenGuess = (int)((sampleC.getGreen() - ((foregroundC2.getGreen()*(greenBoost)*transparency*alpha)))/(1 - alpha));
 							int blueGuess = (int)((sampleC.getBlue() - ((foregroundC2.getBlue()*(blueBoost)*transparency*alpha)))/(1 - alpha));
 							backgroundC = new Color(Math.min(Math.max(redGuess, 0), 255), Math.min(Math.max(greenGuess, 0), 255), Math.min(Math.max(blueGuess, 0), 255));
-							if (meh) System.out.println("f:" + backgroundC.getRed() + ":" + backgroundC.getGreen() + ":" + backgroundC.getBlue());
+							logger.log(Level.FINEST, "f:" + backgroundC.getRed() + ":" + backgroundC.getGreen() + ":" + backgroundC.getBlue());
 						} else if (alpha == 1.0 && foregroundC != null) {
 							//The color only depends on the foreground. We can test that easily.
 							attemptProcess = true;
@@ -429,7 +433,7 @@ public class TilesetFitter {
 						} else {
 							toRender = getRenderColor(foregroundC, backgroundC, tileC, tilesetUsesAlpha);
 						}
-						if (meh) System.out.println("s:" + sampleC.getRed() + ":" + sampleC.getGreen() + ":" + sampleC.getBlue() + ":" + sampleC.getAlpha());
+						logger.log(Level.FINEST, "s:" + sampleC.getRed() + ":" + sampleC.getGreen() + ":" + sampleC.getBlue() + ":" + sampleC.getAlpha());
 
 						if (Math.abs(toRender.getRed() - sampleC.getRed()) < similarityThreshold && 
 								Math.abs(toRender.getGreen() - sampleC.getGreen()) < similarityThreshold &&
@@ -476,7 +480,7 @@ public class TilesetFitter {
 		
 		int tileWidth = tileset.getTileWidth();//How wide is a tile? Pixels.
 		int tileHeight = tileset.getTileHeight();//How tall is a tile?
-		System.out.println("Detected:" + tileset.getAuthor() + ":" + tileset.getImagePath());//It's kind of the program to think of us...
+		logger.log(Level.INFO, "Detected:" + tileset.getAuthor() + ":" + tileset.getImagePath());//It's kind of the program to think of us...
 
 		boolean tilesetUsesAlpha = false;//Does the tileset use alpha? This affects how the tileset is rendered.
 		BufferedImage tileImg = tilesetImg.getSubimage(0, 2*tileHeight, tileWidth, tileHeight);
@@ -489,7 +493,7 @@ public class TilesetFitter {
 
 		for (int col = 0; col < convertTileWidth; col++) {
 			if (col%((int)(Math.ceil((convertTileWidth+1)*0.1))) == 0) {
-				System.out.println((100.0*col/convertTileWidth) + "%");//Nice to see where we are in the algorithm.
+				logger.log(Level.FINE, (100.0*col/convertTileWidth) + "%");//Nice to see where we are in the algorithm.
 			}
 			for (int row = 0; row < convertTileHeight; row++) {
 				BufferedImage sampleImg = toConvert.getSubimage(basex + col*tileWidth, basey + row*tileHeight, tileWidth, tileHeight);
@@ -574,7 +578,7 @@ public class TilesetFitter {
 		BufferedImage tilesetImg = loadImage("/Tilesets" + tileset.getImagePath());//And its image.
 		int tileWidth = tileset.getTileWidth();//How wide are the tiles? Pixels
 		int tileHeight = tileset.getTileHeight();//How tall are the tiles?
-		System.out.println("Render to tileset: " + tileset.getAuthor() + ":" + tileset.getImagePath());//Handy.
+		logger.log(Level.INFO, "Render to tileset: " + tileset.getAuthor() + ":" + tileset.getImagePath());//Handy.
 
 		boolean tilesetUsesAlpha = false;//Does the tileset use alpha? This affects rendering.
 		BufferedImage tileImg = tilesetImg.getSubimage(0, 2*tileHeight, tileWidth, tileHeight);
@@ -589,7 +593,7 @@ public class TilesetFitter {
 
 		for (int col = 0; col < convertTileWidth; col++) {
 			if (col%((int)(Math.ceil((convertTileWidth+1)*0.1))) == 0) {
-				System.out.println((100.0*col/convertTileWidth) + "%");//Nice to see where we are in the algorithm.
+				logger.log(Level.INFO, (100.0*col/convertTileWidth) + "%");//Nice to see where we are in the algorithm.
 			}
 			for (int row = 0; row < convertTileHeight; row++) {
 				Tile tile = tiles.get(col*convertTileHeight + row);
@@ -691,7 +695,7 @@ public class TilesetFitter {
 			image = ImageIO.read(Main.class.getResourceAsStream(path));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			System.out.println("Err");
+			Logger.getLogger(Main.LOGGER_NAME).log(Level.SEVERE, "Could not load an image at " + path);
 			e.printStackTrace();
 		}
 
