@@ -2,6 +2,7 @@ package Code;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
@@ -688,7 +689,13 @@ public class TilesetFitter {
 	public static BufferedImage loadImage(String path) {
 		BufferedImage image = null;
 		try {
-			image = ImageIO.read(Main.class.getResourceAsStream(path));
+			File f = new File(path);
+			if(f.exists() && !f.isDirectory()) {
+				image = ImageIO.read(f);
+			} else {
+				System.out.println("Image input does not exist. Using demo image.");
+				image = ImageIO.read(Main.class.getResource("/b.png"));
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			System.out.println("Err");
