@@ -593,7 +593,7 @@ public class TilesetFitter {
 
 		for (int col = 0; col < convertTileWidth; col++) {
 			if (col%((int)(Math.ceil((convertTileWidth+1)*0.1))) == 0) {
-				logger.log(Level.INFO, (100.0*col/convertTileWidth) + "%");//Nice to see where we are in the algorithm.
+				logger.log(Level.FINE, (100.0*col/convertTileWidth) + "%");//Nice to see where we are in the algorithm.
 			}
 			for (int row = 0; row < convertTileHeight; row++) {
 				Tile tile = tiles.get(col*convertTileHeight + row);
