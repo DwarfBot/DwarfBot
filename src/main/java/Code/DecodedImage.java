@@ -1,7 +1,7 @@
 package Code;
 
-import java.util.ArrayList;
 import java.io.Serializable;
+import java.util.ArrayList;
 
 public class DecodedImage implements Serializable {
 	
