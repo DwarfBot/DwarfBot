@@ -70,7 +70,7 @@ public class Main {
 		Logger logger = Logger.getLogger(Main.LOGGER_NAME);
 		logger.setLevel(Level.FINEST); // The Levels will be limited by the handler, not by logger.
 		ConsoleHandler handler = new ConsoleHandler();
-		handler.setLevel(Level.INFO);
+		handler.setLevel(Level.FINE);
 		logger.addHandler(handler);
 
 		artistic = false;
@@ -124,7 +124,7 @@ public class Main {
 			System.exit(1);
 		}
 		try {
-			Level logLevel = Level.parse(line.getOptionValue("log-level", "INFO"));
+			Level logLevel = Level.parse(line.getOptionValue("log-level", "FINE"));
 			handler.setLevel(logLevel);
 		} catch (IllegalArgumentException e) {
 			logger.log(Level.SEVERE, "Failed to parse log level. Check the help for allowed values.");
