@@ -308,7 +308,7 @@ public class TilesetFitter {
 	}
 
 	private Tile checkSimilarity(BufferedImage sampleImg, BufferedImage tileImg, boolean tilesetUsesAlpha, int id, boolean meh) {
-		logger.log(Level.FINEST, "---");
+		if (meh) System.out.println("---");
 		//Check that two tile images are equal
 		//TileImg - The tile image pulled from the tileset.
 		//SampleImg - A section of image to compare.
@@ -385,7 +385,7 @@ public class TilesetFitter {
 							int greenGuess = (int)((sampleC.getGreen() - (backgroundC2.getGreen()*(1.0 - alpha)))/alpha/transparency/greenBoost);
 							int blueGuess = (int)((sampleC.getBlue() - (backgroundC2.getBlue()*(1.0 - alpha)))/alpha/transparency/blueBoost);
 							foregroundC = new Color(Math.min(Math.max(redGuess, 0), 255), Math.min(Math.max(greenGuess, 0), 255), Math.min(Math.max(blueGuess, 0), 255));
-							logger.log(Level.FINEST, "f:" + foregroundC.getRed() + ":" + foregroundC.getGreen() + ":" + foregroundC.getBlue());
+							if (meh) System.out.println("f:" + foregroundC.getRed() + ":" + foregroundC.getGreen() + ":" + foregroundC.getBlue());
 						} else if ((alpha == 0.0 || transparency == 0.0) && backgroundC != null) {
 							//The color only depends on the foreground. We can test that easily.
 							attemptProcess = true;
@@ -416,7 +416,7 @@ public class TilesetFitter {
 							int greenGuess = (int)((sampleC.getGreen() - ((foregroundC2.getGreen()*(greenBoost)*transparency*alpha)))/(1 - alpha));
 							int blueGuess = (int)((sampleC.getBlue() - ((foregroundC2.getBlue()*(blueBoost)*transparency*alpha)))/(1 - alpha));
 							backgroundC = new Color(Math.min(Math.max(redGuess, 0), 255), Math.min(Math.max(greenGuess, 0), 255), Math.min(Math.max(blueGuess, 0), 255));
-							logger.log(Level.FINEST, "f:" + backgroundC.getRed() + ":" + backgroundC.getGreen() + ":" + backgroundC.getBlue());
+							if (meh) System.out.println("f:" + backgroundC.getRed() + ":" + backgroundC.getGreen() + ":" + backgroundC.getBlue());
 						} else if (alpha == 1.0 && foregroundC != null) {
 							//The color only depends on the foreground. We can test that easily.
 							attemptProcess = true;
@@ -433,7 +433,7 @@ public class TilesetFitter {
 						} else {
 							toRender = getRenderColor(foregroundC, backgroundC, tileC, tilesetUsesAlpha);
 						}
-						logger.log(Level.FINEST, "s:" + sampleC.getRed() + ":" + sampleC.getGreen() + ":" + sampleC.getBlue() + ":" + sampleC.getAlpha());
+						if (meh) System.out.println("s:" + sampleC.getRed() + ":" + sampleC.getGreen() + ":" + sampleC.getBlue() + ":" + sampleC.getAlpha());
 
 						if (Math.abs(toRender.getRed() - sampleC.getRed()) < similarityThreshold && 
 								Math.abs(toRender.getGreen() - sampleC.getGreen()) < similarityThreshold &&

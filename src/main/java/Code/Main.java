@@ -40,7 +40,7 @@ public class Main {
 	 *                     - CONFIG
 	 *                     - FINE (percentages)
 	 *                     - FINER (thread creation)
-	 *                     - FINEST (Previously known as `boolean meh`)
+	 *                     - FINEST
 	 */
 	public static final String LOGGER_NAME = "Code";
 
