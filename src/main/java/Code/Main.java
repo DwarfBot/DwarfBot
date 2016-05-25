@@ -148,7 +148,7 @@ public class Main {
 		}
 
 		imageImportPath = line.getOptionValue("i", "/b.png");
-		imageExportPath = line.getOptionValue("o", "/Converted.png");
+		imageExportPath = line.getOptionValue("o", "Resources/Converted.png");
 		String importPath = imageImportPath;
 		boolean alreadyDecoded = false;
 		if (line.hasOption("import-decoded")) {
@@ -238,7 +238,7 @@ public class Main {
 		DecodedImage decodedImage = getDecodedImageUsingFitter(fitter, importPath, alreadyDecoded);
 
 		//Re-render the image with the new tileset
-		fitter.exportRenderedImage(decodedImage, tilesetIDConvertTo, "Resources" + imageExportPath);
+		fitter.exportRenderedImage(decodedImage, tilesetIDConvertTo, imageExportPath);
 	}
 
 	/**
