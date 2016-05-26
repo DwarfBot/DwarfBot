@@ -65,10 +65,12 @@ public class Main {
 		//refreshTilesets();
 		//convertImage(0);
 		//14 anikki 8x8, nice solid tileset
+		//56 talryth 15x15, very similar to vidume! source of false positives
 		//57 vidume 15x15, uses alpha
 		//111 - isenhertz, uses color boosts, good for testing, uses altered RAWS
 		//112 - Lemunde, uses alpha, good for rendering, uses altered RAWS
 		//114 - Phoebus, uses alpha, uses altered RAWS
+		//118 - Synergy, uses alpha, uses altered RAWS
 
 		logger = Logger.getLogger(Main.LOGGER_NAME);
 		logger.setLevel(Level.FINEST); // The Levels will be limited by the handler, not by logger.
@@ -133,7 +135,7 @@ public class Main {
 			logger.log(Level.SEVERE, "Failed to parse log level. Check the help for allowed values.");
 		}
 
-		imageImportPath = line.getOptionValue("i", "/b.png");
+		imageImportPath = line.getOptionValue("i", "/Image_Anikki8x8.png");
 		imageExportPath = line.getOptionValue("o", "/Converted.png");
 
 		if (line.hasOption("h")) {
@@ -214,7 +216,7 @@ public class Main {
 		DecodedImage decoded = fitter.decodeImage();
 
 		//Re-render the image with the new tileset
-		fitter.exportRenderedImage(decoded, 57/*tilesetIDConvertTo*/, "Resources" + imageExportPath);
+		fitter.exportRenderedImage(decoded, tilesetIDConvertTo, "Resources" + imageExportPath);
 	}
 	
 	public static BufferedImage loadImage(String path) {
