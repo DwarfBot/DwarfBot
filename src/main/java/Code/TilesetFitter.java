@@ -11,6 +11,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
 
 import javax.imageio.ImageIO;
 
@@ -104,7 +105,7 @@ public class TilesetFitter {
 				attempts++;
 			} while (attempts < 5 && !finished);
 		}
-		System.out.println("Seed: " + seedx + "," + seedy);
+		Main.logger.log(Level.FINER, "Seed: " + seedx + "," + seedy);
 	}
 	
 	public DecodedImage decodeImage() {
@@ -113,7 +114,7 @@ public class TilesetFitter {
 		//What tileset is the image using?
 		TilesetDetected detected = extractTileset();
 
-		System.out.println("Extraction time: " + (System.currentTimeMillis() - timeBeforeExtraction));
+		Main.logger.log(Level.INFO, "Extraction time: " + (System.currentTimeMillis() - timeBeforeExtraction));
 
 		//Decode the image into its tile colors and tile id's.
 		return readTiles(detected.getBasex(), detected.getBasey(), detected.getTileset());
@@ -141,7 +142,7 @@ public class TilesetFitter {
 		for (int i = 0; i < numThreads; i++) {
 			int index = Math.min(numTilesetsToCheck - 1, i * typicalLength);
 			int length = Math.max(0, Math.min(numTilesetsToCheck - index, typicalLength));
-			System.out.println("Creating thread with index " + index + ", length " + length);
+			Main.logger.log(Level.FINER, "Creating thread with index " + index + ", length " + length);
 			futures.add(pool.submit(threadCallableForTilesetRange(index, length, this)));
 		}
 		pool.shutdown(); // This line means it will stop accepting new threads; it will not terminate existing ones
@@ -149,12 +150,12 @@ public class TilesetFitter {
 		// Give progress information.
 		try {
 			do {
-				System.out.println("Tileset checks " + 100.0 * numTilesetChecksComplete.get() / numTilesetsToCheck + "% complete.");
-			} while (!pool.awaitTermination(1, TimeUnit.SECONDS));
+				Main.logger.log(Level.FINE, "Tileset checks " + 100.0 * numTilesetChecksComplete.get() / numTilesetsToCheck + "% complete.");
+			} while (!pool.awaitTermination(5, TimeUnit.SECONDS));
 		} catch (InterruptedException ie) {
 			// We can safely ignore this and move on to the next code block, which will handle the error.
 		}
-		System.out.println("Tileset checks now finished.");
+		Main.logger.log(Level.INFO, "Tileset checks now finished.");
 
 		for (Future<ArrayList<TilesetDetected>> future : futures) {
 			ArrayList<TilesetDetected> list;
@@ -201,10 +202,10 @@ public class TilesetFitter {
 		
 		ArrayList<Integer> areasConverted = new ArrayList<Integer>();
 		if (collisions.size() > 1) {
-			System.out.println("Resolving tileset collisions.");
+			Main.logger.log(Level.FINER, "Resolving tileset collisions.");
 			//We will try and fix the collisions.
 			for (int i = 1; i < collisions.size(); i++) {
-				System.out.println("Resolving collision between tileset id's: " + bestTilesetMatch + " and " + collisions.get(i));
+				Main.logger.log(Level.FINER, "Resolving collision between tileset id's: " + bestTilesetMatch + " and " + collisions.get(i));
 				//Read in the best tileset.
 				int index = collisions.indexOf(bestTilesetMatch);
 				Tileset tileset = tilesets.get(bestTilesetMatch);
@@ -249,7 +250,7 @@ public class TilesetFitter {
 		
 		Tileset best = tilesets.get(bestTilesetMatch);//Extract the tiles from the image.
 		
-		System.out.println("Detected tileset: " + best.getImagePath());
+		Main.logger.log(Level.INFO, "Detected tileset: " + best.getImagePath());
 		return new TilesetDetected(basexList.get(bestTilesetMatch), baseyList.get(bestTilesetMatch), tilesets.get(bestTilesetMatch), tilesetMatchCount.get(bestTilesetMatch));
 	}
 
@@ -599,7 +600,7 @@ public class TilesetFitter {
 		for (int col = 0; col < convertTileWidth; col++) {
 			if (printInfo) {
 				if (col%((int)(Math.ceil((convertTileWidth+1)*0.1))) == 0) {
-					System.out.println((100.0*col/convertTileWidth) + "%");//Nice to see where we are in the algorithm.
+					Main.logger.log(Level.FINE, (100.0*col/convertTileWidth) + "%");//Nice to see where we are in the algorithm.
 				}
 			}
 			for (int row = 0; row < convertTileHeight; row++) {
@@ -670,7 +671,7 @@ public class TilesetFitter {
 			}
 		}
 
-		return new DecodedImage(tiles, convertTileWidth, convertTileHeight, tileset);
+		return new DecodedImage(tiles, convertTileWidth, convertTileHeight);
 	}
 	
 	public void exportRenderedImage(DecodedImage decoded, int tilesetConvertTo, String exportPath) {
@@ -685,7 +686,7 @@ public class TilesetFitter {
 		BufferedImage tilesetImg = loadImage("/Tilesets" + tileset.getImagePath());//And its image.
 		int tileWidth = tileset.getTileWidth();//How wide are the tiles? Pixels
 		int tileHeight = tileset.getTileHeight();//How tall are the tiles?
-		System.out.println("Render to tileset: " + tileset.getAuthor() + ":" + tileset.getImagePath());//Handy.
+		Main.logger.log(Level.INFO, "Render to tileset: " + tileset.getAuthor() + ":" + tileset.getImagePath());//Handy.
 
 		boolean tilesetUsesAlpha = false;//Does the tileset use alpha? This affects rendering.
 		BufferedImage tileImg = tilesetImg.getSubimage(0, 2*tileHeight, tileWidth, tileHeight);
@@ -700,7 +701,7 @@ public class TilesetFitter {
 
 		for (int col = 0; col < convertTileWidth; col++) {
 			if (col%((int)(Math.ceil((convertTileWidth+1)*0.1))) == 0) {
-				System.out.println((100.0*col/convertTileWidth) + "%");//Nice to see where we are in the algorithm.
+				Main.logger.log(Level.FINE, (100.0*col/convertTileWidth) + "%");//Nice to see where we are in the algorithm.
 			}
 			for (int row = 0; row < convertTileHeight; row++) {
 				Tile tile = tiles.get(col*convertTileHeight + row);
@@ -789,7 +790,7 @@ public class TilesetFitter {
 			image = ImageIO.read(Main.class.getResourceAsStream(path));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			System.out.println("Err");
+			Main.logger.log(Level.SEVERE, "Could not load an image at " + path);
 			e.printStackTrace();
 		}
 
