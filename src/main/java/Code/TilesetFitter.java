@@ -671,7 +671,7 @@ public class TilesetFitter {
 			}
 		}
 
-		return new DecodedImage(tiles, convertTileWidth, convertTileHeight, tileset);
+		return new DecodedImage(tiles, convertTileWidth, convertTileHeight);
 	}
 	
 	public void exportRenderedImage(DecodedImage decoded, int tilesetConvertTo, String exportPath) {
