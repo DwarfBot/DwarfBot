@@ -137,7 +137,7 @@ public class TilesetManager extends GenericBot {
 					png = ImageIO.read(url);
 					saveImage(png, "src/main/resources/Tilesets" + imagePath);
 					try {
-						BufferedImage tilesetImg = ImageReader.loadImage("/Tilesets" + imagePath);
+						BufferedImage tilesetImg = ImageReader.loadImageFromResources("/Tilesets" + imagePath);
 					} catch (Throwable e) {
 						//Corrupted image. Halt code.
 						e.printStackTrace();

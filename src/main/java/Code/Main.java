@@ -94,8 +94,8 @@ public class Main {
 		try {
 			CommandLine line = parser.parse(options, args);
 
-			imageImportPath = line.getOptionValue("i", "/b.png");
-			imageExportPath = line.getOptionValue("o", "/Converted.png");
+			imageImportPath = line.getOptionValue("i", "b.png");
+			imageExportPath = line.getOptionValue("o", "Converted.png");
 			artistic = Boolean.valueOf(line.getOptionValue("a", "false"));
 
 			if (line.hasOption("h")) {
@@ -176,6 +176,6 @@ public class Main {
 		DecodedImage decoded = fitter.decodeImage();
 
 		//Re-render the image with the new tileset
-		fitter.exportRenderedImage(decoded, tilesetIDConvertTo, "Export" + imageExportPath);
+		fitter.exportRenderedImage(decoded, tilesetIDConvertTo, "Export/" + imageExportPath);
 	}
 }

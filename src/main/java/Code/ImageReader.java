@@ -44,7 +44,7 @@ public class ImageReader {
 			}
 			else {
 				System.out.println("Input file not found.  Falling back to \"Jar/" + fallbackFromResources);
-				image = ImageIO.read(Main.class.getResource(fallbackFromResources));
+				image = ImageIO.read(Main.class.getResource("/" + fallbackFromResources));
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
