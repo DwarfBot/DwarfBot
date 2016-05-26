@@ -9,7 +9,7 @@ public class DecodedImage implements Serializable {
 	ArrayList<Tile> tiles;
 	int tilesWide;
 	int tilesTall;
-	
+
 	public DecodedImage(ArrayList<Tile> tiles_, int tilesWide_, int tilesTall_) {
 		tiles = tiles_;
 		tilesWide = tilesWide_;

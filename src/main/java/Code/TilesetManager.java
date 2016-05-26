@@ -33,14 +33,12 @@ import javax.imageio.ImageIO;
 public class TilesetManager extends GenericBot {
 	
 	private String TILESET_INFO_FILE;
-	private Logger logger;
 	
 	public TilesetManager() {
 		//What MediaWiki family am I browsing?
 		String family = "Random";
 		mdm.readFamily(family, 0);
 		revisionDepth = 0;
-		logger = Logger.getLogger(Main.LOGGER_NAME);
 
 		TILESET_INFO_FILE = "/tileset.txt";
 	}
@@ -131,7 +129,7 @@ public class TilesetManager extends GenericBot {
 			String directUrl = "";
 			try {
 				directUrl = getDirectImageURL(new PageLocation(imageName, "dw"));
-				logger.log(Level.FINE, "Found image at URL " + directUrl);
+				Main.logger.log(Level.FINE, "Found image at URL " + directUrl);
 
 				BufferedImage png = null;
 				try {
@@ -146,11 +144,11 @@ public class TilesetManager extends GenericBot {
 						throw new Error("Stopping because somehow images are corrupted.", e);
 					}
 				} catch (IOException e) {
-					logger.log(Level.SEVERE, "IOError");
+					Main.logger.log(Level.SEVERE, "IOError");
 				}
 			} catch (NullPointerException e) {
-				logger.log(Level.SEVERE, "Error!!");
-				logger.log(Level.SEVERE, new PageLocation(image.substring(2, image.length()-2), "dw").toString());
+				Main.logger.log(Level.SEVERE, "Error!!");
+				Main.logger.log(Level.SEVERE, new PageLocation(image.substring(2, image.length()-2), "dw").toString());
 			}
 			
 			//Easier on the wiki.
@@ -263,7 +261,7 @@ public class TilesetManager extends GenericBot {
 			return lines;
 			
 		} catch (IOException e) {
-			logger.log(Level.SEVERE, "Error reading in file as list.");
+			Main.logger.log(Level.SEVERE, "Error reading in file as list.");
 		}
 		return null;
 	}
