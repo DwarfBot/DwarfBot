@@ -43,6 +43,9 @@ public class Main {
 	 *                     - FINEST
 	 */
 	public static final String LOGGER_NAME = "Code";
+	
+	/** The logger for everything to use. */
+	public static Logger logger;
 
 	/** The location of the image to be converted. */
 	private static String imageImportPath;
@@ -67,7 +70,7 @@ public class Main {
 		//112 - Lemunde, uses alpha, good for rendering, uses altered RAWS
 		//114 - Phoebus, uses alpha, uses altered RAWS
 
-		Logger logger = Logger.getLogger(Main.LOGGER_NAME);
+		logger = Logger.getLogger(Main.LOGGER_NAME);
 		logger.setLevel(Level.FINEST); // The Levels will be limited by the handler, not by logger.
 		ConsoleHandler handler = new ConsoleHandler();
 		handler.setLevel(Level.FINE);
