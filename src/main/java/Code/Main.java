@@ -65,14 +65,14 @@ public class Main {
 				.longOpt("import-path")
 				.hasArg(true)
 				.argName("path")
-				.desc("Image import path (Default: Resources/Demo.png)")
+				.desc("Image import path (Default: [JarResources]/b.png - A Demo File)")
 				.type(String.class)
 				.build());
 		options.addOption(Option.builder("o")
 				.longOpt("export-path")
 				.hasArg(true)
 				.argName("path")
-				.desc("Image export path (Default: Converted.png)")
+				.desc("Image export path (Default: Export/Converted.png)")
 				.type(String.class)
 				.build());
 		options.addOption(Option.builder("t")
