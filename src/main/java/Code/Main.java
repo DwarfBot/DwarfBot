@@ -169,17 +169,13 @@ public class Main {
 		ArrayList<Tileset> tilesets = bot.getTilesets();
 
 		//Read in our image.
-		BufferedImage toConvert = loadImage(imageImportPath);
+		BufferedImage toConvert = ImageReader.loadImageWithBackup(imageImportPath, "/b.png");
 
 		TilesetFitter fitter = new TilesetFitter(tilesets, artistic);
 		fitter.loadImageForConverting(toConvert);
 		DecodedImage decoded = fitter.decodeImage();
 
 		//Re-render the image with the new tileset
-		fitter.exportRenderedImage(decoded, 57/*tilesetIDConvertTo*/, "Export" + imageExportPath);
-	}
-	
-	public static BufferedImage loadImage(String path) {
-		return TilesetFitter.loadImage(path);
+		fitter.exportRenderedImage(decoded, tilesetIDConvertTo, "Export" + imageExportPath);
 	}
 }
