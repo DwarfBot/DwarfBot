@@ -14,6 +14,10 @@ public class TilesetDetected {
 		matchCount = matchCount_;
 	}
 	
+	public void setMatchCount(int count) {
+		matchCount = count;
+	}
+	
 	public int getBasex() {
 		return basex;
 	}
