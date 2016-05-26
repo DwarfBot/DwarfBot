@@ -50,8 +50,6 @@ public class Main {
 		//112 - Lemunde, uses alpha, good for rendering, uses altered RAWS
 		//114 - Phoebus, uses alpha, uses altered RAWS
 
-		artistic = false;
-
 		Options options = new Options();
 		options.addOption(Option.builder("l")
 				.longOpt("list-tilesets")
@@ -67,14 +65,14 @@ public class Main {
 				.longOpt("import-path")
 				.hasArg(true)
 				.argName("path")
-				.desc("Image import path (Default: Image_Anikki8x8.png)")
+				.desc("Image import path (Default: [JarResources]/b.png - A Demo File)")
 				.type(String.class)
 				.build());
 		options.addOption(Option.builder("o")
 				.longOpt("export-path")
 				.hasArg(true)
 				.argName("path")
-				.desc("Image export path (Default: Converted.png)")
+				.desc("Image export path (Default: Export/Converted.png)")
 				.type(String.class)
 				.build());
 		options.addOption(Option.builder("t")
@@ -84,13 +82,21 @@ public class Main {
 				.desc("Use tileset by id")
 				.type(Integer.class)
 				.build());
+		options.addOption(Option.builder("a")
+				.longOpt("artistic")
+				.hasArg(true)
+				.argName("true/false")
+				.desc("Enable artistic rendering options.")
+				.type(Integer.class)
+				.build());
 
 		CommandLineParser parser = new DefaultParser();
 		try {
 			CommandLine line = parser.parse(options, args);
 
-			imageImportPath = line.getOptionValue("i", "/b.png");
-			imageExportPath = line.getOptionValue("o", "/Converted.png");
+			imageImportPath = line.getOptionValue("i", "b.png");
+			imageExportPath = line.getOptionValue("o", "Converted.png");
+			artistic = Boolean.valueOf(line.getOptionValue("a", "false"));
 
 			if (line.hasOption("h")) {
 				HelpFormatter formatter = new HelpFormatter();
@@ -163,17 +169,13 @@ public class Main {
 		ArrayList<Tileset> tilesets = bot.getTilesets();
 
 		//Read in our image.
-		BufferedImage toConvert = loadImage(imageImportPath);
+		BufferedImage toConvert = ImageReader.loadImageWithBackup(imageImportPath, "/b.png");
 
 		TilesetFitter fitter = new TilesetFitter(tilesets, artistic);
 		fitter.loadImageForConverting(toConvert);
 		DecodedImage decoded = fitter.decodeImage();
 
 		//Re-render the image with the new tileset
-		fitter.exportRenderedImage(decoded, 57/*tilesetIDConvertTo*/, "Resources" + imageExportPath);
-	}
-	
-	public static BufferedImage loadImage(String path) {
-		return TilesetFitter.loadImage(path);
+		fitter.exportRenderedImage(decoded, tilesetIDConvertTo, "Export/" + imageExportPath);
 	}
 }

@@ -12,8 +12,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.imageio.ImageIO;
-
 /**
  * Created by jacob on 2016-05-22.
  */
@@ -571,7 +569,7 @@ public class TilesetFitter {
 		//Data management
 		int tilesetID = tilesetConvertTo;//What tileset am I converting to.
 		Tileset tileset = tilesets.get(tilesetID);//Get that tileset.
-		BufferedImage tilesetImg = loadImage("/Tilesets" + tileset.getImagePath());//And its image.
+		BufferedImage tilesetImg = ImageReader.loadImageFromResources("/Tilesets" + tileset.getImagePath());//And its image.
 		int tileWidth = tileset.getTileWidth();//How wide are the tiles? Pixels
 		int tileHeight = tileset.getTileHeight();//How tall are the tiles?
 		System.out.println("Render to tileset: " + tileset.getAuthor() + ":" + tileset.getImagePath());//Handy.
@@ -685,16 +683,4 @@ public class TilesetFitter {
 		numTilesetChecksComplete.incrementAndGet();
 	}
 
-	public static BufferedImage loadImage(String path) {
-		BufferedImage image = null;
-		try {
-			image = ImageIO.read(Main.class.getResourceAsStream(path));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			System.out.println("Err");
-			e.printStackTrace();
-		}
-
-		return image;
-	}
 }

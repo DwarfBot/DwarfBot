@@ -17,8 +17,6 @@ import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
-import Code.Main;
-import Code.Tileset;
 import WikiBot.ContentRep.Template;
 import WikiBot.ContentRep.Page;
 import WikiBot.ContentRep.PageLocation;
@@ -139,7 +137,7 @@ public class TilesetManager extends GenericBot {
 					png = ImageIO.read(url);
 					saveImage(png, "src/main/resources/Tilesets" + imagePath);
 					try {
-						BufferedImage tilesetImg = TilesetFitter.loadImage("/Tilesets" + imagePath);
+						BufferedImage tilesetImg = ImageReader.loadImageFromResources("/Tilesets" + imagePath);
 					} catch (Throwable e) {
 						//Corrupted image. Halt code.
 						e.printStackTrace();
