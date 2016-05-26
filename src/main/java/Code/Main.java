@@ -74,6 +74,7 @@ public class Main {
 
 		logger = Logger.getLogger(Main.LOGGER_NAME);
 		logger.setLevel(Level.FINEST); // The Levels will be limited by the handler, not by logger.
+		logger.setUseParentHandlers(false); // Don't accidentally double up messages with another handler.
 		ConsoleHandler handler = new ConsoleHandler();
 		handler.setLevel(Level.FINE);
 		logger.addHandler(handler);
