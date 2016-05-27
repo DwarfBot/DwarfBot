@@ -1,8 +1,11 @@
 package Code;
 
 import java.awt.Color;
+import java.io.Serializable;
 
-public class Tile {
+public class Tile implements Serializable {
+	
+	public static final long serialVersionUID = 1L;
 	
 	Color backgroundColor;
 	Color foregroundColor;

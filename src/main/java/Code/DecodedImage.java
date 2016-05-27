@@ -1,9 +1,11 @@
 package Code;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class DecodedImage {
+public class DecodedImage implements Serializable {
 	
+	public static final long serialVersionUID = 1L;
 	ArrayList<Tile> tiles;
 	int tilesWide;
 	int tilesTall;
