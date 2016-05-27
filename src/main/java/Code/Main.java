@@ -19,6 +19,12 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  *
  * @author ErnieParke
@@ -58,6 +64,8 @@ public class Main {
 	/** Changes parsing slightly for making artistic DF pieces. */
 	private static boolean artistic;
 
+	private static ConsoleHandler handler;
+
 	/**
 	 * Run all this beautiful code...
 	 * @param args Arguments given on the command line.
@@ -74,14 +82,7 @@ public class Main {
 		//114 - Phoebus, uses alpha, uses altered RAWS
 		//118 - Synergy, uses alpha, uses altered RAWS
 
-		logger = Logger.getLogger(Main.LOGGER_NAME);
-		logger.setLevel(Level.FINEST); // The Levels will be limited by the handler, not by logger.
-		logger.setUseParentHandlers(false); // Don't accidentally double up messages with another handler.
-		ConsoleHandler handler = new ConsoleHandler();
-		handler.setLevel(Level.FINE);
-		logger.addHandler(handler);
-
-		artistic = false;
+		setupLogger();
 
 		Options options = new Options();
 		options.addOption(Option.builder("l")
@@ -98,14 +99,14 @@ public class Main {
 				.longOpt("import-path")
 				.hasArg(true)
 				.argName("path")
-				.desc("Image import path (Default: Image_Anikki8x8.png)")
+				.desc("Image import path (Default: [JarResources]/b.png - A Demo File)")
 				.type(String.class)
 				.build());
 		options.addOption(Option.builder("o")
 				.longOpt("export-path")
 				.hasArg(true)
 				.argName("path")
-				.desc("Image export path (Default: Converted.png)")
+				.desc("Image export path (Default: Export/Converted.png)")
 				.type(String.class)
 				.build());
 		options.addOption(Option.builder("t")
@@ -137,6 +138,13 @@ public class Main {
 				.desc("Import a DecodedImage; faster than decoding an image every time. Extension: .ser")
 				.type(String.class)
 				.build());
+		options.addOption(Option.builder("a")
+				.longOpt("artistic")
+				.hasArg(true)
+				.argName("true/false")
+				.desc("Enable artistic rendering options.")
+				.type(Integer.class)
+				.build());
 
 		CommandLineParser parser = new DefaultParser();
 		CommandLine line = null;
@@ -152,6 +160,7 @@ public class Main {
 		} catch (IllegalArgumentException e) {
 			logger.log(Level.SEVERE, "Failed to parse log level. Check the help for allowed values.");
 		}
+		artistic = Boolean.valueOf(line.getOptionValue("a", "false"));
 
 		imageImportPath = line.getOptionValue("i", "/Image_Anikki8x8.png");
 		imageExportPath = line.getOptionValue("o", "Resources/Converted.png");
@@ -188,6 +197,15 @@ public class Main {
 				System.exit(1);
 			}
 		}
+	}
+
+	public static void setupLogger() {
+		logger = Logger.getLogger(Main.LOGGER_NAME);
+		logger.setLevel(Level.FINEST); // The Levels will be limited by the handler, not by logger.
+		logger.setUseParentHandlers(false); // Don't accidentally double up messages with another handler.
+		handler = new ConsoleHandler();
+		handler.setLevel(Level.FINE);
+		logger.addHandler(handler);
 	}
 
 	/**
@@ -299,11 +317,7 @@ public class Main {
 		TilesetManager bot = new TilesetManager();
 		ArrayList<Tileset> tilesets = bot.getTilesets();
 
-
 		return new TilesetFitter(tilesets, artistic);
 	}
 
-	public static BufferedImage loadImage(String path) {
-		return TilesetFitter.loadImage(path);
-	}
 }

@@ -1,8 +1,9 @@
 package Code;
 
+import javax.imageio.ImageIO;
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import javax.imageio.ImageIO;
 
 public class Tileset {
 	
@@ -71,6 +72,17 @@ public class Tileset {
 			}
 		}
 		return false;
+	}
+
+	public boolean usesAlpha() {
+		BufferedImage tileImg = null;
+		try {
+			tileImg = loadImage().getSubimage(0, 2*tileHeight, tileWidth, tileHeight);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		Color c = new Color(tileImg.getRGB(0, 0), true);
+		return c.getAlpha() != 255;
 	}
 	
 	@Override
