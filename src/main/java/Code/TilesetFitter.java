@@ -780,6 +780,13 @@ public class TilesetFitter {
 		this.toConvert = toConvert;
 	}
 
+	public int getNumTilesetChecksComplete() {
+		if (numTilesetChecksComplete == null) {
+			return 0;
+		}
+		return numTilesetChecksComplete.get();
+	}
+
 	private Callable<ArrayList<TilesetDetected>> threadCallableForTilesetRange(int start, int length) {
 		return new ThreadCallable(start, length, this);
 	}
