@@ -677,6 +677,11 @@ public class TilesetFitter {
 	}
 	
 	public void exportRenderedImage(DecodedImage decoded, int tilesetConvertTo, String exportPath) {
+		BufferedImage output = renderImage(decoded, tilesetConvertTo);
+		TilesetManager.saveImage(output, exportPath);
+	}
+
+	public BufferedImage renderImage(DecodedImage decoded, int tilesetConvertTo) {
 		//Read in decoded info.
 		ArrayList<Tile> tiles = decoded.getTiles();
 		int convertTileWidth = decoded.getTilesWide();
@@ -728,8 +733,7 @@ public class TilesetFitter {
 		}
 
 		g2.dispose();
-
-		TilesetManager.saveImage(output, exportPath);
+		return output;
 	}
 	
 	public static Color getRenderColor(Color foregroundC, Color backgroundC, Color tileC, boolean tilesetUsesAlpha) {		
