@@ -1,7 +1,10 @@
 package Code;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
@@ -12,7 +15,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
-
 import javax.imageio.ImageIO;
 
 /**
@@ -671,7 +673,7 @@ public class TilesetFitter {
 			}
 		}
 
-		return new DecodedImage(tiles, convertTileWidth, convertTileHeight);
+		return new DecodedImage(tiles, convertTileWidth, convertTileHeight, tileset);
 	}
 	
 	public void exportRenderedImage(DecodedImage decoded, int tilesetConvertTo, String exportPath) {
@@ -683,15 +685,13 @@ public class TilesetFitter {
 		//Data management
 		int tilesetID = tilesetConvertTo;//What tileset am I converting to.
 		Tileset tileset = tilesets.get(tilesetID);//Get that tileset.
-		BufferedImage tilesetImg = loadImage("/Tilesets" + tileset.getImagePath());//And its image.
+		BufferedImage tilesetImg = ImageReader.loadImageFromResources("/Tilesets" + tileset.getImagePath());//And its image.
 		int tileWidth = tileset.getTileWidth();//How wide are the tiles? Pixels
 		int tileHeight = tileset.getTileHeight();//How tall are the tiles?
 		Main.logger.log(Level.INFO, "Render to tileset: " + tileset.getAuthor() + ":" + tileset.getImagePath());//Handy.
 
-		boolean tilesetUsesAlpha = false;//Does the tileset use alpha? This affects rendering.
-		BufferedImage tileImg = tilesetImg.getSubimage(0, 2*tileHeight, tileWidth, tileHeight);
-		Color c = new Color(tileImg.getRGB(0, 0), true);
-		tilesetUsesAlpha = c.getAlpha() != 255;
+		boolean tilesetUsesAlpha = tileset.usesAlpha();//Does the tileset use alpha? This affects rendering.
+		BufferedImage tileImg;
 
 		//Set up image to write to
 		BufferedImage output = new BufferedImage(convertTileWidth*tileWidth, convertTileHeight*tileHeight, BufferedImage.TYPE_INT_RGB);
@@ -787,7 +787,13 @@ public class TilesetFitter {
 	public static BufferedImage loadImage(String path) {
 		BufferedImage image = null;
 		try {
-			image = ImageIO.read(Main.class.getResourceAsStream(path));
+			File f = new File(path);
+			if(f.exists() && !f.isDirectory()) {
+				image = ImageIO.read(f);
+			} else {
+				System.out.println("Image input does not exist. Using demo image.");
+				image = ImageIO.read(Main.class.getResource("/b.png"));
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			Main.logger.log(Level.SEVERE, "Could not load an image at " + path);
