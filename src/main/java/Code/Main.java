@@ -306,7 +306,7 @@ public class Main {
 			return  decodedImage;
 		} else {
 			//Read in our image.
-			BufferedImage toConvert = loadImage(importPath);
+			BufferedImage toConvert = ImageReader.loadImageFromDisk(importPath);
 			fitter.loadImageForConverting(toConvert);
 			return fitter.decodeImage();
 		}

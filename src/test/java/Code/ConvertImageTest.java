@@ -47,13 +47,26 @@ public class ConvertImageTest {
 	public void testDefaultTilesetConversionWithoutAlpha() {
 		for (Tileset tileset : tilesets) {
 			if (!tileset.usesAlpha()) {
-				String convertedImagePath = "TestRunner/" + tileset.getImagePath();
-				String correctImagePath = tileset.getImagePath();
-				System.out.println("Current Tileset: " + tileset.getImagePath());
-				fitter.exportRenderedImage(decoded, tileset.getID(), convertedImagePath);
-				assertEquals(diffImage(convertedImagePath,correctImagePath), 0, CONFIDENCE_INTERVAL);
+				convertImageForTest(tileset, "without_alpha");
 			}
 		}
+	}
+
+	@Test
+	public void testDefaultTilesetConversionWithAlpha() {
+		for (Tileset tileset : tilesets) {
+			if (tileset.usesAlpha()) {
+				convertImageForTest(tileset, "with_alpha");
+			}
+		}
+	}
+
+	private void convertImageForTest(Tileset tileset, String extraPathInfo) {
+		String convertedImagePath = "TestRunner/" + extraPathInfo + tileset.getImagePath();
+		String correctImagePath = extraPathInfo + tileset.getImagePath();
+		System.out.println("Current Tileset: " + tileset.getImagePath());
+		fitter.exportRenderedImage(decoded, tileset.getID(), convertedImagePath);
+		assertEquals(diffImage(convertedImagePath,correctImagePath), 0, CONFIDENCE_INTERVAL);
 	}
 
 	/**
@@ -66,7 +79,7 @@ public class ConvertImageTest {
 
 		try{
 			img1 = ImageIO.read(new File(convertedImagePath));
-			img2 = ImageIO.read(this.getClass().getResource(correctImagePath));
+			img2 = ImageIO.read(this.getClass().getResource("/" + correctImagePath));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
