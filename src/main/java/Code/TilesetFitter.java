@@ -27,7 +27,7 @@ public class TilesetFitter {
 	private BufferedImage toConvert;
 	private int seedx;
 	private int seedy;
-	private static AtomicInteger numTilesetChecksComplete;
+	private AtomicInteger numTilesetChecksComplete;
 
 	public TilesetFitter(ArrayList<Tileset> _tilesets, boolean _artistic) {
 		tilesets = _tilesets;
@@ -145,7 +145,7 @@ public class TilesetFitter {
 			int index = Math.min(numTilesetsToCheck - 1, i * typicalLength);
 			int length = Math.max(0, Math.min(numTilesetsToCheck - index, typicalLength));
 			Main.logger.log(Level.FINER, "Creating thread with index " + index + ", length " + length);
-			futures.add(pool.submit(threadCallableForTilesetRange(index, length, this)));
+			futures.add(pool.submit(threadCallableForTilesetRange(index, length)));
 		}
 		pool.shutdown(); // This line means it will stop accepting new threads; it will not terminate existing ones
 
@@ -776,11 +776,11 @@ public class TilesetFitter {
 		this.toConvert = toConvert;
 	}
 
-	private static Callable<ArrayList<TilesetDetected>> threadCallableForTilesetRange(int start, int length, TilesetFitter fitter) {
-		return new ThreadCallable(start, length, fitter);
+	private Callable<ArrayList<TilesetDetected>> threadCallableForTilesetRange(int start, int length) {
+		return new ThreadCallable(start, length, this);
 	}
 
-	public static void incrementNumTilesetChecksComplete() {
+	public void incrementNumTilesetChecksComplete() {
 		numTilesetChecksComplete.incrementAndGet();
 	}
 
