@@ -1,7 +1,8 @@
 package Code;
-import java.util.concurrent.*;
+
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.concurrent.Callable;
 
 public class ThreadCallable implements Callable<ArrayList<TilesetDetected>> {
 	private int start, length;
@@ -20,7 +21,7 @@ public class ThreadCallable implements Callable<ArrayList<TilesetDetected>> {
 		ArrayList<Tileset> tilesets = fitter.getTilesets();
 		for (int i = start; i < start + length; i++) {
 			mObjs.add(fitter.matchForTileset(tilesets.get(i), threadRandom));
-			TilesetFitter.incrementNumTilesetChecksComplete();
+			fitter.incrementNumTilesetChecksComplete();
 		}
 		return mObjs;
 	}

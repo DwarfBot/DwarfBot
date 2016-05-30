@@ -1,6 +1,16 @@
 package Code;
 
 
+import java.awt.image.BufferedImage;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -8,12 +18,10 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.lang3.SystemUtils;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.logging.ConsoleHandler;
-import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -56,6 +64,8 @@ public class Main {
 	/** Changes parsing slightly for making artistic DF pieces. */
 	private static boolean artistic;
 
+	private static ConsoleHandler handler;
+
 	/**
 	 * Run all this beautiful code...
 	 * @param args Arguments given on the command line.
@@ -72,14 +82,7 @@ public class Main {
 		//114 - Phoebus, uses alpha, uses altered RAWS
 		//118 - Synergy, uses alpha, uses altered RAWS
 
-		logger = Logger.getLogger(Main.LOGGER_NAME);
-		logger.setLevel(Level.FINEST); // The Levels will be limited by the handler, not by logger.
-		logger.setUseParentHandlers(false); // Don't accidentally double up messages with another handler.
-		ConsoleHandler handler = new ConsoleHandler();
-		handler.setLevel(Level.FINE);
-		logger.addHandler(handler);
-
-		artistic = false;
+		setupLogger();
 
 		Options options = new Options();
 		options.addOption(Option.builder("l")
@@ -96,14 +99,14 @@ public class Main {
 				.longOpt("import-path")
 				.hasArg(true)
 				.argName("path")
-				.desc("Image import path (Default: Image_Anikki8x8.png)")
+				.desc("Image import path (Default: [JarResources]/b.png - A Demo File)")
 				.type(String.class)
 				.build());
 		options.addOption(Option.builder("o")
 				.longOpt("export-path")
 				.hasArg(true)
 				.argName("path")
-				.desc("Image export path (Default: Converted.png)")
+				.desc("Image export path (Default: Export/Converted.png)")
 				.type(String.class)
 				.build());
 		options.addOption(Option.builder("t")
@@ -120,6 +123,28 @@ public class Main {
 				.desc("Use this logging level. (Default: INFO). SEVERE, WARNING, INFO, CONFIG, FINE, FINER, FINEST")
 				.type(String.class)
 				.build());
+		options.addOption(Option.builder("E")
+				.longOpt("export-decoded")
+				.hasArg(true)
+				.argName("decoded-export-path")
+				.desc("Export a .ser file (DecodedImage) that can be used with -I to transform into any tileset. " +
+					"Does not convert the image after.")
+				.type(String.class)
+				.build());
+		options.addOption(Option.builder("I")
+				.longOpt("import-decoded")
+				.hasArg(true)
+				.argName("decoded-import-path")
+				.desc("Import a DecodedImage; faster than decoding an image every time. Extension: .ser")
+				.type(String.class)
+				.build());
+		options.addOption(Option.builder("a")
+				.longOpt("artistic")
+				.hasArg(true)
+				.argName("true/false")
+				.desc("Enable artistic rendering options.")
+				.type(Integer.class)
+				.build());
 
 		CommandLineParser parser = new DefaultParser();
 		CommandLine line = null;
@@ -135,9 +160,19 @@ public class Main {
 		} catch (IllegalArgumentException e) {
 			logger.log(Level.SEVERE, "Failed to parse log level. Check the help for allowed values.");
 		}
+		artistic = Boolean.valueOf(line.getOptionValue("a", "false"));
 
 		imageImportPath = line.getOptionValue("i", "/Image_Anikki8x8.png");
-		imageExportPath = line.getOptionValue("o", "/Converted.png");
+		imageExportPath = line.getOptionValue("o", "Resources/Converted.png");
+		String importPath = imageImportPath;
+		boolean alreadyDecoded = false;
+		if (line.hasOption("import-decoded")) {
+			alreadyDecoded = true;
+			importPath = line.getOptionValue("import-decoded");
+			if (importPath == null) {
+				throw new Error("Import decoded option requires a path.");
+			}
+		}
 
 		if (line.hasOption("h")) {
 			HelpFormatter formatter = new HelpFormatter();
@@ -148,14 +183,29 @@ public class Main {
 		if (line.hasOption("l")) {
 			new TilesetManager().printTilesets();
 			System.exit(0);
+		} else if (line.hasOption("export-decoded")) {
+			String decodedExportPath = line.getOptionValue("export-decoded");
+			if (decodedExportPath == null) {
+				throw new Error("Export decoded option requires a path.");
+			}
+			exportDecodedImage(importPath, alreadyDecoded, decodedExportPath);
 		} else {
 			try {
-				convertImage(Integer.parseInt(line.getOptionValue("t", "0")));
+				convertImage(importPath, alreadyDecoded, Integer.parseInt(line.getOptionValue("t", "0")));
 			} catch (NumberFormatException e) {
 				logger.log(Level.SEVERE, "ID is not an integer.  Reason: " + e.getMessage());
 				System.exit(1);
 			}
 		}
+	}
+
+	public static void setupLogger() {
+		logger = Logger.getLogger(Main.LOGGER_NAME);
+		logger.setLevel(Level.FINEST); // The Levels will be limited by the handler, not by logger.
+		logger.setUseParentHandlers(false); // Don't accidentally double up messages with another handler.
+		handler = new ConsoleHandler();
+		handler.setLevel(Level.FINE);
+		logger.addHandler(handler);
 	}
 
 	/**
@@ -202,25 +252,72 @@ public class Main {
 
 	/**
 	 * Convert the image given in the file `imageImportPath` to another tileset.
+	 * @param importPath The path of the image file or .ser file.
+	 * @param alreadyDecoded Whether `importPath` refers to a serialized DecodedImage or not.
 	 * @param tilesetIDConvertTo The index of the tileset to convert the image to.
 	 */
-	private static void convertImage(int tilesetIDConvertTo) {
+	private static void convertImage(String importPath, boolean alreadyDecoded, int tilesetIDConvertTo) {
+		TilesetFitter fitter = createFitter();
+
+		DecodedImage decodedImage = getDecodedImageUsingFitter(fitter, importPath, alreadyDecoded);
+
+		//Re-render the image with the new tileset
+		fitter.exportRenderedImage(decodedImage, tilesetIDConvertTo, imageExportPath);
+	}
+
+	/**
+	 * Export a serialized DecodedImage.
+	 * @param importPath The path of the image file or .ser file.
+	 * @param alreadyDecoded Whether `importPath` refers to a serialized DecodedImage or not.
+	 * @param exportPath Where to put the serialized DecodedImage.
+	 */
+	private static void exportDecodedImage(String importPath, boolean alreadyDecoded, String exportPath) {
+		TilesetFitter fitter = createFitter();
+
+		DecodedImage decodedImage = getDecodedImageUsingFitter(fitter, importPath, alreadyDecoded);
+
+		try (
+				FileOutputStream fileOutputStream = new FileOutputStream(exportPath);
+				ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream)
+		) {
+			objectOutputStream.writeObject(decodedImage);
+		} catch (IOException e) {
+			Logger.getLogger(LOGGER_NAME).log(Level.SEVERE, "Could not write the DecodedImage.");
+			throw new Error(e);
+		}
+	}
+
+	private static DecodedImage getDecodedImageUsingFitter(TilesetFitter fitter, String importPath, boolean alreadyDecoded) {
+		if (alreadyDecoded) {
+			DecodedImage decodedImage;
+			try (
+					FileInputStream fileInputStream = new FileInputStream(importPath);
+					ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream)
+			) {
+				decodedImage = (DecodedImage)objectInputStream.readObject();
+			} catch (IOException e) {
+				Logger.getLogger(LOGGER_NAME).log(Level.SEVERE, "Could not read import file.");
+				throw new Error(e);
+			} catch (ClassNotFoundException e) {
+				Logger.getLogger(LOGGER_NAME).log(Level.SEVERE, "Could not find DecodedImage class. " +
+						"This should not happen unless you are messing with the code...");
+				throw new Error(e);
+			}
+			return  decodedImage;
+		} else {
+			//Read in our image.
+			BufferedImage toConvert = ImageReader.loadImageFromDisk(importPath);
+			fitter.loadImageForConverting(toConvert);
+			return fitter.decodeImage();
+		}
+	}
+
+	private static TilesetFitter createFitter() {
 		//Load in tilesets
 		TilesetManager bot = new TilesetManager();
 		ArrayList<Tileset> tilesets = bot.getTilesets();
 
-		//Read in our image.
-		BufferedImage toConvert = loadImage(imageImportPath);
-
-		TilesetFitter fitter = new TilesetFitter(tilesets, artistic);
-		fitter.loadImageForConverting(toConvert);
-		DecodedImage decoded = fitter.decodeImage();
-
-		//Re-render the image with the new tileset
-		fitter.exportRenderedImage(decoded, tilesetIDConvertTo, "Resources" + imageExportPath);
+		return new TilesetFitter(tilesets, artistic);
 	}
-	
-	public static BufferedImage loadImage(String path) {
-		return TilesetFitter.loadImage(path);
-	}
+
 }

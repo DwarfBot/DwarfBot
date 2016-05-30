@@ -1,6 +1,7 @@
 package Code;
 
 import javax.imageio.ImageIO;
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
@@ -78,7 +79,7 @@ public class Tileset {
 		}
 		return false;
 	}
-	
+
 	@Override
 	public String toString() {
 		String toReturn = "";

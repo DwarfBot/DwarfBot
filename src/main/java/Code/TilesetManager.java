@@ -1,6 +1,10 @@
 package Code;
 
 import java.awt.Color;
+import WikiBot.ContentRep.Page;
+import WikiBot.ContentRep.PageLocation;
+import WikiBot.ContentRep.Template;
+import WikiBot.Core.GenericBot;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
@@ -11,21 +15,13 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
-import java.util.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.imageio.ImageIO;
-
-import Code.Main;
-import Code.Tileset;
-import WikiBot.ContentRep.Template;
-import WikiBot.ContentRep.Page;
-import WikiBot.ContentRep.PageLocation;
-import WikiBot.Core.GenericBot;
 
 /**
  * 
@@ -139,7 +135,7 @@ public class TilesetManager extends GenericBot {
 					png = ImageIO.read(url);
 					saveImage(png, "src/main/resources/Tilesets" + imagePath);
 					try {
-						BufferedImage tilesetImg = TilesetFitter.loadImage("/Tilesets" + imagePath);
+						BufferedImage tilesetImg = ImageReader.loadImageFromResources("/Tilesets" + imagePath);
 						
 					checkForUsesAlpha:
 						for (int x = 0; x < width; x++) {
