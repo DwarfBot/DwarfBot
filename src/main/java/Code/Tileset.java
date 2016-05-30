@@ -13,8 +13,9 @@ public class Tileset {
 	private int tileWidth;
 	private int tileHeight;
 	private int id;
+	private boolean usesAlpha;
 
-	public Tileset(String imgPath_, String author_, String nickname_, String date, int twidth_, int theight_, int id_) {
+	public Tileset(String imgPath_, String author_, String nickname_, String date, int twidth_, int theight_, int id_, boolean usesAlpha_) {
 		imgPath = imgPath_;
 		author = author_;
 		nickname = nickname_;
@@ -22,6 +23,7 @@ public class Tileset {
 		tileWidth = twidth_;
 		tileHeight = theight_;
 		id = id_;
+		usesAlpha = usesAlpha_;
 	}
 	
 	public String getImagePath() {
@@ -54,6 +56,10 @@ public class Tileset {
 	
 	public int getID() {
 		return id;
+	}
+	
+	public boolean usesAlpha() {
+		return usesAlpha;
 	}
 
 	public BufferedImage loadImage() throws IOException {
