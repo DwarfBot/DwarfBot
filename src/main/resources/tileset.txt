@@ -1,6 +1,6 @@
 # Author, Date, (Optional)Nickname
 # Image Location, Type
-# Width, Height
+# Width, Height, Uses alpha
 # Last Date Update: 2016/05/29
 Toady, null Default
 /curses_640x300.png

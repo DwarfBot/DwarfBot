@@ -53,7 +53,7 @@ public class TilesetManager extends GenericBot {
 		ArrayList<Template> templates = page.getTemplates();
 		
 		//Process the tilsets found, and then write them to the local files.
-		String fileOutput =  "# Author, Date, (Optional)Nickname\n# Image Location, Type\n# Width, Height\n";//What to write to the tileset info file.
+		String fileOutput =  "# Author, Date, (Optional)Nickname\n# Image Location, Type\n# Width, Height, Uses alpha\n";//What to write to the tileset info file.
 		
 		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
 		Date dateObject = new Date();
