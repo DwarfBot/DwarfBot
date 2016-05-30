@@ -14,8 +14,9 @@ public class Tileset {
 	private int tileWidth;
 	private int tileHeight;
 	private int id;
+	private boolean usesAlpha;
 
-	public Tileset(String imgPath_, String author_, String nickname_, String date, int twidth_, int theight_, int id_) {
+	public Tileset(String imgPath_, String author_, String nickname_, String date, int twidth_, int theight_, int id_, boolean usesAlpha_) {
 		imgPath = imgPath_;
 		author = author_;
 		nickname = nickname_;
@@ -23,6 +24,7 @@ public class Tileset {
 		tileWidth = twidth_;
 		tileHeight = theight_;
 		id = id_;
+		usesAlpha = usesAlpha_;
 	}
 	
 	public String getImagePath() {
@@ -56,6 +58,10 @@ public class Tileset {
 	public int getID() {
 		return id;
 	}
+	
+	public boolean usesAlpha() {
+		return usesAlpha;
+	}
 
 	public BufferedImage loadImage() throws IOException {
 		return ImageIO.read(Main.class.getResourceAsStream("/Tilesets" + imgPath));
@@ -74,17 +80,6 @@ public class Tileset {
 		return false;
 	}
 
-	public boolean usesAlpha() {
-		BufferedImage tileImg = null;
-		try {
-			tileImg = loadImage().getSubimage(0, 2*tileHeight, tileWidth, tileHeight);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		Color c = new Color(tileImg.getRGB(0, 0), true);
-		return c.getAlpha() != 255;
-	}
-	
 	@Override
 	public String toString() {
 		String toReturn = "";

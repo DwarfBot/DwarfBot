@@ -1,5 +1,6 @@
 package Code;
 
+import java.awt.Color;
 import WikiBot.ContentRep.Page;
 import WikiBot.ContentRep.PageLocation;
 import WikiBot.ContentRep.Template;
@@ -36,7 +37,7 @@ public class TilesetManager extends GenericBot {
 	
 	public TilesetManager() {
 		//What MediaWiki family am I browsing?
-		String family = "Random";
+		String family = "DwarfFortress";
 		mdm.readFamily(family, 0);
 		revisionDepth = 0;
 
@@ -48,15 +49,15 @@ public class TilesetManager extends GenericBot {
 		ArrayList<Template> templates = page.getTemplates();
 		
 		//Process the tilsets found, and then write them to the local files.
-		String fileOutput =  "# Author, Date, (Optional)Nickname\n# Image Location, Type\n# Width, Height\n";//What to write to the tileset info file.
+		String fileOutput =  "# Author, Date, (Optional)Nickname\n# Image Location, Type\n# Width, Height, Uses alpha\n";//What to write to the tileset info file.
 		
 		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
 		Date dateObject = new Date();
 		fileOutput += "# Last Date Update: " + dateFormat.format(dateObject) + "\n";//timestamp
 		
-		fileOutput += "Toady, null Default\n/curses_640x300.png\n8 12\n";//Add three default tilesets
-		fileOutput += "Toady, null\n/curses_800x600.png\n10 12\n";
-		fileOutput += "Toady, null DefaultSquare\n/curses_square_16x16.png\n16 16\n";
+		fileOutput += "Toady, null Default\n/curses_640x300.png\n8 12 false\n";//Add three default tilesets
+		fileOutput += "Toady, null\n/curses_800x600.png\n10 12 false\n";
+		fileOutput += "Toady, null DefaultSquare\n/curses_square_16x16.png\n16 16 false\n";
 		
 		for (Template t : templates) {
 			//Get template values.
@@ -120,10 +121,7 @@ public class TilesetManager extends GenericBot {
 			int width = Integer.parseInt(size.substring(0, size.indexOf(deliminator)));
 			int height = Integer.parseInt(size.substring(size.indexOf(deliminator)+1));
 			
-			//Add onto file output.
-			fileOutput += author + ", " + date + "\n";
-			fileOutput += imagePath + "\n";
-			fileOutput += width + " " + height + "\n";
+			boolean tilesetUsesAlpha = true;
 			
 			//download image
 			String directUrl = "";
@@ -138,6 +136,18 @@ public class TilesetManager extends GenericBot {
 					saveImage(png, "src/main/resources/Tilesets" + imagePath);
 					try {
 						BufferedImage tilesetImg = ImageReader.loadImageFromResources("/Tilesets" + imagePath);
+						
+					checkForUsesAlpha:
+						for (int x = 0; x < width; x++) {
+							for (int y = 0; y < height; y++) {
+								Color color = new Color(tilesetImg.getRGB(x,  y));
+								boolean isPink = color.getRed() > 250 && color.getGreen() < 5 && color.getBlue() > 250;
+								if (isPink) {
+									tilesetUsesAlpha = false;
+									break checkForUsesAlpha;
+								}
+							}
+						}
 					} catch (Throwable e) {
 						//Corrupted image. Halt code.
 						e.printStackTrace();
@@ -150,6 +160,11 @@ public class TilesetManager extends GenericBot {
 				Main.logger.log(Level.SEVERE, "Error!!");
 				Main.logger.log(Level.SEVERE, new PageLocation(image.substring(2, image.length()-2), "dw").toString());
 			}
+			
+			//Add onto file output.
+			fileOutput += author + ", " + date + "\n";
+			fileOutput += imagePath + "\n";
+			fileOutput += width + " " + height + " " + tilesetUsesAlpha + "\n";
 			
 			//Easier on the wiki.
 			try {
@@ -182,19 +197,19 @@ public class TilesetManager extends GenericBot {
 			//# Width, Height
 			String identifier = rawTilesetData.get(row);
 			String path = rawTilesetData.get(row+1);
-			String size = rawTilesetData.get(row+2);
+			String info = rawTilesetData.get(row+2);
 			
-			int spaceIndex2 = identifier.indexOf(" ", identifier.indexOf(",")+2);//Index of second space in identifier line.
-			boolean hasNickname = spaceIndex2 != -1;//Checks to see if there are two spaces.
-			
+			int firstDeliminator = info.indexOf(",");
+			int secondDeliminator = info.indexOf(" ", firstDeliminator+1);
+			boolean hasNickname = secondDeliminator != -1;//Checks to see if there are two spaces.
 			String author = identifier.substring(0, identifier.indexOf(","));
 			String dateCreated = null;
 			String nickname = null;
 			if (hasNickname) {
-				dateCreated = identifier.substring(identifier.indexOf(",") + 2, spaceIndex2);
-				nickname = identifier.substring(spaceIndex2 + 1);
+				dateCreated = identifier.substring(firstDeliminator + 2, secondDeliminator);
+				nickname = identifier.substring(secondDeliminator + 1);
 			} else {
-				dateCreated = identifier.substring(identifier.indexOf(",") + 2);
+				dateCreated = identifier.substring(firstDeliminator + 2);
 			}
 			if (dateCreated.equals("null")) {
 				dateCreated = null;
@@ -202,10 +217,13 @@ public class TilesetManager extends GenericBot {
 			
 			String imagePath = path;
 			
-			int width = Integer.parseInt(size.substring(0, size.indexOf(" ")));
-			int height = Integer.parseInt(size.substring(size.indexOf(" ") + 1));
+			firstDeliminator = info.indexOf(" ");
+			secondDeliminator = info.indexOf(" ", firstDeliminator+1);
+			int width = Integer.parseInt(info.substring(0, firstDeliminator));
+			int height = Integer.parseInt(info.substring(firstDeliminator+1, secondDeliminator));
+			boolean usesAlpha = info.substring(secondDeliminator+1).equals("true");
 			
-			Tileset tileset = new Tileset(imagePath, author, nickname, dateCreated, width, height, tilesets.size());
+			Tileset tileset = new Tileset(imagePath, author, nickname, dateCreated, width, height, tilesets.size(), usesAlpha);
 			
 			tilesets.add(tileset);
 		}
