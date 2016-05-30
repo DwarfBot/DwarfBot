@@ -162,7 +162,7 @@ public class Main {
 		}
 		artistic = Boolean.valueOf(line.getOptionValue("a", "false"));
 
-		imageImportPath = line.getOptionValue("i", "/Image_Anikki8x8.png");
+		imageImportPath = line.getOptionValue("i", "gibberish");
 		imageExportPath = line.getOptionValue("o", "Resources/Converted.png");
 		String importPath = imageImportPath;
 		boolean alreadyDecoded = false;
@@ -306,7 +306,7 @@ public class Main {
 			return  decodedImage;
 		} else {
 			//Read in our image.
-			BufferedImage toConvert = ImageReader.loadImageFromDisk(importPath);
+			BufferedImage toConvert = ImageReader.loadImageWithFallback(importPath, "Image_Anikki8x8.png");
 			fitter.loadImageForConverting(toConvert);
 			return fitter.decodeImage();
 		}

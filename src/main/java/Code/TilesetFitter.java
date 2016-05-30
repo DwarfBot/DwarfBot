@@ -248,7 +248,7 @@ public class TilesetFitter {
 			areaConvertedBest = 0.0;
 			for (int i = 0; i < collisions.size(); i++) {
 				if (i != 0) {
-					Main.logger.log(Level.FINE, "Resolving collision between tileset id's: " + bestTilesetMatch + " and " + collisions.get(i));
+					Main.logger.log(Level.FINER, "Resolving collision between tileset id's: " + bestTilesetMatch + " and " + collisions.get(i));
 				}
 				
 				//Read in a new tileset.
@@ -676,7 +676,7 @@ public class TilesetFitter {
 		similarityThreshold = 10;
 		
 		int tileWidth = tileset.getTileWidth();//How wide is a tile? Pixels.
-		int tileHeight = tileset.getTileHeight();//How tall is a tile?
+		int tileHeight = tileset.getTileHeight();//How tall is a tile? Pixels.
 
 		boolean tilesetUsesAlpha = tileset.usesAlpha();//Does the tileset use alpha? This affects how the tileset is rendered.
 
@@ -686,7 +686,7 @@ public class TilesetFitter {
 
 		for (int col = 0; col < convertTileWidth; col++) {
 			if (printInfo) {
-				if (col%((int)(Math.ceil((convertTileWidth+1)*0.1))) == 0) {
+				if (col%10 == 0) {
 					Main.logger.log(Level.FINE, (100.0*col/convertTileWidth) + "%");//Nice to see where we are in the algorithm.
 				}
 			}
@@ -790,7 +790,7 @@ public class TilesetFitter {
 		g2.fill(new Rectangle(0, 0, 1000, 1000));
 
 		for (int col = 0; col < convertTileWidth; col++) {
-			if (col%((int)(Math.ceil((convertTileWidth+1)*0.1))) == 0) {
+			if (col%10 == 0) {
 				Main.logger.log(Level.FINE, (100.0*col/convertTileWidth) + "%");//Nice to see where we are in the algorithm.
 			}
 			for (int row = 0; row < convertTileHeight; row++) {
