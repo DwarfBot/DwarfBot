@@ -648,7 +648,7 @@ public class TilesetFitter {
 		}
 		
 		if (foregroundC == null) {
-			foregroundC = Color.BLACK;//To handle some edge cases.
+			foregroundC = Color.GRAY;//To handle some edge cases.
 		}
 		if (backgroundC == null) {
 			backgroundC = Color.BLACK;//To handle some edge cases.
