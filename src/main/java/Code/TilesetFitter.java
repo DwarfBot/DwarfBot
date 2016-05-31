@@ -333,10 +333,6 @@ public class TilesetFitter {
 		int imagey = (int)(Math.max(Math.min(seedy - tileHeight*2, toConvert.getHeight() - 4*tileHeight), 0));
 		BufferedImage localToConvert = toConvert.getSubimage(imagex, imagey, Math.min(tileWidth*4, toConvert.getWidth()), Math.min(tileHeight*4,  toConvert.getHeight()));
 		
-		if (tileset.getID() == 105) {
-			TilesetManager.saveImage(localToConvert, "Resources/SampleToConvert.png");
-		}
-		
 		//Set up x and y.
 		if (localToConvert.getWidth() - 3*tileWidth < 0) {
 			x = 0;
