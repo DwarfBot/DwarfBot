@@ -77,6 +77,7 @@ public class Main {
 		//14 anikki 8x8, nice solid tileset
 		//56 talryth 15x15, very similar to vidume! source of false positives
 		//57 vidume 15x15, uses alpha
+		//76 DF-Nordic_v1, looks awful
 		//111 - isenhertz, uses color boosts, good for testing, uses altered RAWS
 		//112 - Lemunde, uses alpha, good for rendering, uses altered RAWS
 		//114 - Phoebus, uses alpha, uses altered RAWS
@@ -162,7 +163,7 @@ public class Main {
 		}
 		artistic = Boolean.valueOf(line.getOptionValue("a", "false"));
 
-		imageImportPath = line.getOptionValue("i", "gibberish");
+		imageImportPath = line.getOptionValue("i", "Pinkie Pie was here.");
 		imageExportPath = line.getOptionValue("o", "Resources/Converted.png");
 		String importPath = imageImportPath;
 		boolean alreadyDecoded = false;
