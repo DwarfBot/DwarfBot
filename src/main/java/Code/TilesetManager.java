@@ -78,9 +78,6 @@ public class TilesetManager extends GenericBot {
 					imageName = image.substring(image.indexOf("File:"), image.indexOf("]]"));
 				}
 			}
-			if (imageName.contains("jolly")) {
-				continue;//Bad tileset.
-			}
 			
 			//Switch image type to .png
 			String alteredName = imageName.substring(0, imageName.indexOf(".")) + ".png";

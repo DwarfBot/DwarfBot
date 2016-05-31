@@ -72,7 +72,7 @@ public class Main {
 	 */
 	public static void main(final String[] args) {
 		//findTileset("Phoebus");
-		//refreshTilesets();
+		refreshTilesets();
 		//convertImage(0);
 		//14 anikki 8x8, nice solid tileset
 		//56 talryth 15x15, very similar to vidume! source of false positives
@@ -163,7 +163,7 @@ public class Main {
 		artistic = Boolean.valueOf(line.getOptionValue("a", "false"));
 
 		imageImportPath = line.getOptionValue("i", "gibberish");
-		imageExportPath = line.getOptionValue("o", "Resources/Converted.png");
+		imageExportPath = line.getOptionValue("o", "Exported/Converted.png");
 		String importPath = imageImportPath;
 		boolean alreadyDecoded = false;
 		if (line.hasOption("import-decoded")) {

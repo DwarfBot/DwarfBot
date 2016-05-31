@@ -1,7 +1,7 @@
 # Author, Date, (Optional)Nickname
 # Image Location, Type
 # Width, Height, Uses alpha
-# Last Date Update: 2016/05/29
+# Last Date Update: 2016/05/30
 Toady, null Default
 /curses_640x300.png
 8 12 false
@@ -61,7 +61,7 @@ Lord Nightmare/IBM, 2008-6-6
 8 8 false
 Lord Nightmare/IBM, 2007-10-30
 /LN_EGA8x8.png
-8 8 false
+8 8 true
 Tejó, 2012-6-12
 /Pastiche_8x8.png
 8 8 false
@@ -85,7 +85,7 @@ Dorte, 2009-2-13
 9 9 false
 Mau, 2007-10-30
 /Nostalgia_720x225.png
-9 9 false
+9 9 true
 Qje, 2009-2-13
 /DortenSolid.png
 9 9 true
@@ -124,7 +124,7 @@ Gek, 2010-1-08
 11 11 false
 Allo, 2010-12-3
 /Alloy_curses_12x12.png
-12 12 false
+12 12 true
 Cheepicu, 2010-8-4
 /cheepicus_12x12.png
 12 12 true
@@ -232,10 +232,10 @@ Marble Dic, 2007-10-30
 16 16 false
 Techhea, 2009-3-26
 /DF-Nordic_v1.png
-16 16 false
+16 16 true
 PTT, 2007-11-21
 /PTTGV2tiles.png
-16 16 false
+16 16 true
 Random83, 2009-4-22
 /Msgothic.png
 16 16 false
@@ -298,7 +298,7 @@ yobbo, 2014-07-13
 20 20 true
 DragonDePlatino, 2015-06-01
 /Curses square 24.png
-24 24 false
+24 24 true
 Bisasam, 2010-01-01
 /Bisasam_24x24.png
 24 24 true
@@ -307,7 +307,7 @@ Nagida, 2012-06-07
 24 24 false
 Sir Henry, 2009-8-19
 /Sir_Henry's_32x32.png
-32 32 false
+32 32 true
 PigtailLlama, 2012-6-14
 /Crazy 8x8s.png
 8 8 true
@@ -315,7 +315,7 @@ Lightrow, 2013-2-3
 /Grim Fortress sample tileset.png
 12 12 true
 Alexander Ocias, 2012-3-11
-/Jollyb2-2.png
+/Jolly12x12.png
 12 12 true
 Bela, 2009-1-9
 /Belal_Smooth_Walls.png
@@ -415,7 +415,7 @@ Lord Nightmare/IBM, 2007-10-30
 8 14 false
 Lord Nightmare/IBM, 2007-10-30
 /EGA8x14.png
-8 14 false
+8 14 true
 Tae/IBM, 2009-9-06
 /CP850.png
 8 14 false
@@ -481,7 +481,7 @@ MasterShizzl, 2012-12-10
 16 20 true
 InquisitorSatur, 2008-2-28
 /MRC_1280x600.png
-16 24 false
+16 24 true
 Lumin, 2007-10-30
 /Lumin_Graphical_1280x800.png
 16 32 false
