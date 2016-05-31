@@ -131,20 +131,12 @@ public class TilesetManager extends GenericBot {
 					URL url = new URL(directUrl);
 					png = ImageIO.read(url);
 					saveImage(png, "src/main/resources/Tilesets" + imagePath);
+					
+					tilesetUsesAlpha = png.getColorModel().hasAlpha();
+					
+					//Check to see if we are downloading corrupted images. If yes, halt the code!
 					try {
 						BufferedImage tilesetImg = ImageReader.loadImageFromResources("/Tilesets" + imagePath);
-						
-					checkForUsesAlpha:
-						for (int x = 0; x < width; x++) {
-							for (int y = 0; y < height; y++) {
-								Color color = new Color(tilesetImg.getRGB(x,  y));
-								boolean isPink = color.getRed() > 250 && color.getGreen() < 5 && color.getBlue() > 250;
-								if (isPink) {
-									tilesetUsesAlpha = false;
-									break checkForUsesAlpha;
-								}
-							}
-						}
 					} catch (Throwable e) {
 						//Corrupted image. Halt code.
 						e.printStackTrace();
