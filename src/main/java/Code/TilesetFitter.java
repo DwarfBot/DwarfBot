@@ -883,8 +883,8 @@ public class TilesetFitter {
 			if(f.exists() && !f.isDirectory()) {
 				image = ImageIO.read(f);
 			} else {
-				System.out.println("Image input does not exist. Using demo image.");
-				image = ImageIO.read(Main.class.getResource("/b.png"));
+				Main.logger.log(Level.SEVERE, "Image input does not exist. Quitting.");
+				System.exit(1);
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
