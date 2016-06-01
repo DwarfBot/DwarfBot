@@ -1,0 +1,15 @@
+language: java
+sudo: false
+jdk:
+  - oraclejdk7
+env:
+  global:
+    - GRADLE_OPTS=-Xmx2048m
+install: ./gradlew assemble
+script: ./gradlew test
+before_cache:
+  - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
+cache:
+  directories:
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/

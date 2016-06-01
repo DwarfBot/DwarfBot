@@ -10,13 +10,21 @@ import java.util.logging.Level;
  * Created by shafe on 5/26/2016.
  */
 public class ImageReader {
+	private static String MAGIC_WORD = "@resources/";
 	public static BufferedImage loadImageFromDisk(String path) {
 		BufferedImage image = null;
-		try {
-			image = ImageIO.read(new File(path));
-		} catch (IOException e) {
-			Main.logger.log(Level.SEVERE, "Error reading image from disk");
-			e.printStackTrace();
+
+		if (path.startsWith(MAGIC_WORD)) {
+			path = path.substring(MAGIC_WORD.length());
+			loadImageFromResources(path);
+		}
+		else {
+			try {
+				image = ImageIO.read(new File(path));
+			} catch (IOException e) {
+				Main.logger.log(Level.SEVERE, "Error reading image from disk");
+				e.printStackTrace();
+			}
 		}
 
 		return image;

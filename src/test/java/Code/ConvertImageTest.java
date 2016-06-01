@@ -63,10 +63,15 @@ public class ConvertImageTest {
 
 	private void convertImageForTest(Tileset tileset, String extraPathInfo) {
 		String convertedImagePath = "TestRunner/" + extraPathInfo + tileset.getImagePath();
-		String correctImagePath = extraPathInfo + tileset.getImagePath();
+		String correctImagePath = "/" + extraPathInfo + tileset.getImagePath();
 		System.out.println("Current Tileset: " + tileset.getImagePath());
 		fitter.exportRenderedImage(decoded, tileset.getID(), convertedImagePath);
-		assertEquals(diffImage(convertedImagePath,correctImagePath), 0, CONFIDENCE_INTERVAL);
+		if (new File(this.getClass().getResource(correctImagePath).getFile()).exists()) {
+			assertEquals(diffImage(convertedImagePath,correctImagePath), 0, CONFIDENCE_INTERVAL);
+		}
+		else {
+			System.out.println(convertedImagePath + " was not found");
+		}
 	}
 
 	/**
@@ -79,7 +84,7 @@ public class ConvertImageTest {
 
 		try{
 			img1 = ImageIO.read(new File(convertedImagePath));
-			img2 = ImageIO.read(this.getClass().getResource("/" + correctImagePath));
+			img2 = ImageIO.read(this.getClass().getResource(correctImagePath));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
