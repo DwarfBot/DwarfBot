@@ -333,10 +333,6 @@ public class TilesetFitter {
 		int imagey = (int)(Math.max(Math.min(seedy - tileHeight*2, toConvert.getHeight() - 4*tileHeight), 0));
 		BufferedImage localToConvert = toConvert.getSubimage(imagex, imagey, Math.min(tileWidth*4, toConvert.getWidth()), Math.min(tileHeight*4,  toConvert.getHeight()));
 		
-		if (tileset.getID() == 105) {
-			TilesetManager.saveImage(localToConvert, "Resources/SampleToConvert.png");
-		}
-		
 		//Set up x and y.
 		if (localToConvert.getWidth() - 3*tileWidth < 0) {
 			x = 0;
@@ -887,8 +883,8 @@ public class TilesetFitter {
 			if(f.exists() && !f.isDirectory()) {
 				image = ImageIO.read(f);
 			} else {
-				System.out.println("Image input does not exist. Using demo image.");
-				image = ImageIO.read(Main.class.getResource("/b.png"));
+				Main.logger.log(Level.SEVERE, "Image input does not exist. Quitting.");
+				System.exit(1);
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

@@ -163,8 +163,8 @@ public class Main {
 		}
 		artistic = Boolean.valueOf(line.getOptionValue("a", "false"));
 
-		imageImportPath = line.getOptionValue("i", "Pinkie Pie was here.");
-		imageExportPath = line.getOptionValue("o", "Resources/Converted.png");
+		imageImportPath = line.getOptionValue("i", "gibberish");
+		imageExportPath = line.getOptionValue("o", "Exported/Converted.png");
 		String importPath = imageImportPath;
 		boolean alreadyDecoded = false;
 		if (line.hasOption("import-decoded")) {
