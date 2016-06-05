@@ -59,10 +59,10 @@ public class Main {
 		//56 talryth 15x15, very similar to vidume! source of false positives
 		//57 vidume 15x15, uses alpha
 		//76 DF-Nordic_v1, looks awful
-		//111 - isenhertz, uses color boosts, good for testing, uses altered RAWS
-		//112 - Lemunde, uses alpha, good for rendering, uses altered RAWS
-		//114 - Phoebus, uses alpha, uses altered RAWS
-		//118 - Synergy, uses alpha, uses altered RAWS
+		//112 - isenhertz, uses color boosts, good for testing, uses altered RAWS
+		//113 - Lemunde, uses alpha, good for rendering, uses altered RAWS
+		//115 - Phoebus, uses alpha, uses altered RAWS
+		//119 - Synergy, uses alpha, uses altered RAWS
 
 		Options options = new Options();
 		options.addOption(Option.builder("l")
@@ -216,7 +216,7 @@ public class Main {
 		for (int i = 0; i < tilesets.size(); i++) {
 			Tileset tileset = tilesets.get(i);
 			if (tileset.getAuthor().contains(identifier) || tileset.getImagePath().contains(identifier)) {
-				System.out.println(i);
+				System.out.println(identifier + " found: " + i);
 			}
 		}
 	}
