@@ -461,7 +461,6 @@ public class TilesetFitter {
 	
 							Tile tileObj = checkSimilarity(sampleImg, tileImages[tile], tilesetUsesAlpha, tile, true);
 							if (tileObj != null) {
-								System.out.println(tileset.getImagePath() + ":" + tileset.getID() + ":" + tile);
 								numMatches++;
 								break tileSearch;
 							}
@@ -646,34 +645,6 @@ public class TilesetFitter {
 		}
 		if (tilesetUsesAlpha && stringent && (foregroundC == null || backgroundC == null)) {
 			return null;
-		}
-		if (tilesetUsesAlpha && stringent) {
-			//Iterate over sample image starting from firstMatchx/y to ensure the sample img isn't the same color.
-			Color color = null;
-			boolean sameColor = true;
-		
-		checkIfSameColor:
-			for (int x = firstMatchx; x < tileImg.getWidth(); x++) {
-				for (int y = 0; y < tileImg.getHeight(); y++) {
-					if (x == firstMatchx && y == 0) {
-						y = firstMatchy;
-						color = new Color(sampleImg.getRGB(x, y));
-					} else {
-						Color color2 = new Color(sampleImg.getRGB(x, y));
-						int threshold = 3;
-						if ( Math.abs(color.getRed() - color2.getRed()) > threshold &&
-								Math.abs(color.getGreen() - color2.getGreen()) > threshold && 
-								Math.abs(color.getBlue() - color2.getBlue()) > threshold) {
-							sameColor = false;
-							break checkIfSameColor;
-						}
-					}
-				}
-			}
-			
-			if (sameColor) {
-				return null;
-			}
 		}
 		
 		if (tilesetUsesAlpha && foregroundC != null && backgroundC!= null ) {
