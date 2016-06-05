@@ -111,6 +111,13 @@ public class Session {
 		return liveSession.renderToTileset(tileset);
 	}
 
+	public FailureReport createFailureReport() {
+		if (!live) {
+			unarchive();
+		}
+		return liveSession.createFailureReport();
+	}
+
 	public static Tileset tilesetWithPath(String path) {
 		for (Tileset supportedTileset : supportedTilesets) {
 			if (supportedTileset.getImagePath().equals(path)) {

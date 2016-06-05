@@ -155,6 +155,10 @@ public class LiveSession {
 		}
 	}
 
+	public FailureReport createFailureReport() {
+		return new FailureReport(getSeedx(), getSeedy(), tilesetDetected, toConvert, id);
+	}
+
 	static {
 		gson = new Gson();
 	}

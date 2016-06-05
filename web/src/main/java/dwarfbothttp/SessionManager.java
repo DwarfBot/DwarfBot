@@ -5,6 +5,7 @@ import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 /**
@@ -34,6 +35,15 @@ public class SessionManager {
 
 	public void addExistingSession(String id, Session session) {
 		sessionMap.put(id, session);
+	}
+
+	public boolean archiveAll() {
+		boolean allSucceeded = true;
+		for (Map.Entry<String, Session> entry : sessionMap.entrySet()) {
+			boolean succeeded = entry.getValue().archive();
+			allSucceeded = allSucceeded && succeeded;
+		}
+		return allSucceeded;
 	}
 
 	public Session get(String k) {

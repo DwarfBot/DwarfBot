@@ -7,14 +7,7 @@ import com.google.gson.reflect.TypeToken;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -71,7 +64,7 @@ public class ArchivedSession {
 			liveSession.setId((String)map.get("id"));
 
 			return liveSession;
-		} catch (IOException |ClassCastException|ClassNotFoundException|NullPointerException e) {
+		} catch (IOException|ClassCastException|ClassNotFoundException|NullPointerException e) {
 			throw new UnarchiveFailedException(e);
 		}
 	}
