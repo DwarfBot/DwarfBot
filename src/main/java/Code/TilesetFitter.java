@@ -508,9 +508,6 @@ public class TilesetFitter {
 			throw new Error("You should never have a tile this small.");
 		}
 		
-		int firstMatchx = -1;
-		int firstMatchy = -1;
-		
 		boolean performedCheck = false;//Require one check to be performed for positive signal to be sent. Only used when considering alpha tilesets.
 		for (int x = 0; x < tileImg.getWidth(); x++) {
 			for (int y = 0; y < tileImg.getHeight(); y++) {
@@ -620,11 +617,6 @@ public class TilesetFitter {
 							toRender = getRenderColor(foregroundC, new Color(2), tileC, tilesetUsesAlpha);
 						} else {
 							toRender = getRenderColor(foregroundC, backgroundC, tileC, tilesetUsesAlpha);
-							
-							if (firstMatchx == -1) {
-								firstMatchx = x;
-								firstMatchy = y;
-							}
 						}
 
 						if (Math.abs(toRender.getRed() - sampleC.getRed()) < similarityThreshold && 
