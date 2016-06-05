@@ -5,7 +5,7 @@ jdk:
 env:
   global:
     - GRADLE_OPTS=-Xmx2048m
-install: ./gradlew assemble
+install: ./gradlew build
 script: ./gradlew test
 before_cache:
   - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
