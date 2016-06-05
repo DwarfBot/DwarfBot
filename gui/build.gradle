@@ -1,0 +1,38 @@
+plugins {
+    id 'java'
+    id 'eclipse'
+    id 'idea'
+    id 'application'
+    id 'findbugs'
+    id "com.github.johnrengelman.shadow" version "1.2.3"
+}
+
+sourceCompatibility = 1.7
+mainClassName = "Code.MainGUI"
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile project(':api')
+    testCompile 'junit:junit:4.+'
+}
+
+findbugs {
+    ignoreFailures = true
+}
+
+tasks.withType(FindBugs) {
+    reports {
+        xml.enabled = true
+        html.enabled = true
+    }
+}
+
+test {
+    testLogging {
+        exceptionFormat "full" // default is "short"
+    }
+    maxHeapSize = '2048m'
+}

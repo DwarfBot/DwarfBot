@@ -1,0 +1,42 @@
+plugins {
+    id 'java'
+    id 'eclipse'
+    id 'idea'
+    id 'application'
+    id 'findbugs'
+    id "com.github.johnrengelman.shadow" version "1.2.3"
+}
+
+
+sourceCompatibility = 1.8
+mainClassName = "dwarfbothttp.Main"
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile project(':api')
+    compile 'com.sparkjava:spark-core:2.5'
+    compile 'com.sparkjava:spark-template-velocity:2.3'
+    compile 'org.slf4j:slf4j-simple:1.7.21'
+    compile 'com.google.code.gson:gson:2.6.2'
+    testCompile 'junit:junit:4.+'
+}
+
+findbugs {
+    ignoreFailures = true
+}
+
+tasks.withType(FindBugs) {
+    reports {
+        xml.enabled = false
+        html.enabled = true
+    }
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'dwarfbothttp.Main'
+    }
+}
