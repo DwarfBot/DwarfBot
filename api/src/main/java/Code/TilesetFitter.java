@@ -652,7 +652,7 @@ public class TilesetFitter {
 		}
 		
 		if (foregroundC == null) {
-			foregroundC = Color.GRAY;//To handle some edge cases.
+			foregroundC = new Color(109, 109, 109);//To handle some edge cases. This is the default "dark grey" DF color.
 		}
 		if (backgroundC == null) {
 			backgroundC = Color.BLACK;//To handle some edge cases.
