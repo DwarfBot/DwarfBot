@@ -126,6 +126,7 @@ public class TilesetFitter {
 				}
 			}
 		}
+
 		Main.logger.log(Level.FINE, "Seed: " + seedx + "," + seedy);
 	}
 	
@@ -248,7 +249,7 @@ public class TilesetFitter {
 			areaConvertedBest = 0.0;
 			for (int i = 0; i < collisions.size(); i++) {
 				if (i != 0) {
-					Main.logger.log(Level.FINER, "Resolving collision between tileset id's: " + bestTilesetMatch + " and " + collisions.get(i));
+					Main.logger.log(Level.FINE, "Resolving collision between tileset id's: " + bestTilesetMatch + " and " + collisions.get(i));
 				}
 				
 				//Read in a new tileset.
@@ -348,8 +349,6 @@ public class TilesetFitter {
 		int spaceAllotedX = Math.min(localToConvert.getWidth() - tileWidth, tileWidth);//How much space can we vary
 		int spaceAllotedY = Math.min(localToConvert.getHeight() - tileHeight, tileHeight);
 		
-		boolean attempt = false;
-		
 		ArrayList<TilesetDetected> detected = new ArrayList<TilesetDetected>();
 		for (offsetx = 0; offsetx < spaceAllotedX; offsetx++) {
 			for (offsety = 0; offsety < spaceAllotedY; offsety++) {
@@ -389,11 +388,6 @@ public class TilesetFitter {
 					//Does the tile match?
 					Tile tileObj = checkSimilarity(sampleImg, tileImages[tile], tilesetUsesAlpha, tile, true);
 					if (tileObj != null) {
-						if (tileset.getID() == 105 && !attempt) {
-							TilesetManager.saveImage(sampleImg, "Resources/Sample.png");
-							TilesetManager.saveImage(tileImages[tile], "Resources/Tile.png");
-							attempt = true;
-						}
 						tilesetMatches = true;
 						
 						int basex = (x + offsetx)%tileWidth;
@@ -467,6 +461,7 @@ public class TilesetFitter {
 	
 							Tile tileObj = checkSimilarity(sampleImg, tileImages[tile], tilesetUsesAlpha, tile, true);
 							if (tileObj != null) {
+								System.out.println(tileset.getImagePath() + ":" + tileset.getID() + ":" + tile);
 								numMatches++;
 								break tileSearch;
 							}
@@ -514,11 +509,14 @@ public class TilesetFitter {
 			throw new Error("You should never have a tile this small.");
 		}
 		
+		int firstMatchx = -1;
+		int firstMatchy = -1;
+		
 		boolean performedCheck = false;//Require one check to be performed for positive signal to be sent. Only used when considering alpha tilesets.
-		for (int x2 = 0; x2 < tileImg.getWidth(); x2++) {
-			for (int y2 = 0; y2 < tileImg.getHeight(); y2++) {
-				Color sampleC = new Color(sampleImg.getRGB(x2, y2));//From screenshot
-				tileC = new Color(tileImg.getRGB(x2, y2), true);//From tileset
+		for (int x = 0; x < tileImg.getWidth(); x++) {
+			for (int y = 0; y < tileImg.getHeight(); y++) {
+				Color sampleC = new Color(sampleImg.getRGB(x, y));//From screenshot
+				tileC = new Color(tileImg.getRGB(x, y), true);//From tileset
 
 				boolean isPink = tileC.getRed() > 250 && tileC.getGreen() < 5 && tileC.getBlue() > 250;
 				
@@ -623,6 +621,11 @@ public class TilesetFitter {
 							toRender = getRenderColor(foregroundC, new Color(2), tileC, tilesetUsesAlpha);
 						} else {
 							toRender = getRenderColor(foregroundC, backgroundC, tileC, tilesetUsesAlpha);
+							
+							if (firstMatchx == -1) {
+								firstMatchx = x;
+								firstMatchy = y;
+							}
 						}
 
 						if (Math.abs(toRender.getRed() - sampleC.getRed()) < similarityThreshold && 
@@ -637,16 +640,52 @@ public class TilesetFitter {
 			}
 		}
 		
-		if (tilesetUsesAlpha &&!performedCheck) {
+		//Perform some strigent tests.
+		if (tilesetUsesAlpha && !performedCheck) {
 			return null;//Cannot safely say yes.
 		}
 		if (tilesetUsesAlpha && stringent && (foregroundC == null || backgroundC == null)) {
 			return null;
 		}
-		if (tilesetUsesAlpha && foregroundC != null && backgroundC!= null && backgroundC.equals(foregroundC)) {
-			return null;//Removes source of false positives with ~99% confidence.
+		if (tilesetUsesAlpha && stringent) {
+			//Iterate over sample image starting from firstMatchx/y to ensure the sample img isn't the same color.
+			Color color = null;
+			boolean sameColor = true;
+		
+		checkIfSameColor:
+			for (int x = firstMatchx; x < tileImg.getWidth(); x++) {
+				for (int y = 0; y < tileImg.getHeight(); y++) {
+					if (x == firstMatchx && y == 0) {
+						y = firstMatchy;
+						color = new Color(sampleImg.getRGB(x, y));
+					} else {
+						Color color2 = new Color(sampleImg.getRGB(x, y));
+						int threshold = 3;
+						if ( Math.abs(color.getRed() - color2.getRed()) > threshold &&
+								Math.abs(color.getGreen() - color2.getGreen()) > threshold && 
+								Math.abs(color.getBlue() - color2.getBlue()) > threshold) {
+							sameColor = false;
+							break checkIfSameColor;
+						}
+					}
+				}
+			}
+			
+			if (sameColor) {
+				return null;
+			}
 		}
 		
+		if (tilesetUsesAlpha && foregroundC != null && backgroundC!= null ) {
+			int threshold = 3;
+			if (Math.abs(backgroundC.getRed() - foregroundC.getRed()) < threshold &&
+					Math.abs(backgroundC.getGreen() - foregroundC.getGreen()) < threshold &&
+					Math.abs(backgroundC.getBlue() - foregroundC.getBlue()) < threshold) {
+				return null;//Removes source of false positives with ~99% confidence.
+			}
+		}
+		
+		//Passed. Looks good.
 		if (foregroundC == null) {
 			foregroundC = new Color(109, 109, 109);//To handle some edge cases. This is the default "dark grey" DF color.
 		}
