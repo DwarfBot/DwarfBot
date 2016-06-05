@@ -1,12 +1,22 @@
 package Code;
 
-import org.apache.commons.cli.*;
-import org.slf4j.Logger;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.slf4j.LoggerFactory;
-import org.slf4j.event.Level;
 
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
 /**
@@ -25,7 +35,7 @@ import java.util.ArrayList;
 public class Main {
 	
 	/** The logger for everything to use. */
-	public static Logger logger = LoggerFactory.getLogger(Main.class);
+	public static Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Main.class);
 
 	/** The location of the image to be converted. */
 	private static String imageImportPath;
@@ -125,9 +135,8 @@ public class Main {
 			System.exit(1);
 		}
 		try {
-			Level logLevel = Level.valueOf(line.getOptionValue("log-level", "FINE"));
-			logger.warn("Currently, this option is disabled as there are issues with logback and slf4j that prevent this.");
-			// logger.setLevel(logLevel);
+			Level logLevel = Level.valueOf(line.getOptionValue("log-level", "INFO"));
+			logger.setLevel(logLevel);
 		} catch (IllegalArgumentException e) {
 			logger.error("Failed to parse log level. Check the help for allowed values.");
 		}
