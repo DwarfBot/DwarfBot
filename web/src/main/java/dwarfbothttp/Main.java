@@ -41,9 +41,6 @@ public class Main {
 			failureReportsEnabled = false;
 		}
 
-		Code.Main.setupLogger();
-		Code.Main.logger.getHandlers()[0].setLevel(Level.WARNING);
-
 		Spark.staticFiles.location("/static");
 		VelocityTemplateEngine velocityTemplateEngine = new VelocityTemplateEngine();
 

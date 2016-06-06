@@ -880,4 +880,12 @@ public class TilesetFitter {
 	public void incrementNumTilesetChecksComplete() {
 		numTilesetChecksComplete.incrementAndGet();
 	}
+	
+	public int getSeedx() {
+		return seedx;
+	}
+	
+	public int getSeedy() {
+		return seedy;
+	}
 }
