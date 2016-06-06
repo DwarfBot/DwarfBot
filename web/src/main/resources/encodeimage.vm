@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DwarfBotHTTP</title>
+    <link rel="stylesheet" type="text/css" href="/style.css">
+    <meta name="viewport" content="user-scalable=yes,width=device-width" />
+    <script>session = "${session}";</script>
+    <script src="/failurereport.js"></script>
+</head>
+<body onload="updateTilesetImg();">
+#include("header.vm")
+<div class="content-container">
+    <p>Image decoded successfully!</p>
+    <p>Choose a tileset to convert to:</p>
+    <form action="/${session}/encodedimage.png" method="get">
+        <select name="tileset" id="tileset" onchange="updateTilesetImg();">
+            #foreach( $tileset in $tilesets )
+                <option value="${tileset.ImagePath}">${tileset.ImagePath}</option>
+            #end
+        </select>
+        <input type="submit" value="Render">
+        <br/><br/>
+        <img id="tilesetImg" width="45%" height="45%"/>
+    </form>
+    #if ( ${failureReportsEnabled} )
+        <p>
+            <span id="failure-report-status">
+                Looks wrong?
+                <a href="javascript:submitFailureReport()">Submit a failure report</a>
+            </span>
+        </p>
+    #end
+</div>
+<script>
+function updateTilesetImg() {
+     document.getElementById('tilesetImg').setAttribute('src', '/gettilesetimage.png?tilesetpath=' + encodeURIComponent(document.getElementById('tileset').value));
+}
+</script>
+</body>
+</html>

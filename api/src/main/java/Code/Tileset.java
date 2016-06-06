@@ -4,8 +4,10 @@ import javax.imageio.ImageIO;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.Serializable;
 
-public class Tileset {
+public class Tileset implements Serializable {
+	public static final long serialVersionUID = 1L;
 	
 	private String imgPath;
 	private String author;

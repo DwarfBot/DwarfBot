@@ -1,0 +1,83 @@
+body {
+    background: #dddddd;
+    margin: 0;
+    padding: 0;
+    font-family: Georgia;
+    font-size: 16px;
+}
+
+p, form {
+    box-sizing: border-box;
+    margin: 10px;
+}
+
+.progressbar-outer {
+    background: #333333;
+    height: 8px;
+    width: 100%;
+}
+.progressbar-inner {
+    background: #5B91E3;
+    height: 100%;
+    max-width: 100%;
+}
+
+.uploaded-display, .demo-display {
+    max-width: 100%;
+    display: block;
+    margin: 0 auto;
+}
+
+.header-icon {
+    float: left;
+    margin-left: 10px;
+}
+
+.header {
+    background-color: black;
+    padding: 4px 0;
+    text-decoration: none;
+}
+
+.header-title {
+    color: white;
+    margin: 0 10px;
+    font-size: 20px;
+    line-height: 32px;
+}
+
+.header-link {
+    text-decoration: none;
+}
+
+.header-github {
+    color: #bbbbbb;
+    font-size: 13px;
+    line-height: 32px;
+    margin: 0 10px;
+}
+
+.header-github a {
+    color: #bbbbff;
+    text-decoration: none;
+}
+
+.header-container {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.content-container {
+    max-width: 700px;
+    margin: 0 auto;
+    padding-bottom: 30px;
+}
+
+.clear {
+    clear: both;
+}
+
+#tilesetImg {
+    background-color: rgba(8, 0, 0, 0.48);
+    background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAACgAgMAAADm7QMnAAAADFBMVEV3d3dOTk5OTk5OTk60BIz+AAAABHRSTlP/bytS3QghxwAAAEVJREFUSMdjYA3FAA4Mq17tWrcalVhBtOBK7IL/McFfErSPWjRq0ahFoxaNWjRMLMJRoYzWR6MWjVo0atGoRaMWDYL6CAA67a9qo6Ce+AAAAABJRU5ErkJggg==");
+}

@@ -65,7 +65,7 @@ public class ConvertImageTest {
 		String correctImagePath = "/" + extraPathInfo + tileset.getImagePath();
 		System.out.println("Current Tileset: " + tileset.getImagePath());
 		fitter.exportRenderedImage(decoded, tileset.getID(), convertedImagePath);
-		if (new File(this.getClass().getResource(correctImagePath).getFile()).exists()) {
+		if (this.getClass().getResource(correctImagePath) != null) {
 			assertEquals(diffImage(convertedImagePath,correctImagePath), 0, CONFIDENCE_INTERVAL);
 		}
 		else {

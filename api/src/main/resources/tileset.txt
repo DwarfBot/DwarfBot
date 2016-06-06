@@ -1,0 +1,496 @@
+# Author, Date, (Optional)Nickname
+# Image Location, Type
+# Width, Height, Uses alpha
+# Last Date Update: 2016/05/30
+Toady, null Default
+/curses_640x300.png
+8 12 false
+Toady, null
+/curses_800x600.png
+10 12 false
+Toady, null DefaultSquare
+/curses_square_16x16.png
+16 16 false
+Kei, 2008-8-7
+/Kein_400x125.png
+5 5 false
+Zaratustr, 2008-11-20
+/Zaratustra_custom_5x5.png
+5 5 false
+Get, 2010-08-04
+/Geti_custom_6x6.png
+6 6 false
+Lord Nightmare, 2007-11-5
+/Lord Nightmare 6x6font01.png
+6 6 false
+Lord Nightmare, 2007-11-12
+/Lord Nightmare 6x6font02.png
+6 6 false
+Markavia, 2007-10-30
+/Mkv_curses_480x150.png
+6 6 false
+Markavia, 2007-10-30
+/Mkv_curses_480x150_v2.png
+6 6 false
+Nobbin, 2010-01-10
+/nobbins6x6.png
+6 6 false
+Nobbin, 2010-06-28
+/nobbin_ts_v2.png
+6 6 true
+herrbdo, 2007-10-30
+/Herrbdog_7x7_tileset.png
+7 7 false
+Terber, 2009-6-30
+/terbert_7x7.png
+7 7 false
+Anikk, 2008-7-27
+/Anikki_square_8x8.png
+8 8 false
+Cheepicu, 2014-4-3
+/cheepicus_8x8.png
+8 8 true
+Jdpag, 2010-09-15
+/Jdpage_8x8.png
+8 8 false
+Lord Nightmare/IBM, 2007-10-30
+/CGA8x8thick.png
+8 8 false
+Lord Nightmare/IBM, 2008-6-6
+/CGA8x8thin.png
+8 8 false
+Lord Nightmare/IBM, 2007-10-30
+/LN_EGA8x8.png
+8 8 true
+Tejó, 2012-6-12
+/Pastiche_8x8.png
+8 8 false
+Tejó, 2012-6-12
+/Potash_8x8.png
+8 8 false
+Xenomorp, 2008-8-9
+/Acorntileset8x8.png
+8 8 false
+Yay, 2007-10-30
+/yayo_c64_640x200.png
+8 8 false
+Zaratustr, 2007-10-30
+/Zaratustra_msx.png
+8 8 false
+Dorte, 2009-2-13
+/720x225_SmoothWalls.png
+9 9 false
+Dorte, 2009-2-13
+/720x225_SmoothWalls7.png
+9 9 false
+Mau, 2007-10-30
+/Nostalgia_720x225.png
+9 9 true
+Qje, 2009-2-13
+/DortenSolid.png
+9 9 true
+Savo, 2007-10-30
+/Curses_720x225_8d6752.png
+9 9 false
+Anikk, 2008-7-27
+/Anikki_square_10x10.png
+10 10 false
+buddy, 2014-07-12
+/buddy.png
+10 10 true
+buddy, 2014-07-16
+/buddy--graphical.png
+10 10 true
+Dd, 2011-03-10
+/ddw.png
+10 10 true
+Pau, 2008-9-5
+/Paul_10x10.png
+10 10 false
+Tejó, 2012-6-12
+/Potash_10x10.png
+10 10 false
+Taffe, 2012-03-07
+/Taffer 10x10.png
+10 10 false
+Terber, 2009-6-30
+/Terbert_10x10.png
+10 10 false
+Tock, 2007-11-15
+/Tocky_square_10x10.png
+10 10 false
+Gek, 2010-1-08
+/terminus.png
+11 11 false
+Allo, 2010-12-3
+/Alloy_curses_12x12.png
+12 12 true
+Cheepicu, 2010-8-4
+/cheepicus_12x12.png
+12 12 true
+DDR & Others, 2010-9-3
+/Unknown curses 12x12 & Markvii Walls.png
+12 12 false
+Haberdas, 2014-07-24
+/Haberdash_curses_12x12.png
+12 12 false
+Hanuma, 2008-7-23
+/DB_curses_12x12.png
+12 12 false
+Herrbdog, 2007-10-30
+/Herrbdog_144.png
+12 12 false
+Lord Dullard/Exponent, 2009-3-30
+/Dullard_Exponent_12x12.png
+12 12 false
+Markavia, 2007-12-4
+/mkv_solidcurses_stairs_960x300.png
+12 12 false
+Markavia, 2007-10-30
+/Mkv_solidcurses_960x300.png
+12 12 false
+Turni, 2009-7-9
+/Markvii.png
+12 12 false
+Unknown, 2007-10-30
+/Tileset_unknown_960x300_02.png
+12 12 false
+Unknown, 2007-11-24
+/Unknown_curses_12x12.png
+12 12 false
+Vidume, 2013-01-30
+/nice_curses_12x12.png
+12 12 true
+Yay, 2007-10-30
+/yayo_tunur_1040x325.png
+13 13 false
+Krenshal, 2015-12-27
+/Kren_13x13.png
+13 13 true
+Cheepicu, 2012-5-6
+/cheepicus_15x15.png
+15 15 true
+Talryt, 2010-06-18
+/Talryth_square_15x15.png
+15 15 true
+Vidume, 2011-09-05
+/Vidumec_15x15.png
+15 15 true
+Aesomatic, 2008-11-29
+/Aesomatica_16x16.png
+16 16 false
+Anikk, 2008-7-27
+/Anikki_square_16x16.png
+16 16 false
+AbuDhab, 2011-03-19
+/Anno_16x16.png
+16 16 false
+Bisasam, 2010-01-11
+/Bisasam_16x16.png
+16 16 true
+Cheepicu, 2014-4-3
+/cheepicus_8x8x2.png
+16 16 true
+Cheepicu, 2014-5-10
+/cheepicus_16x16.png
+16 16 true
+Coo, 2009-2-28
+/Cooz_curses_square_16x16.png
+16 16 false
+Guybrus, 2007-11-15
+/Guybrush_square_16x16.png
+16 16 false
+Guybrus, 2007-10-30
+/GuybrushASCII_curses_square_16x16.png
+16 16 false
+Herrbdog, 2007-10-30
+/Herrbdog_16x16_tileset.png
+16 16 false
+Inquisitor Saturn, 2008-5-18
+/MRC_square_16x16.png
+16 16 false
+Kaishaku, 2007-10-30
+/Kai-1280x400-v2 7512b5.png
+16 16 false
+Kelor, 2009-7-26
+/Kelora_16x16_diagonal.png
+16 16 false
+Kelor, null
+/Kelora_16x16_diagonal-clouds.png
+16 16 false
+Kenra, null
+/Kenran.png
+16 16 false
+Klokjamme, 2007-10-30
+/Kjammer square 16x16 v02.png
+16 16 false
+Klokjamme, 2007-10-31
+/Kjammer square 16x16 v00.png
+16 16 false
+Marble Dic, 2007-10-30
+/Md_curses_16x16.png
+16 16 false
+Techhea, 2009-3-26
+/DF-Nordic_v1.png
+16 16 true
+PTT, 2007-11-21
+/PTTGV2tiles.png
+16 16 true
+Random83, 2009-4-22
+/Msgothic.png
+16 16 false
+RavingMania, 2010-3-13
+/Raving_1280x400.png
+16 16 false
+Jackar, 2008-7-22
+/Redjack17.png
+16 16 false
+RogueYu, 2015-06-09
+/16x16_sm.png
+16 16 true
+Sappho, 2007-10-30
+/Sapphos_square_16x16.png
+16 16 false
+Savo, 2008-6-16
+/Savok_curses_1280x400_517caa.png
+16 16 false
+Super Foul Egg, 2007-10-30
+/SFE_Curses_square_16x16.png
+16 16 false
+Tahi, 2007-12-28
+/Tahin_16x16_rounded.png
+16 16 false
+Tyrvin, 2008-2-15
+/Tyr_1280x400.png
+16 16 false
+Winterwin, 2007-10-30
+/Winterwing_Curses_16x16_lucon.png
+16 16 false
+Yay, 2007-10-30
+/Yayo_c64_1280x400_83b157.png
+16 16 false
+Zaratustr, 2007-11-10
+/Zaratustra_16x16.png
+16 16 false
+Zil, 2015-7-15
+/Zilk_16x16.png
+16 16 false
+Haowan, 2007-11-2
+/Haowan_Curses_1440x450.png
+18 18 false
+Teeto_, 2008-10-24
+/Teeto_K_18x18.png
+18 18 false
+Anikk, 2008-7-27
+/Anikki_square_20x20.png
+20 20 false
+Bisasam, 2010-05-15
+/Bisasam_20x20.png
+20 20 true
+Bisasam, 2010-05-15
+/Bisasam_20x20_ascii.png
+20 20 true
+Yay, 2009-09-12
+/Oreslam_1920x1200_20x20.png
+20 20 false
+yobbo, 2014-07-13
+/Bisasam_20x20_mod_T.png
+20 20 true
+DragonDePlatino, 2015-06-01
+/Curses square 24.png
+24 24 true
+Bisasam, 2010-01-01
+/Bisasam_24x24.png
+24 24 true
+Nagida, 2012-06-07
+/Nagidal24x24shade.png
+24 24 false
+Sir Henry, 2009-8-19
+/Sir_Henry's_32x32.png
+32 32 true
+PigtailLlama, 2012-6-14
+/Crazy 8x8s.png
+8 8 true
+Lightrow, 2013-2-3
+/Grim Fortress sample tileset.png
+12 12 true
+Alexander Ocias, 2012-3-11
+/Jolly12x12.png
+12 12 true
+Bela, 2009-1-9
+/Belal_Smooth_Walls.png
+16 16 false
+Darkond210, 2010-3-6
+/DarkondDigsDeeper_16x16.png
+16 16 true
+LordZorinthrox, 2009-7-20
+/DwarfletterGothic.png
+16 16 false
+Flying Mag, 2008-4-12
+/Flying_Mage_square_16x16.png
+16 16 false
+DrD_AVE, 2010-Jun-17
+/Gold_plated_16x16_v2.png
+16 16 true
+DrD_AVE, 2010-Apr-02
+/Gold-plated-bmp-16x16.png
+16 16 false
+herman, 2010-2-6
+/Hermano.png
+16 16 false
+Isenhert, 2008-7-14
+/16x16_isenhertz_v2.png
+16 16 false
+Lemund, 2010-6-11
+/Lemunde_16x16.png
+16 16 true
+Marti, 2009-8-8
+/Martin_16x16.png
+16 16 false
+Phoebu, 2011-04-04
+/Phoebus_16x16.png
+16 16 true
+Phssthpo, 2010-03-07
+/Phssthpok_16x16.png
+16 16 true
+S, 2008-8-3
+/SL_square_16x16.png
+16 16 false
+Spreggo, 2009-2-2
+/Autonomous_Font.png
+16 16 false
+Dvorovi, 2010-10-8
+/Synergy.png
+16 16 true
+The-Moo, 2008-3-24
+/Moons_square_16x16.png
+16 16 false
+Tigre, 2009-2-22
+/tigrex3d.png
+16 16 false
+Tigre, 2009-4-10
+/tigrex3drunes.png
+16 16 false
+Timme, 2009-8-12
+/Tims_16x16.png
+16 16 false
+Lord Nightmare/Microsoft, 2008-1-27
+/Lord-Nightmare-Terminal-4x6.png
+4 6 false
+Zaratustr, 2007-10-30
+/Zaratustra_custom_4x6.png
+4 6 false
+Zaratustr, 2007-10-30
+/Zaratustra_custom_5x6.png
+5 6 false
+Thief, 2011-04-05
+/Font6x8.png
+6 8 false
+Madk, 2010-6-21
+/Curses6x9.png
+6 9 false
+Bjh2, 2013-11-24
+/Bedstead-10-df.png
+6 10 false
+Andu, 2011-05-03
+/Andux_cp866ish.png
+8 12 false
+Andu, 2012-08-07
+/Andux_sleipnir_8x12_tf.png
+8 12 false
+Coaldiamon, 2010-6-18
+/DF+Tileset.png
+8 12 false
+Kein, 2008-8-9
+/Kein_640x300.png
+8 12 false
+Plac1, 2008-3-13
+/Plac1d_640x300tileset.png
+8 12 false
+Taritus, 2009-03-23
+/Curses 640x300diag.png
+8 12 false
+Lord Nightmare/IBM, 2007-10-30
+/MDA8x14.png
+8 14 false
+Lord Nightmare/IBM, 2007-10-30
+/EGA8x14.png
+8 14 true
+Tae/IBM, 2009-9-06
+/CP850.png
+8 14 false
+Zaratustr, 2007-10-30
+/Zaratustra_megazeux2.png
+8 14 false
+Lord Nightmare/Microsoft, 2007-12-20
+/Lord_Nightmare-Fixedsys-02.png
+8 15 false
+Lord Nightmare/IBM?, 2007-10-30
+/VGA8x16.png
+8 16 false
+Lord Nightmare/Microsoft, 2007-12-20
+/Lord_Nightmare-Fixedsys-03.png
+8 16 false
+Xenomorp, 2008-8-9
+/Acorntileset.png
+8 16 false
+Nobbin, 2011-03-20
+/Yoshis_island.png
+9 12 true
+Lord Nightmare/IBM, 2007-10-30
+/MDA9x14.png
+9 14 false
+Lord Nightmare/IBM, 2007-10-30
+/EGA9x14.png
+9 14 false
+Quietust/IBM?, 2009-7-24
+/VGA9x16.png
+9 16 false
+Chinkeeyon, 2009-6-11
+/Curses_800x600_shade.png
+10 12 false
+Eagle of Fir, 2007-10-30
+/eofshaded800x600pb9_f64ded.png
+10 12 false
+Sergius, 2007-10-30
+/Sleroux_800x300.png
+10 12 false
+Vidume, 2013-01-31
+/nice_curses_10x12.png
+10 12 true
+UncleSporky, 2007-10-30
+/UncleSporky_curses_800x600.png
+10 12 false
+Zaratustr, 2007-10-30
+/Zaratustra_custom800x300ca3.png
+10 12 false
+Lord Nightmare, 2007-12-23
+/Lord_Nightmare_Freehand_10x16.png
+10 16 false
+Lord Nightmare, 2008-3-28
+/Lord_Nightmare_Freehand^2_10x16.png
+10 16 false
+Lord Nightmare/Victor-Sirius, 2007-12-19
+/Vintl01.png
+10 16 false
+Bjh2, 2013-11-24
+/Bedstead-20-df.png
+12 20 false
+MasterShizzl, 2012-12-10
+/Shizzle_1280x500.png
+16 20 true
+InquisitorSatur, 2008-2-28
+/MRC_1280x600.png
+16 24 true
+Lumin, 2007-10-30
+/Lumin_Graphical_1280x800.png
+16 32 false
+Herrbdog, 2007-10-30
+/Curses_24pt_cleartype_ThomModifications.png
+20 32 false
+Shaj, 2008-3-27
+/TerminusAliased_handedit_gal.png
+20 32 false
+Shaj, 2008-5-19
+/Terminus24.png
+24 32 false
