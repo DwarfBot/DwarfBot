@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DwarfBotHTTP</title>
+    <link rel="stylesheet" type="text/css" href="/style.css">
+    <meta name="viewport" content="user-scalable=yes,width=device-width" />
+    <script>session = "${session}";</script>
+    <script src="/decodingstatus.js"></script>
+</head>
+<body onload="startStatusUpdates()">
+#include("header.vm")
+<div class="content-container">
+    <p>Image uploaded successfully!</p>
+    <img src="/${session}/uploadedimage.png" class="uploaded-display">
+    <div id="decodingstatus-container">
+        <!-- Filled by JavaScript -->
+    </div>
+</div>
+</body>
+</html>

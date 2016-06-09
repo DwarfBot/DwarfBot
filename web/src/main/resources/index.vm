@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DwarfBotHTTP</title>
+    <link rel="stylesheet" type="text/css" href="/style.css">
+    <meta name="viewport" content="user-scalable=yes,width=device-width" />
+</head>
+<body>
+#include("header.vm")
+<div class="content-container">
+    <p>A website for converting Dwarf Fortress screenshots from one tileset to another.</p>
+    <p><i>Note: This does not always work. There is an error rate of about 5% at detecting the tileset.</i></p>
+    <br/>
+    <div style="border: 2px dashed grey;">
+        <p><b>Select the image you wish to convert below:</b></p>
+        <form method="post" enctype="multipart/form-data" action="/upload">
+            <input type="file" name="to_convert" style="background: none repeat scroll 0% 0% whitesmoke;">
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <input type="submit" value="Convert image" style="width: 30%;">
+        </form>
+    </div>
+    <br/>
+    <p>Demo image:</p>
+    <img src="/demo-tilesets.png" class="demo-display">
+</div>
+</body>
+</html>

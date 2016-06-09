@@ -1,0 +1,26 @@
+plugins {
+    id 'java'
+    id 'eclipse'
+    id 'idea'
+}
+
+sourceCompatibility = 1.7
+
+repositories {
+    jcenter()
+    maven { url "https://jitpack.io" }
+}
+
+dependencies {
+    compile 'com.github.choco31415:JavaMediawikiBot:master-SNAPSHOT'
+    compile 'org.slf4j:slf4j-api:1.7.21'
+    testCompile 'junit:junit:4.+'
+}
+
+
+test {
+    testLogging {
+        exceptionFormat "full" // default is "short"
+    }
+    maxHeapSize = '2048m'
+}

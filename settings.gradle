@@ -1,2 +1,7 @@
-include ':JavaMediawikiBot'
+include ':api'
 
+include ':android'
+include ':cli'
+include ':gui'
+
+include ':web'

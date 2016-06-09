@@ -190,5 +190,4 @@ gradle-app.setting
 
 .idea/
 TestRunner/
-Resources/
-Export/
+Exported/

@@ -1,16 +1,20 @@
 package Code;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.logging.Level;
 
 /**
  * Created by shafe on 5/26/2016.
  */
 public class ImageReader {
 	private static String MAGIC_WORD = "@resources/";
+	private static Logger logger = LoggerFactory.getLogger(ImageReader.class);
+
 	public static BufferedImage loadImageFromDisk(String path) {
 		BufferedImage image = null;
 
@@ -22,7 +26,7 @@ public class ImageReader {
 			try {
 				image = ImageIO.read(new File(path));
 			} catch (IOException e) {
-				Main.logger.log(Level.SEVERE, "Error reading image from disk");
+				logger.error("Error reading image from disk");
 				e.printStackTrace();
 			}
 		}
@@ -33,9 +37,9 @@ public class ImageReader {
 	public static BufferedImage loadImageFromResources(String path) {
 		BufferedImage image = null;
 		try {
-			image = ImageIO.read(Main.class.getResource(path));
+			image = ImageIO.read(ImageReader.class.getResource(path));
 		} catch (IOException e) {
-			Main.logger.log(Level.SEVERE, "Error reading image from resources");
+			logger.error("Error reading image from resources");
 			e.printStackTrace();
 		}
 
@@ -50,11 +54,11 @@ public class ImageReader {
 				image = ImageIO.read(file);
 			}
 			else {
-				Main.logger.log(Level.WARNING, "Input image not found.  Falling back to \"Jar/" + fallbackFromResources);
-				image = ImageIO.read(Main.class.getResource("/" + fallbackFromResources));
+				logger.warn("Input image not found.  Falling back to \"Jar/" + fallbackFromResources);
+				image = ImageIO.read(ImageReader.class.getResource("/" + fallbackFromResources));
 			}
 		} catch (IOException e) {
-			Main.logger.log(Level.SEVERE, "Error reading image with fallback");
+			logger.error("Error reading image with fallback");
 			e.printStackTrace();
 		}
 

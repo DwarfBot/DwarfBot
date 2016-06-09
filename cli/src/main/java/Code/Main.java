@@ -1,5 +1,15 @@
 package Code;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.slf4j.LoggerFactory;
 
 import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
@@ -8,22 +18,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -39,21 +33,9 @@ import java.util.logging.Logger;
  */
 
 public class Main {
-
-	/**
-	 * The name of the logger
-	 * Logging levels are: - SEVERE (fatal errors)
-	 *                     - WARNING
-	 *                     - INFO (algorithm progress)
-	 *                     - CONFIG
-	 *                     - FINE (percentages)
-	 *                     - FINER (thread creation)
-	 *                     - FINEST
-	 */
-	public static final String LOGGER_NAME = "Code";
 	
 	/** The logger for everything to use. */
-	public static Logger logger;
+	public static Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Main.class);
 
 	/** The location of the image to be converted. */
 	private static String imageImportPath;
@@ -64,7 +46,6 @@ public class Main {
 	/** Changes parsing slightly for making artistic DF pieces. */
 	private static boolean artistic;
 
-	private static ConsoleHandler handler;
 
 	/**
 	 * Run all this beautiful code...
@@ -82,8 +63,6 @@ public class Main {
 		//113 - Lemunde, uses alpha, good for rendering, uses altered RAWS
 		//115 - Phoebus, uses alpha, uses altered RAWS
 		//119 - Synergy, uses alpha, uses altered RAWS
-
-		setupLogger();
 
 		Options options = new Options();
 		options.addOption(Option.builder("l")
@@ -152,14 +131,14 @@ public class Main {
 		try {
 			line = parser.parse(options, args);
 		} catch (ParseException e) {
-			logger.log(Level.SEVERE, "Parsing failed.  Reason: " + e.getMessage());
+			logger.error("Parsing failed.  Reason: ", e.getMessage());
 			System.exit(1);
 		}
 		try {
-			Level logLevel = Level.parse(line.getOptionValue("log-level", "FINE"));
-			handler.setLevel(logLevel);
+			Level logLevel = Level.valueOf(line.getOptionValue("log-level", "INFO"));
+			logger.setLevel(logLevel);
 		} catch (IllegalArgumentException e) {
-			logger.log(Level.SEVERE, "Failed to parse log level. Check the help for allowed values.");
+			logger.error("Failed to parse log level. Check the help for allowed values.");
 		}
 		artistic = Boolean.valueOf(line.getOptionValue("a", "false"));
 
@@ -194,19 +173,10 @@ public class Main {
 			try {
 				convertImage(importPath, alreadyDecoded, Integer.parseInt(line.getOptionValue("t", "0")));
 			} catch (NumberFormatException e) {
-				logger.log(Level.SEVERE, "ID is not an integer.  Reason: " + e.getMessage());
+				logger.error("ID is not an integer.  Reason: ", e.getMessage());
 				System.exit(1);
 			}
 		}
-	}
-
-	public static void setupLogger() {
-		logger = Logger.getLogger(Main.LOGGER_NAME);
-		logger.setLevel(Level.FINEST); // The Levels will be limited by the handler, not by logger.
-		logger.setUseParentHandlers(false); // Don't accidentally double up messages with another handler.
-		handler = new ConsoleHandler();
-		handler.setLevel(Level.FINE);
-		logger.addHandler(handler);
 	}
 
 	/**
@@ -283,7 +253,7 @@ public class Main {
 		) {
 			objectOutputStream.writeObject(decodedImage);
 		} catch (IOException e) {
-			Logger.getLogger(LOGGER_NAME).log(Level.SEVERE, "Could not write the DecodedImage.");
+			logger.error("Could not write the DecodedImage.");
 			throw new Error(e);
 		}
 	}
@@ -297,10 +267,10 @@ public class Main {
 			) {
 				decodedImage = (DecodedImage)objectInputStream.readObject();
 			} catch (IOException e) {
-				Logger.getLogger(LOGGER_NAME).log(Level.SEVERE, "Could not read import file.");
+				logger.error("Could not read import file.");
 				throw new Error(e);
 			} catch (ClassNotFoundException e) {
-				Logger.getLogger(LOGGER_NAME).log(Level.SEVERE, "Could not find DecodedImage class. " +
+				logger.error("Could not find DecodedImage class. " +
 						"This should not happen unless you are messing with the code...");
 				throw new Error(e);
 			}

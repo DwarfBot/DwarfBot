@@ -1,0 +1,27 @@
+plugins {
+    id 'java'
+    id 'eclipse'
+    id 'idea'
+    id 'application'
+    id "com.github.johnrengelman.shadow" version "1.2.3"
+}
+
+sourceCompatibility = 1.7
+mainClassName = "Code.MainGUI"
+
+repositories {
+    jcenter()
+    maven { url "https://jitpack.io" }
+}
+
+dependencies {
+    compile project(':api')
+    testCompile 'junit:junit:4.+'
+}
+
+test {
+    testLogging {
+        exceptionFormat "full" // default is "short"
+    }
+    maxHeapSize = '2048m'
+}

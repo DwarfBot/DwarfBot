@@ -1,0 +1,12 @@
+<div class="header">
+    <div class="header-container">
+        <a href="/" class="header-link"><img src="/icon64.png" class="header-icon"></a>
+        <a href="/" class="header-link"><span class="header-title">DwarfBotHTTP</span></a><br>
+        <span class="header-github">
+            On GitHub:
+            <a href="https://github.com/jacobsims/DwarfBotHTTP">DwarfBotHTTP (web version)</a> |
+            <a href="https://github.com/jacobsims/DwarfBot">DwarfBot (core)</a>
+        </span>
+        <div class="clear"></div>
+    </div>
+</div>

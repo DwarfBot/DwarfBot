@@ -1,5 +1,8 @@
 package Code;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -28,6 +31,7 @@ public class TilesetFitter {
 	private int seedx;
 	private int seedy;
 	private AtomicInteger numTilesetChecksComplete;
+	private static Logger logger = LoggerFactory.getLogger(TilesetFitter.class);
 
 	public TilesetFitter(ArrayList<Tileset> _tilesets, boolean _artistic) {
 		tilesets = _tilesets;
@@ -126,8 +130,7 @@ public class TilesetFitter {
 				}
 			}
 		}
-
-		Main.logger.log(Level.FINE, "Seed: " + seedx + "," + seedy);
+		logger.info("Seed: {},{}", seedx, seedy);
 	}
 	
 	public DecodedImage decodeImage() {
@@ -136,9 +139,9 @@ public class TilesetFitter {
 		//What tileset is the image using?
 		TilesetDetected detected = extractTileset();
 
-		Main.logger.log(Level.INFO, "Extraction time: " + (System.currentTimeMillis() - timeBeforeExtraction));
+		logger.info("Extraction time: {}", (System.currentTimeMillis() - timeBeforeExtraction));
 
-		Main.logger.log(Level.FINE, "Seed: " + seedx + "," + seedy);
+		logger.trace("Seed: {},{}", seedx, seedy);
 		
 		//Decode the image into its tile colors and tile id's.
 		return readTiles(toConvert, detected.getBasex(), detected.getBasey(), detected.getTileset());
@@ -166,7 +169,7 @@ public class TilesetFitter {
 		for (int i = 0; i < numThreads; i++) {
 			int index = Math.min(numTilesetsToCheck - 1, i * typicalLength);
 			int length = Math.max(0, Math.min(numTilesetsToCheck - index, typicalLength));
-			Main.logger.log(Level.FINER, "Creating thread with index " + index + ", length " + length);
+			logger.trace("Creating thread with index {}, length {}", index, length);
 			futures.add(pool.submit(threadCallableForTilesetRange(index, length)));
 		}
 		pool.shutdown(); // This line means it will stop accepting new threads; it will not terminate existing ones
@@ -174,12 +177,12 @@ public class TilesetFitter {
 		// Give progress information.
 		try {
 			do {
-				Main.logger.log(Level.FINE, "Tileset checks " + 100.0 * numTilesetChecksComplete.get() / numTilesetsToCheck + "% complete.");
+				logger.info("Tileset checks {}% complete.", 100.0 * numTilesetChecksComplete.get() / numTilesetsToCheck);
 			} while (!pool.awaitTermination(5, TimeUnit.SECONDS));
 		} catch (InterruptedException ie) {
 			// We can safely ignore this and move on to the next code block, which will handle the error.
 		}
-		Main.logger.log(Level.INFO, "Tileset checks now finished.");
+		logger.info("Tileset checks now finished.");
 
 		for (Future<ArrayList<TilesetDetected>> future : futures) {
 			ArrayList<TilesetDetected> list;
@@ -243,13 +246,13 @@ public class TilesetFitter {
 		
 		ArrayList<Integer> areasConverted = new ArrayList<Integer>();
 		if (collisions.size() > 1) {
-			Main.logger.log(Level.FINE, "Resolving tileset collisions. Found " + collisions.size() + " collisions.");
+			logger.info("Resolving tileset collisions. Found {} collisions.", collisions.size());
 			//We will try and fix the collisions.
 			//Data handling.
 			areaConvertedBest = 0.0;
 			for (int i = 0; i < collisions.size(); i++) {
 				if (i != 0) {
-					Main.logger.log(Level.FINE, "Resolving collision between tileset id's: " + bestTilesetMatch + " and " + collisions.get(i));
+					logger.info("Resolving collision between tileset id's: {} and {}", bestTilesetMatch ,collisions.get(i));
 				}
 				
 				//Read in a new tileset.
@@ -280,7 +283,7 @@ public class TilesetFitter {
 		
 		Tileset best = tilesets.get(bestTilesetMatch);//Extract the tiles from the image.
 		
-		Main.logger.log(Level.INFO, "Detected tileset: " + best.getImagePath());
+		logger.info("Detected tileset: {}", best.getImagePath());
 		return new TilesetDetected(basexList.get(bestTilesetMatch), baseyList.get(bestTilesetMatch), tilesets.get(bestTilesetMatch), tilesetMatchCount.get(bestTilesetMatch));
 	}
 
@@ -685,7 +688,7 @@ public class TilesetFitter {
 		for (int col = 0; col < convertTileWidth; col++) {
 			if (printInfo) {
 				if (col%10 == 0) {
-					Main.logger.log(Level.FINE, (100.0*col/convertTileWidth) + "%");//Nice to see where we are in the algorithm.
+					logger.info("{}%", (100.0*col/convertTileWidth));//Nice to see where we are in the algorithm.
 				}
 			}
 			for (int row = 0; row < convertTileHeight; row++) {
@@ -776,7 +779,7 @@ public class TilesetFitter {
 		BufferedImage tilesetImg = ImageReader.loadImageFromResources("/Tilesets" + tileset.getImagePath());//And its image.
 		int tileWidth = tileset.getTileWidth();//How wide are the tiles? Pixels
 		int tileHeight = tileset.getTileHeight();//How tall are the tiles?
-		Main.logger.log(Level.INFO, "Render to tileset: " + tileset.getAuthor() + ":" + tileset.getImagePath());//Handy.
+		logger.info("Render to tileset: {}:{}", tileset.getAuthor(), tileset.getImagePath());//Handy.
 
 		boolean tilesetUsesAlpha = tileset.usesAlpha();//Does the tileset use alpha? This affects rendering.
 		BufferedImage tileImg;
@@ -789,7 +792,7 @@ public class TilesetFitter {
 
 		for (int col = 0; col < convertTileWidth; col++) {
 			if (col%10 == 0) {
-				Main.logger.log(Level.FINE, (100.0*col/convertTileWidth) + "%");//Nice to see where we are in the algorithm.
+				logger.info("{}%",(100.0*col/convertTileWidth));//Nice to see where we are in the algorithm.
 			}
 			for (int row = 0; row < convertTileHeight; row++) {
 				Tile tile = tiles.get(col*convertTileHeight + row);
@@ -877,23 +880,12 @@ public class TilesetFitter {
 	public void incrementNumTilesetChecksComplete() {
 		numTilesetChecksComplete.incrementAndGet();
 	}
-
-	public static BufferedImage loadImage(String path) {
-		BufferedImage image = null;
-		try {
-			File f = new File(path);
-			if(f.exists() && !f.isDirectory()) {
-				image = ImageIO.read(f);
-			} else {
-				Main.logger.log(Level.SEVERE, "Image input does not exist. Quitting.");
-				System.exit(1);
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			Main.logger.log(Level.SEVERE, "Could not load an image at " + path);
-			e.printStackTrace();
-		}
-
-		return image;
+	
+	public int getSeedx() {
+		return seedx;
+	}
+	
+	public int getSeedy() {
+		return seedy;
 	}
 }

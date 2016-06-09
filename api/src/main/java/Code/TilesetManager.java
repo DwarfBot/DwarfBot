@@ -1,10 +1,13 @@
 package Code;
 
-import java.awt.Color;
 import WikiBot.ContentRep.Page;
 import WikiBot.ContentRep.PageLocation;
 import WikiBot.ContentRep.Template;
 import WikiBot.Core.GenericBot;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
@@ -14,14 +17,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.imageio.ImageIO;
 
 /**
  * 
@@ -34,6 +35,8 @@ import javax.imageio.ImageIO;
 public class TilesetManager extends GenericBot {
 	
 	private String TILESET_INFO_FILE;
+
+	private static Logger logger = LoggerFactory.getLogger(TilesetFitter.class);
 	
 	public TilesetManager() {
 		//What MediaWiki family am I browsing?
@@ -124,7 +127,7 @@ public class TilesetManager extends GenericBot {
 			String directUrl = "";
 			try {
 				directUrl = getDirectImageURL(new PageLocation(imageName, "dw"));
-				Main.logger.log(Level.FINE, "Found image at URL " + directUrl);
+				logger.info("Found image at URL " + directUrl);
 
 				BufferedImage png = null;
 				try {
@@ -142,12 +145,15 @@ public class TilesetManager extends GenericBot {
 						e.printStackTrace();
 						throw new Error("Stopping because somehow images are corrupted.", e);
 					}
+				} catch (MalformedURLException e) {
+					e.printStackTrace();
 				} catch (IOException e) {
-					Main.logger.log(Level.SEVERE, "IOError");
+					logger.error("IOError");
+					e.printStackTrace();
 				}
 			} catch (NullPointerException e) {
-				Main.logger.log(Level.SEVERE, "Error!!");
-				Main.logger.log(Level.SEVERE, new PageLocation(image.substring(2, image.length()-2), "dw").toString());
+				logger.error("NullPointer Error");
+				logger.error(new PageLocation(image.substring(2, image.length()-2), "dw").toString());
 			}
 			
 			//Add onto file output.
@@ -223,13 +229,13 @@ public class TilesetManager extends GenericBot {
 	public static void writeFile(String text, String location) {
 		PrintWriter writer = null;
 		try {
-			Logger.getLogger(Main.LOGGER_NAME).log(Level.INFO, "Writing text to file " + location);
+			logger.info("Writing text to file {}", location);
 			writer = new PrintWriter(location, "UTF-8");
 		} catch (FileNotFoundException e) {
-			Logger.getLogger(Main.LOGGER_NAME).log(Level.WARNING, "Ignoring Err1 File Not Found while writing");
+			logger.warn("Ignoring Err1 File Not Found while writing");
 			return;
 		} catch (UnsupportedEncodingException e) {
-			Logger.getLogger(Main.LOGGER_NAME).log(Level.WARNING, "Ignoring Err2 Unsupported file format while writing");
+			logger.warn("Ignoring Err2 Unsupported file format while writing");
 			return;
 		}
 		writer.write(text);
@@ -268,7 +274,7 @@ public class TilesetManager extends GenericBot {
 			return lines;
 			
 		} catch (IOException e) {
-			Main.logger.log(Level.SEVERE, "Error reading in file as list.");
+			logger.error("Error reading in file as list.");
 		}
 		return null;
 	}
