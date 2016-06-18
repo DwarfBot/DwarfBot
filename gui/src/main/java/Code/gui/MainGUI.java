@@ -1,4 +1,4 @@
-package Code;
+package Code.gui;
 
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
@@ -20,7 +20,7 @@ import javax.swing.SpringLayout;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
-public class Main extends JFrame {
+public class MainGUI extends JFrame {
 
 	private static final long serialVersionUID = -4318422896543101320L;
 	
@@ -55,7 +55,7 @@ public class Main extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Main frame = new Main();
+					MainGUI frame = new MainGUI();
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -67,7 +67,7 @@ public class Main extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public Main() {
+	public MainGUI() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		
