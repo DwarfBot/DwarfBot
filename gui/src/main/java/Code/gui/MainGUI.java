@@ -1,12 +1,14 @@
-package Code;
+package Code.gui;
 
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -19,8 +21,9 @@ import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
-public class Main extends JFrame {
+public class MainGUI extends JFrame {
 
 	private static final long serialVersionUID = -4318422896543101320L;
 	
@@ -55,7 +58,7 @@ public class Main extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Main frame = new Main();
+					MainGUI frame = new MainGUI();
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -67,7 +70,7 @@ public class Main extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public Main() {
+	public MainGUI() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		
@@ -119,7 +122,13 @@ public class Main extends JFrame {
 		JButton btnLoadImage = new JButton("Load Image");
 		btnLoadImage.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				//TODO Choose file and add to fileInputField
+				JFileChooser chooser = new JFileChooser();
+				FileNameExtensionFilter filter = new FileNameExtensionFilter("Supported image types", ImageIO.getReaderFormatNames());
+				chooser.setFileFilter(filter);
+				int returnCode = chooser.showOpenDialog(contentPane);
+				if (returnCode == JFileChooser.APPROVE_OPTION) {
+					fileInputField.setText(chooser.getSelectedFile().getAbsolutePath());
+				}
 			}
 		});
 		splitPane.setLeftComponent(btnLoadImage);
