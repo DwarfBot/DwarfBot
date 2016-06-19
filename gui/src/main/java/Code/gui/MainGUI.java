@@ -5,8 +5,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -19,6 +21,7 @@ import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class MainGUI extends JFrame {
 
@@ -119,7 +122,13 @@ public class MainGUI extends JFrame {
 		JButton btnLoadImage = new JButton("Load Image");
 		btnLoadImage.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				//TODO Choose file and add to fileInputField
+				JFileChooser chooser = new JFileChooser();
+				FileNameExtensionFilter filter = new FileNameExtensionFilter("Supported image types", ImageIO.getReaderFormatNames());
+				chooser.setFileFilter(filter);
+				int returnCode = chooser.showOpenDialog(contentPane);
+				if (returnCode == JFileChooser.APPROVE_OPTION) {
+					fileInputField.setText(chooser.getSelectedFile().getAbsolutePath());
+				}
 			}
 		});
 		splitPane.setLeftComponent(btnLoadImage);
