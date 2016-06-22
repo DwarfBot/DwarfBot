@@ -7,7 +7,7 @@ plugins {
 }
 
 sourceCompatibility = 1.7
-mainClassName = "Code.MainGUI"
+mainClassName = "Code.gui.MainGUI"
 
 repositories {
     jcenter()
