@@ -1,4 +1,4 @@
-package dwarfbothttp;
+package io.github.dwarfbot.web;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;

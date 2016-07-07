@@ -1,15 +1,14 @@
-package dwarfbothttp;
+package io.github.dwarfbot.web;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
-import java.util.logging.Level;
 import javax.imageio.ImageIO;
 import javax.naming.ConfigurationException;
 
-import Code.Tileset;
+import io.github.dwarfbot.api.Tileset;
 import spark.ModelAndView;
 import spark.Request;
 import spark.Response;

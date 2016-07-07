@@ -1,4 +1,4 @@
-package Code;
+package io.github.dwarfbot.api;
 
 import java.util.ArrayList;
 import java.util.Random;

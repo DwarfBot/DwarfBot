@@ -1,4 +1,4 @@
-package dwarfbothttp;
+package io.github.dwarfbot.web;
 
 /**
  * @author Jacob Sims

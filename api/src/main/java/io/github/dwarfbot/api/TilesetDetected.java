@@ -1,4 +1,4 @@
-package Code;
+package io.github.dwarfbot.api;
 
 public class TilesetDetected {
 	

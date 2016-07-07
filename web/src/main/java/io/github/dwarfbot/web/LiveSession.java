@@ -1,9 +1,9 @@
-package dwarfbothttp;
+package io.github.dwarfbot.web;
 
-import Code.DecodedImage;
-import Code.Tileset;
-import Code.TilesetDetected;
-import Code.TilesetFitter;
+import io.github.dwarfbot.api.DecodedImage;
+import io.github.dwarfbot.api.Tileset;
+import io.github.dwarfbot.api.TilesetDetected;
+import io.github.dwarfbot.api.TilesetFitter;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;

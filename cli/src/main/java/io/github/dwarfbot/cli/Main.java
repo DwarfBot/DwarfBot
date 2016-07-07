@@ -1,7 +1,12 @@
-package Code;
+package io.github.dwarfbot.cli;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import io.github.dwarfbot.api.DecodedImage;
+import io.github.dwarfbot.api.ImageReader;
+import io.github.dwarfbot.api.Tileset;
+import io.github.dwarfbot.api.TilesetFitter;
+import io.github.dwarfbot.api.TilesetManager;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;

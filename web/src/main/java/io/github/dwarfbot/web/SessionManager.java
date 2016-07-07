@@ -1,4 +1,4 @@
-package dwarfbothttp;
+package io.github.dwarfbot.web;
 
 import javax.xml.bind.DatatypeConverter;
 import java.nio.charset.Charset;

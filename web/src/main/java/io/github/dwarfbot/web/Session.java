@@ -1,7 +1,7 @@
-package dwarfbothttp;
+package io.github.dwarfbot.web;
 
-import Code.Tileset;
-import Code.TilesetManager;
+import io.github.dwarfbot.api.Tileset;
+import io.github.dwarfbot.api.TilesetManager;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import spark.Request;

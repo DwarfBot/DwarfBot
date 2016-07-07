@@ -1,4 +1,4 @@
-package Code;
+package io.github.dwarfbot.api;
 
 import WikiBot.ContentRep.Page;
 import WikiBot.ContentRep.PageLocation;

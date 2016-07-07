@@ -1,4 +1,4 @@
-package Code;
+package io.github.dwarfbot.api;
 
 import java.io.Serializable;
 import java.util.ArrayList;

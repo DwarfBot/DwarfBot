@@ -1,7 +1,6 @@
-package Code;
+package io.github.dwarfbot.api;
 
 import javax.imageio.ImageIO;
-import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.Serializable;
@@ -84,16 +83,8 @@ public class Tileset implements Serializable {
 
 	@Override
 	public String toString() {
-		String toReturn = "";
-		
-		toReturn += "Tileset creator: " + author;
-		if (nickname != null) {
-			toReturn += " (nickname: " + nickname + ")";
-		}
-		toReturn += "\nCreated on: " + dateCreated;
-		toReturn += "\nImage path: " + imgPath;
-		toReturn += "\nTile size: " + tileWidth + "x" + tileHeight;
-		
-		return toReturn;
+		return "Tileset Name : " + imgPath
+				+ " - Created By: " + author
+				+ " - Tile size: " + tileWidth + "x" + tileHeight;
 	}
 }

@@ -1,7 +1,7 @@
-package dwarfbothttp;
+package io.github.dwarfbot.web;
 
-import Code.DecodedImage;
-import Code.TilesetDetected;
+import io.github.dwarfbot.api.DecodedImage;
+import io.github.dwarfbot.api.TilesetDetected;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 

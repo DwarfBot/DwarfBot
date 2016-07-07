@@ -1,15 +1,17 @@
-package Code;
+package io.github.dwarfbot.cli;
 
-import org.junit.After;
+import io.github.dwarfbot.api.DecodedImage;
+import io.github.dwarfbot.api.ImageReader;
+import io.github.dwarfbot.api.Tileset;
+import io.github.dwarfbot.api.TilesetFitter;
+import io.github.dwarfbot.api.TilesetManager;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
