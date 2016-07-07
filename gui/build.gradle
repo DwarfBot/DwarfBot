@@ -9,6 +9,18 @@ plugins {
 sourceCompatibility = 1.7
 mainClassName = "Code.gui.MainGUI"
 
+idea {
+    module {
+        downloadJavadoc = true
+    }
+}
+
+eclipse {
+    classpath {
+        downloadJavadoc = true
+    }
+}
+
 repositories {
     jcenter()
     maven { url "https://jitpack.io" }

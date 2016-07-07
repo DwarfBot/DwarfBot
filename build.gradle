@@ -1,0 +1,21 @@
+apply {
+    plugin 'java'
+    plugin 'idea'
+    plugin 'eclipse'
+}
+
+idea {
+    module {
+        downloadJavadoc = true
+    }
+}
+
+eclipse {
+    classpath {
+        downloadJavadoc = true
+    }
+}
+
+repositories {
+    jcenter()
+}
