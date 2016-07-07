@@ -83,16 +83,8 @@ public class Tileset implements Serializable {
 
 	@Override
 	public String toString() {
-		String toReturn = "";
-		
-		toReturn += "Tileset creator: " + author;
-		if (nickname != null) {
-			toReturn += " (nickname: " + nickname + ")";
-		}
-		toReturn += "\nCreated on: " + dateCreated;
-		toReturn += "\nImage path: " + imgPath;
-		toReturn += "\nTile size: " + tileWidth + "x" + tileHeight;
-		
-		return toReturn;
+		return "Tileset Name : " + imgPath
+				+ " - Created By: " + author
+				+ " - Tile size: " + tileWidth + "x" + tileHeight;
 	}
 }
