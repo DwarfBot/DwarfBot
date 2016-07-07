@@ -7,7 +7,7 @@ plugins {
 }
 
 sourceCompatibility = 1.7
-mainClassName = "Code.Main"
+mainClassName = "io.github.dwarfbot.cli.Main"
 
 idea {
     module {
