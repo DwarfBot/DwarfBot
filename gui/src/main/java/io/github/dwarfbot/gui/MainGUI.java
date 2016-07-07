@@ -69,6 +69,7 @@ public class MainGUI extends JFrame {
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
+		setTitle("DwarfBot");
 		
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
