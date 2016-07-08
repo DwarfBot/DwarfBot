@@ -39,9 +39,7 @@ public class TilesetManager extends GenericBot {
 	private static Logger logger = LoggerFactory.getLogger(TilesetFitter.class);
 	
 	public TilesetManager() {
-		//What MediaWiki family am I browsing?
-		String family = "DwarfFortress";
-		mdm.readFamily(family, 0);
+		super("DwarfFortress", "dw");
 		revisionDepth = 0;
 
 		TILESET_INFO_FILE = "/tileset.txt";
