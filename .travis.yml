@@ -1,14 +1,17 @@
 language: java
 sudo: false
 jdk:
-  - oraclejdk8
+- oraclejdk8
 env:
   global:
-    - GRADLE_OPTS=-Xmx2048m
-script: ./gradlew build
+  - GRADLE_OPTS=-Xmx2048m
+script: "./gradlew build"
 before_cache:
-  - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
+- rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
 cache:
   directories:
-    - $HOME/.gradle/caches/
-    - $HOME/.gradle/wrapper/
+  - "$HOME/.gradle/caches/"
+  - "$HOME/.gradle/wrapper/"
+notifications:
+  slack:
+    secure: 5cA8rfYlEiJZsADg4Y4nvB3oSlUVB9UfaHtn9hZxnvpJ8y/eGiLri0flq9MUwjZIEtWP92f0qdruwiNDr2ldN1wbjxfJyRSNcRVXfTfJ4VmiR6X4nIyK1si/GLJ0trzyB5TmBhLZ376Fsvag4wSx6KH/UZt8Eo+0225akhIBbdSAOTKsNzrO19sk33MX8UESkTGvqUzxZWXZTo7Ts65jaXp62h1EVVxV+L5PFxPT6BKrGKBCTcZWIft+i8914c2gy+cypKkE7G/KJVbg93BximzvnkPuLTd1wVcVcSQQvbYHHLrToG0QdySliuimqRVUQ5+bBgvzBxdrys/Z7AsKJemAfyxXu0nhPyorBXFdOml9u/jmB8SAM6vg0Ycr33InKopeYdR7NVTyeYkkP3VFHhprSdr0WXsKnA+8HN4XwJteLV9/H3I2o+g6bveGB/iIA8YN8y4Lv4u49rvlB/BM+d2J8LVsnmMVpQz3NSRp+34Zpd2geY7VkEgdHHZuUCgFRViQ2g0JJ0mepS3axrZfebfA8QTx0d3Sv3LYbzv/E+yzKe+3LEnbIsbxtyJAbQ4Ljlp9ajpTiG0NQ5//D8P/taPCPYLzeJ8GCk3aSbwgalrgElvU2V15f2n985EK1dB/NfeJoPR+iYebBDraVi9kBdD0bqrLVavVU8T/ry9+XJo=
