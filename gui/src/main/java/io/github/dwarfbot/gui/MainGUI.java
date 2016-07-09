@@ -66,7 +66,7 @@ public class MainGUI extends JFrame {
 	 * Create the frame.
 	 */
 	public MainGUI() {
-		TilesetManager bot = new TilesetManager();
+		final TilesetManager bot = new TilesetManager();
 		ArrayList<Tileset> tilesets = bot.getTilesets();
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -172,7 +172,6 @@ public class MainGUI extends JFrame {
 					protected Void doInBackground() throws Exception {
 						System.out.println("Starting task.");
 						setProgress(0);
-						TilesetManager bot = new TilesetManager();
 						ArrayList<Tileset> tilesets = bot.getTilesets();
 						final TilesetFitter fitter = new TilesetFitter(tilesets, false);
 						
