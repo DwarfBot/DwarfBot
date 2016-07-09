@@ -10,6 +10,8 @@ import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
@@ -68,7 +70,7 @@ public class MainGUI extends JFrame {
 		ArrayList<Tileset> tilesets = bot.getTilesets();
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 450, 300);
+		setBounds(100, 100, 450, 360);
 		setTitle("DwarfBot");
 		
 		JMenuBar menuBar = new JMenuBar();
@@ -114,28 +116,6 @@ public class MainGUI extends JFrame {
 			}
 		});
 		
-		JButton btnProcessImage = new JButton("Process Image");
-		sl_contentPane.putConstraint(SpringLayout.NORTH, btnProcessImage, -1, SpringLayout.NORTH, fileInputField);
-		sl_contentPane.putConstraint(SpringLayout.WEST, btnProcessImage, 316, SpringLayout.WEST, contentPane);
-		sl_contentPane.putConstraint(SpringLayout.EAST, btnProcessImage, -5, SpringLayout.EAST, contentPane);
-		sl_contentPane.putConstraint(SpringLayout.EAST, btnLoadImage, -5, SpringLayout.WEST, btnProcessImage);
-		contentPane.add(btnProcessImage);
-		btnProcessImage.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				TilesetManager bot = new TilesetManager();
-				ArrayList<Tileset> tilesets = bot.getTilesets();
-				BufferedImage toConvert = ImageReader.loadImageFromDisk(fileInputField.getText());
-				leftImageLabel.setText("");
-				leftImageLabel.setIcon(new ImageIcon(toConvert));
-				TilesetFitter fitter = new TilesetFitter(tilesets, false);
-				fitter.loadImageForConverting(toConvert);
-				DecodedImage decoded = fitter.decodeImage();
-				fitter.exportRenderedImage(decoded, tilesetComboBox.getSelectedIndex(), "Exported/Converted.png");
-				rightImageLabel.setText("");
-				rightImageLabel.setIcon(new ImageIcon(ImageReader.loadImageFromDisk("Exported/Converted.png")));
-			}
-		});
-		
 		tilesetComboBox = new JComboBox(tilesets.toArray());
 		sl_contentPane.putConstraint(SpringLayout.NORTH, tilesetComboBox, 5, SpringLayout.SOUTH, btnLoadImage);
 		sl_contentPane.putConstraint(SpringLayout.SOUTH, tilesetComboBox, 25, SpringLayout.SOUTH, btnLoadImage);
@@ -150,7 +130,6 @@ public class MainGUI extends JFrame {
 		contentPane.add(lblSelectTitleset);
 		
 		JSplitPane splitPane = new JSplitPane();
-		sl_contentPane.putConstraint(SpringLayout.NORTH, splitPane, 11, SpringLayout.SOUTH, tilesetComboBox);
 		sl_contentPane.putConstraint(SpringLayout.WEST, splitPane, 0, SpringLayout.WEST, fileInputField);
 		sl_contentPane.putConstraint(SpringLayout.SOUTH, splitPane, 0, SpringLayout.SOUTH, contentPane);
 		sl_contentPane.putConstraint(SpringLayout.EAST, splitPane, 0, SpringLayout.EAST, contentPane);
@@ -171,5 +150,74 @@ public class MainGUI extends JFrame {
 		sl_contentPane.putConstraint(SpringLayout.EAST, rightImageLabel, -10, SpringLayout.EAST, contentPane);
 		rightImageLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		sl_contentPane.putConstraint(SpringLayout.WEST, rightImageLabel, 60, SpringLayout.EAST, leftImageLabel);
+		
+		final JButton btnProcessImage = new JButton("Process Image");
+		sl_contentPane.putConstraint(SpringLayout.NORTH, btnProcessImage, -1, SpringLayout.NORTH, fileInputField);
+		sl_contentPane.putConstraint(SpringLayout.WEST, btnProcessImage, 316, SpringLayout.WEST, contentPane);
+		sl_contentPane.putConstraint(SpringLayout.EAST, btnProcessImage, -5, SpringLayout.EAST, contentPane);
+		sl_contentPane.putConstraint(SpringLayout.EAST, btnLoadImage, -5, SpringLayout.WEST, btnProcessImage);
+		contentPane.add(btnProcessImage);
+		
+		final JProgressBar progressBar = new JProgressBar();
+		sl_contentPane.putConstraint(SpringLayout.NORTH, splitPane, 5, SpringLayout.SOUTH, progressBar);
+		sl_contentPane.putConstraint(SpringLayout.EAST, progressBar, 0, SpringLayout.EAST, btnProcessImage);
+		sl_contentPane.putConstraint(SpringLayout.NORTH, progressBar, 5, SpringLayout.SOUTH, tilesetComboBox);
+		sl_contentPane.putConstraint(SpringLayout.WEST, progressBar, 0, SpringLayout.WEST, fileInputField);
+		contentPane.add(progressBar);
+		
+		btnProcessImage.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				SwingWorker<Void, Void> task = new SwingWorker<Void, Void>() {
+					@Override
+					protected Void doInBackground() throws Exception {
+						System.out.println("Starting task.");
+						setProgress(0);
+						TilesetManager bot = new TilesetManager();
+						ArrayList<Tileset> tilesets = bot.getTilesets();
+						final TilesetFitter fitter = new TilesetFitter(tilesets, false);
+						
+						BufferedImage toConvert = ImageReader.loadImageFromDisk(fileInputField.getText());
+						leftImageLabel.setText("");
+						leftImageLabel.setIcon(new ImageIcon(toConvert));
+						System.out.println("Loop starting.");
+						Runnable process1 = new Runnable() {
+							public void run() {
+								System.out.println("Loop started");
+								while (fitter.getProgress() <= 100) {
+									setProgress((int) fitter.getProgress());
+								}
+								System.out.println("Loop done.");
+							}
+						};
+						Thread thread1 = new Thread(process1);
+						thread1.start();
+						
+						fitter.loadImageForConverting(toConvert);
+						DecodedImage decoded = fitter.decodeImage();
+						fitter.exportRenderedImage(decoded, tilesetComboBox.getSelectedIndex(), "Exported/Converted.png");
+						rightImageLabel.setText("");
+						rightImageLabel.setIcon(new ImageIcon(ImageReader.loadImageFromDisk("Exported/Converted.png")));
+						System.out.println("Ending Task.");
+						return null;
+					}
+					@Override
+					protected void done() {
+						btnProcessImage.setEnabled(true);
+					}
+				};
+				
+		        task.execute();
+		        task.addPropertyChangeListener(new PropertyChangeListener() {
+					
+					@Override
+					public void propertyChange(PropertyChangeEvent evt) {
+						if (evt.getPropertyName().equals("progress")) {
+							progressBar.setValue((int) evt.getNewValue());
+						}
+					}
+				});
+		        btnProcessImage.setEnabled(false);
+		    }
+		});
 	}
 }

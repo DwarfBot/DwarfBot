@@ -29,6 +29,7 @@ public class TilesetFitter {
 	private int seedy;
 	private AtomicInteger numTilesetChecksComplete;
 	private static Logger logger = LoggerFactory.getLogger(TilesetFitter.class);
+	private double overallProgress = 0;
 
 	public TilesetFitter(ArrayList<Tileset> _tilesets, boolean _artistic) {
 		tilesets = _tilesets;
@@ -145,6 +146,7 @@ public class TilesetFitter {
 	}
 	
 	public TilesetDetected extractTileset() throws Error {
+		overallProgress = 0;
 		ArrayList<Tileset> tilesets = getTilesets();
 		int numTilesetsToCheck = tilesets.size();//tilesets.size();//How many tilesets are we checking against?
 
@@ -174,6 +176,7 @@ public class TilesetFitter {
 		// Give progress information.
 		try {
 			do {
+				overallProgress = (100.0 * numTilesetChecksComplete.get() / numTilesetsToCheck)/2;
 				logger.info("Tileset checks {}% complete.", 100.0 * numTilesetChecksComplete.get() / numTilesetsToCheck);
 			} while (!pool.awaitTermination(5, TimeUnit.SECONDS));
 		} catch (InterruptedException ie) {
@@ -513,7 +516,6 @@ public class TilesetFitter {
 			for (int y = 0; y < tileImg.getHeight(); y++) {
 				Color sampleC = new Color(sampleImg.getRGB(x, y));//From screenshot
 				tileC = new Color(tileImg.getRGB(x, y), true);//From tileset
-
 				boolean isPink = tileC.getRed() > 250 && tileC.getGreen() < 5 && tileC.getBlue() > 250;
 				
 				if (isPink && !tilesetUsesAlpha) {
@@ -786,9 +788,10 @@ public class TilesetFitter {
 		Graphics2D g2 = output.createGraphics();
 		g2.setColor(Color.BLACK);//Fill with black. Touche.
 		g2.fill(new Rectangle(0, 0, 1000, 1000));
-
+		
 		for (int col = 0; col < convertTileWidth; col++) {
 			if (col%10 == 0) {
+				overallProgress = 50 + (100.0*col/convertTileWidth)/2;
 				logger.info("{}%",(100.0*col/convertTileWidth));//Nice to see where we are in the algorithm.
 			}
 			for (int row = 0; row < convertTileHeight; row++) {
@@ -884,5 +887,9 @@ public class TilesetFitter {
 	
 	public int getSeedy() {
 		return seedy;
+	}
+
+	public double getProgress() {
+		return overallProgress;
 	}
 }
