@@ -29,7 +29,7 @@ public class TilesetFitter {
 	private int seedy;
 	private AtomicInteger numTilesetChecksComplete;
 	private static Logger logger = LoggerFactory.getLogger(TilesetFitter.class);
-	private double overallProgress = 0;
+	private double renderColumnProgress = 0;
 
 	public TilesetFitter(ArrayList<Tileset> _tilesets, boolean _artistic) {
 		tilesets = _tilesets;
@@ -146,7 +146,6 @@ public class TilesetFitter {
 	}
 	
 	public TilesetDetected extractTileset() throws Error {
-		overallProgress = 0;
 		ArrayList<Tileset> tilesets = getTilesets();
 		int numTilesetsToCheck = tilesets.size();//tilesets.size();//How many tilesets are we checking against?
 
@@ -176,7 +175,6 @@ public class TilesetFitter {
 		// Give progress information.
 		try {
 			do {
-				overallProgress = (100.0 * numTilesetChecksComplete.get() / numTilesetsToCheck)/2;
 				logger.info("Tileset checks {}% complete.", 100.0 * numTilesetChecksComplete.get() / numTilesetsToCheck);
 			} while (!pool.awaitTermination(5, TimeUnit.SECONDS));
 		} catch (InterruptedException ie) {
@@ -791,9 +789,9 @@ public class TilesetFitter {
 		
 		for (int col = 0; col < convertTileWidth; col++) {
 			if (col%10 == 0) {
-				overallProgress = 50 + (100.0*col/convertTileWidth)/2;
 				logger.info("{}%",(100.0*col/convertTileWidth));//Nice to see where we are in the algorithm.
 			}
+			renderColumnProgress = 100.0*col/convertTileWidth;
 			for (int row = 0; row < convertTileHeight; row++) {
 				Tile tile = tiles.get(col*convertTileHeight + row);
 
@@ -819,6 +817,9 @@ public class TilesetFitter {
 		}
 
 		g2.dispose();
+
+		renderColumnProgress = 100;
+
 		return output;
 	}
 	
@@ -890,6 +891,13 @@ public class TilesetFitter {
 	}
 
 	public double getProgress() {
-		return overallProgress;
+		if (numTilesetChecksComplete == null || tilesets == null) {
+			return 0;
+		}
+		if (numTilesetChecksComplete.get() != tilesets.size()) {
+			return 100.0 * numTilesetChecksComplete.get() / tilesets.size() / 2;
+		} else {
+			return 50 + renderColumnProgress / 2;
+		}
 	}
 }

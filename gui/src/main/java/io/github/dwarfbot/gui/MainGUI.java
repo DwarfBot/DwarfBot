@@ -182,9 +182,16 @@ public class MainGUI extends JFrame {
 						Runnable process1 = new Runnable() {
 							public void run() {
 								System.out.println("Loop started");
-								while (fitter.getProgress() <= 100) {
-									setProgress((int) fitter.getProgress());
-								}
+								int progress = 0;
+								do {
+									try {
+										Thread.sleep(50);
+									} catch (InterruptedException e) {
+										// continue loop
+									}
+									progress = (int)fitter.getProgress();
+									setProgress(progress);
+								} while (progress < 100);
 								System.out.println("Loop done.");
 							}
 						};
