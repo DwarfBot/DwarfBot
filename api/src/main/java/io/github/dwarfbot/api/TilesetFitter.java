@@ -29,6 +29,8 @@ public class TilesetFitter {
 	private int seedy;
 	private AtomicInteger numTilesetChecksComplete;
 	private static Logger logger = LoggerFactory.getLogger(TilesetFitter.class);
+	private double renderColumnProgress = 0;
+	public static final int PROGRESS_PROPORTION_DETECTION = 80;
 
 	public TilesetFitter(ArrayList<Tileset> _tilesets, boolean _artistic) {
 		tilesets = _tilesets;
@@ -513,7 +515,6 @@ public class TilesetFitter {
 			for (int y = 0; y < tileImg.getHeight(); y++) {
 				Color sampleC = new Color(sampleImg.getRGB(x, y));//From screenshot
 				tileC = new Color(tileImg.getRGB(x, y), true);//From tileset
-
 				boolean isPink = tileC.getRed() > 250 && tileC.getGreen() < 5 && tileC.getBlue() > 250;
 				
 				if (isPink && !tilesetUsesAlpha) {
@@ -786,11 +787,12 @@ public class TilesetFitter {
 		Graphics2D g2 = output.createGraphics();
 		g2.setColor(Color.BLACK);//Fill with black. Touche.
 		g2.fill(new Rectangle(0, 0, 1000, 1000));
-
+		
 		for (int col = 0; col < convertTileWidth; col++) {
 			if (col%10 == 0) {
 				logger.info("{}%",(100.0*col/convertTileWidth));//Nice to see where we are in the algorithm.
 			}
+			renderColumnProgress = 100.0*col/convertTileWidth;
 			for (int row = 0; row < convertTileHeight; row++) {
 				Tile tile = tiles.get(col*convertTileHeight + row);
 
@@ -816,6 +818,9 @@ public class TilesetFitter {
 		}
 
 		g2.dispose();
+
+		renderColumnProgress = 100;
+
 		return output;
 	}
 	
@@ -884,5 +889,16 @@ public class TilesetFitter {
 	
 	public int getSeedy() {
 		return seedy;
+	}
+
+	public double getProgress() {
+		if (numTilesetChecksComplete == null || tilesets == null) {
+			return 0;
+		}
+		if (numTilesetChecksComplete.get() != tilesets.size()) {
+			return ((double)numTilesetChecksComplete.get()) / tilesets.size() * PROGRESS_PROPORTION_DETECTION;
+		} else {
+			return PROGRESS_PROPORTION_DETECTION + renderColumnProgress * (1.0 - PROGRESS_PROPORTION_DETECTION/100.0);
+		}
 	}
 }

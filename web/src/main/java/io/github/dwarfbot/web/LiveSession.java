@@ -85,15 +85,13 @@ public class LiveSession {
 	}
 
 	public String statusJson() {
-		HashMap<String, Integer> statusMap = new HashMap<>();
+		HashMap<String, Double> statusMap = new HashMap<>();
 		if (decodingFinished != null && decodingFinished.get()) {
-			statusMap.put("loadImageForConverting", 100);
-			statusMap.put("extractTileset", 100);
-			statusMap.put("readTiles", 100);
+			statusMap.put("progress", 100.0);
+		} else if (fitter != null) {
+			statusMap.put("progress", fitter.getProgress());
 		} else {
-			statusMap.put("loadImageForConverting", ((stage != null && stage.get() > 0) ? 100 : 0));
-			statusMap.put("extractTileset", 100 * fitter.getNumTilesetChecksComplete() / Session.getSupportedTilesets().size());
-			statusMap.put("readTiles", ((stage != null && stage.get() > 2) ? 100 : 0));
+			statusMap.put("progress", 0.0);
 		}
 		return gson.toJson(statusMap);
 	}
