@@ -30,6 +30,7 @@ public class TilesetFitter {
 	private AtomicInteger numTilesetChecksComplete;
 	private static Logger logger = LoggerFactory.getLogger(TilesetFitter.class);
 	private double renderColumnProgress = 0;
+	public static final int PROGRESS_PROPORTION_DETECTION = 80;
 
 	public TilesetFitter(ArrayList<Tileset> _tilesets, boolean _artistic) {
 		tilesets = _tilesets;
@@ -895,9 +896,9 @@ public class TilesetFitter {
 			return 0;
 		}
 		if (numTilesetChecksComplete.get() != tilesets.size()) {
-			return 100.0 * numTilesetChecksComplete.get() / tilesets.size() / 2;
+			return ((double)numTilesetChecksComplete.get()) / tilesets.size() * PROGRESS_PROPORTION_DETECTION;
 		} else {
-			return 50 + renderColumnProgress / 2;
+			return PROGRESS_PROPORTION_DETECTION + renderColumnProgress * (1.0 - PROGRESS_PROPORTION_DETECTION/100.0);
 		}
 	}
 }

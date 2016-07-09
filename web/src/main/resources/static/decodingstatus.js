@@ -21,14 +21,10 @@ function createParagraph(text) {
 function updatePage(j) {
     var container = document.getElementById('decodingstatus-container');
     container.innerHTML = '';
-    container.appendChild(createParagraph('Load image'));
-    container.appendChild(createProgressBar(j['loadImageForConverting']));
-    container.appendChild(createParagraph('Detect tileset'));
-    container.appendChild(createProgressBar(j['extractTileset']));
-    container.appendChild(createParagraph('Read tiles'));
-    container.appendChild(createProgressBar(j['readTiles']));
+    container.appendChild(createParagraph('Converting...'));
+    container.appendChild(createProgressBar(j['progress']));
     
-    var done = j['loadImageForConverting'] === 100 && j['extractTileset'] === 100 && j['readTiles'] === 100;
+    var done = j['progress'] === 100;
     if (done) {
         window.location.href = '/' + session + '/encodeimage';
     }
