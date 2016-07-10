@@ -202,6 +202,9 @@ public class MainGUI extends JFrame {
 		tilesetComboBox.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				if (lastDecodedImage == null) {
+					return;
+				}
 				SwingWorker<Void, Void> task = new SwingWorker<Void, Void>() {
 					@Override
 					protected Void doInBackground() throws Exception {
