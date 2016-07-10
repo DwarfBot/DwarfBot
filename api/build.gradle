@@ -24,7 +24,7 @@ repositories {
 }
 
 dependencies {
-    compile 'com.github.choco31415:JavaMediawikiBot:master-SNAPSHOT'
+    compile 'com.github.choco31415:JavaMediawikiBot:98ed483f8a68b824c5dd825fc53e53a602bf9aa5'
     compile 'org.slf4j:slf4j-api:1.7.21'
     testCompile 'junit:junit:4.+'
 }
