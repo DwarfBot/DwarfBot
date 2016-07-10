@@ -74,7 +74,7 @@ public class Tileset implements Serializable {
 		}
 		if (obj.getClass().equals(Tileset.class)) {
 			Tileset obj2 = (Tileset)obj;
-			if ((obj2.getAuthor().equalsIgnoreCase(author) && obj2.getDateCreated().equalsIgnoreCase(dateCreated)) || obj2.getNickname().equalsIgnoreCase(nickname)) {
+			if (obj2.getImagePath().equals(getImagePath())) {
 				return true;
 			}
 		}
