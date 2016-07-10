@@ -27,6 +27,10 @@ public class MainGUI extends JFrame {
 	private JTextField fileInputField;
 	private JLabel leftImageLabel;
 	private JComboBox<?> tilesetComboBox;
+	private JProgressBar progressBar;
+	private TilesetFitter fitter = null;
+	private DecodedImage lastDecodedImage;
+	private JButton btnProcessImage;
 
 	/**
 	 * @param image Imported Image
@@ -68,6 +72,7 @@ public class MainGUI extends JFrame {
 	public MainGUI() {
 		final TilesetManager bot = new TilesetManager();
 		ArrayList<Tileset> tilesets = bot.getTilesets();
+		fitter = new TilesetFitter(tilesets, false);
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 360);
@@ -100,7 +105,7 @@ public class MainGUI extends JFrame {
 		contentPane.setLayout(sl_contentPane);
 		contentPane.add(fileInputField);
 		
-		JButton btnLoadImage = new JButton("Load Image");
+		final JButton btnLoadImage = new JButton("Browse...");
 		sl_contentPane.putConstraint(SpringLayout.NORTH, btnLoadImage, -1, SpringLayout.NORTH, fileInputField);
 		sl_contentPane.putConstraint(SpringLayout.WEST, btnLoadImage, 6, SpringLayout.EAST, fileInputField);
 		contentPane.add(btnLoadImage);
@@ -151,14 +156,14 @@ public class MainGUI extends JFrame {
 		rightImageLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		sl_contentPane.putConstraint(SpringLayout.WEST, rightImageLabel, 60, SpringLayout.EAST, leftImageLabel);
 		
-		final JButton btnProcessImage = new JButton("Process Image");
+		btnProcessImage = new JButton("Process Image");
 		sl_contentPane.putConstraint(SpringLayout.NORTH, btnProcessImage, -1, SpringLayout.NORTH, fileInputField);
 		sl_contentPane.putConstraint(SpringLayout.WEST, btnProcessImage, 316, SpringLayout.WEST, contentPane);
 		sl_contentPane.putConstraint(SpringLayout.EAST, btnProcessImage, -5, SpringLayout.EAST, contentPane);
 		sl_contentPane.putConstraint(SpringLayout.EAST, btnLoadImage, -5, SpringLayout.WEST, btnProcessImage);
 		contentPane.add(btnProcessImage);
 		
-		final JProgressBar progressBar = new JProgressBar();
+		progressBar = new JProgressBar();
 		sl_contentPane.putConstraint(SpringLayout.NORTH, splitPane, 5, SpringLayout.SOUTH, progressBar);
 		sl_contentPane.putConstraint(SpringLayout.EAST, progressBar, 0, SpringLayout.EAST, btnProcessImage);
 		sl_contentPane.putConstraint(SpringLayout.NORTH, progressBar, 5, SpringLayout.SOUTH, tilesetComboBox);
@@ -170,60 +175,97 @@ public class MainGUI extends JFrame {
 				SwingWorker<Void, Void> task = new SwingWorker<Void, Void>() {
 					@Override
 					protected Void doInBackground() throws Exception {
-						System.out.println("Starting task.");
-						setProgress(0);
-						ArrayList<Tileset> tilesets = bot.getTilesets();
-						final TilesetFitter fitter = new TilesetFitter(tilesets, false);
-						
 						BufferedImage toConvert = ImageReader.loadImageFromDisk(fileInputField.getText());
 						leftImageLabel.setText("");
 						leftImageLabel.setIcon(new ImageIcon(toConvert));
-						System.out.println("Loop starting.");
-						Runnable process1 = new Runnable() {
-							public void run() {
-								System.out.println("Loop started");
-								int progress = 0;
-								do {
-									try {
-										Thread.sleep(50);
-									} catch (InterruptedException e) {
-										// continue loop
-									}
-									progress = (int)fitter.getProgress();
-									setProgress(progress);
-								} while (progress < 100);
-								System.out.println("Loop done.");
-							}
-						};
-						Thread thread1 = new Thread(process1);
-						thread1.start();
-						
+						showProgressUntilFinished();
+
 						fitter.loadImageForConverting(toConvert);
-						DecodedImage decoded = fitter.decodeImage();
-						fitter.exportRenderedImage(decoded, tilesetComboBox.getSelectedIndex(), "Exported/Converted.png");
-						rightImageLabel.setText("");
-						rightImageLabel.setIcon(new ImageIcon(ImageReader.loadImageFromDisk("Exported/Converted.png")));
-						System.out.println("Ending Task.");
+						lastDecodedImage = fitter.decodeImage();
+						renderAndShowDecodedImage(lastDecodedImage);
 						return null;
 					}
 					@Override
 					protected void done() {
 						btnProcessImage.setEnabled(true);
+						tilesetComboBox.setEnabled(true);
 					}
 				};
-				
-		        task.execute();
-		        task.addPropertyChangeListener(new PropertyChangeListener() {
-					
-					@Override
-					public void propertyChange(PropertyChangeEvent evt) {
-						if (evt.getPropertyName().equals("progress")) {
-							progressBar.setValue((int) evt.getNewValue());
-						}
-					}
-				});
+
 		        btnProcessImage.setEnabled(false);
+				tilesetComboBox.setEnabled(false);
+
+				task.execute();
 		    }
+		});
+
+		tilesetComboBox.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				SwingWorker<Void, Void> task = new SwingWorker<Void, Void>() {
+					@Override
+					protected Void doInBackground() throws Exception {
+						showProgressUntilFinished();
+						renderAndShowDecodedImage(lastDecodedImage);
+						return null;
+					}
+					@Override
+					protected void done() {
+						btnProcessImage.setEnabled(true);
+						tilesetComboBox.setEnabled(true);
+					}
+				};
+
+				tilesetComboBox.setEnabled(false);
+				btnProcessImage.setEnabled(false);
+
+				task.execute();
+			}
+		});
+	}
+
+
+	/**
+	 * Render to disk and show the render of decodedImage on screen, using the currently selected tileset.
+	 * Meant to be called from a background SwingWorker.
+	 * @param decodedImage The image to render.
+	 */
+	public void renderAndShowDecodedImage(DecodedImage decodedImage) {
+		fitter.exportRenderedImage(decodedImage, tilesetComboBox.getSelectedIndex(), "Exported/Converted.png");
+		rightImageLabel.setText("");
+		rightImageLabel.setIcon(new ImageIcon(ImageReader.loadImageFromDisk("Exported/Converted.png")));
+	}
+
+	/**
+	 * Using a background SwingWorker, show the progress of fitter (instance variable)
+	 * until it reaches 100%.
+	 */
+	public void showProgressUntilFinished() {
+		SwingWorker<Void, Void> task = new SwingWorker<Void, Void>() {
+			@Override
+			protected Void doInBackground() throws Exception {
+				setProgress(0);
+				int progress;
+				do {
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException e) {
+						// continue loop
+					}
+					progress = (int)fitter.getProgress();
+					setProgress(progress);
+				} while (progress < 100);
+				return null;
+			}
+		};
+		task.execute();
+		task.addPropertyChangeListener(new PropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				if (evt.getPropertyName().equals("progress")) {
+					progressBar.setValue((int) evt.getNewValue());
+				}
+			}
 		});
 	}
 }
