@@ -192,8 +192,8 @@ public class TilesetManager extends GenericBot {
 			String path = rawTilesetData.get(row+1);
 			String info = rawTilesetData.get(row+2);
 			
-			int firstDeliminator = info.indexOf(",");
-			int secondDeliminator = info.indexOf(" ", firstDeliminator+1);
+			int firstDeliminator = identifier.indexOf(",");
+			int secondDeliminator = identifier.indexOf(" ", firstDeliminator+2);
 			boolean hasNickname = secondDeliminator != -1;//Checks to see if there are two spaces.
 			String author = identifier.substring(0, identifier.indexOf(","));
 			String dateCreated = null;
